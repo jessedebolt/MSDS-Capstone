@@ -12,28 +12,12 @@ library(viridis)
 library(magrittr)
 library(readxl)
 library(zoo)
-```
-
-
-
-```{r import}
-# Import 2021 "Outcomes & Factors Rankings"
-CHR_OR_Out_Fact_Rank_2021 <- read_excel("~/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Country Health Rankings and Roadmaps/Oregon/2021 County Health Rankings Oregon Data - v1.xlsx", sheet = "Outcomes & Factors Rankings")
-
-# Import 2021 "Outcomes & Factors SubRankings"
-CHR_OR_Out_Fact_SubRank_2021 <- read_excel("~/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Country Health Rankings and Roadmaps/Oregon/2021 County Health Rankings Oregon Data - v1.xlsx", sheet = "Outcomes & Factors SubRankings")
-
-# Import 2021 "Ranked Measure Data"
-CHR_OR_Rank_Meas_Data_2021 <- read_excel("~/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Country Health Rankings and Roadmaps/Oregon/2021 County Health Rankings Oregon Data - v1.xlsx", sheet = "Ranked Measure Data")
-
-# Import 2021 "Additional Measure Data"
-CHR_OR_Add_Meas_Data_2021 <- read_excel("~/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Country Health Rankings and Roadmaps/Oregon/2021 County Health Rankings Oregon Data - v1.xlsx", sheet = "Outcomes & Factors Rankings")
 
 ```
 
 
 ### Import 2021 "Outcomes & Factors Rankings"
-```{r}
+```{r import}
 # Define the path to the Excel file
 path_to_excel <- "~/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Country Health Rankings and Roadmaps/Oregon/2021 County Health Rankings Oregon Data - v1.xlsx"
 
