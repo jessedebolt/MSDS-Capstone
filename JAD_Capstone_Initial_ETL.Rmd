@@ -135,3 +135,82 @@ rm(data, header_row1, header_row2, header, sheet_name, path_to_excel)
 
 ```
 
+
+# Fully automated:
+NOT: Not working
+```{r}
+# # Install required packages if not already installed
+# # if (!require("readxl")) {
+# #   install.packages("readxl")
+# # }
+# # if (!require("httr")) {
+# #   install.packages("httr")
+# # }
+# 
+# # Load required libraries
+# library(readxl)
+# library(httr)
+# 
+# # Specify the list of URLs for the .xlsx files
+# file_urls <- c(
+#   "https://www.countyhealthrankings.org/sites/default/files/media/document/2023%20County%20Health%20Rankings%20Oregon%20Data%20-%20v2.xlsx"
+# #  "https://www.countyhealthrankings.org/sites/default/files/media/document/2022%20County%20Health%20Rankings%20Oregon%20Data%20-%20v1.xlsx",
+# #  "https://www.countyhealthrankings.org/sites/default/files/media/document/2021%20County%20Health%20Rankings%20Oregon%20Data%20-%20v1.xlsx",
+# #  "https://www.countyhealthrankings.org/sites/default/files/media/document/2020%20County%20Health%20Rankings%20Oregon%20Data%20-%20v1_0.xlsx",
+# #  "https://www.countyhealthrankings.org/sites/default/files/media/document/state/downloads/2019%20County%20Health%20Rankings%20Oregon%20Data%20-%20v1_0.xls"
+# )
+# 
+# # Specify the names of the sheets that contain the tables
+# sheet_names <- c("Outcomes & Factors Rankings", "Outcomes & Factors SubRankings", "Ranked Measure Data", "Additional Measure Data")
+# 
+# # Define a function to download and extract data from a file
+# download_and_extract_data <- function(url) {
+#   # Download the .xlsx file
+#   download_file <- GET(url)
+#   
+#   # Extract the file name from the URL
+#   file_name <- basename(url)
+#   
+#   # Specify the local file path to save the downloaded file
+#   local_file <- paste0("C:/Users/jesse/Downloads/temp/", file_name)
+#   
+#   # Save the downloaded file locally
+#   writeBin(content(download_file, "raw"), local_file)
+#   
+#   # Loop through each sheet and extract the data
+#   for (sheet_name in sheet_names) {
+#     # Read in the first row (0-indexed)
+# # Read in the first row (0-indexed)
+#     header_row1 <- read_excel(local_file, sheet = sheet_name, range = "A1:CU1", col_names = FALSE)
+#     
+#     # Read in the second row
+#     header_row2 <- read_excel(local_file, sheet = sheet_name, range = "A2:CU2", col_names = FALSE)
+#     
+#     # Combine the two rows to form the header
+#     header <- paste(header_row1[1, ], header_row2[1, ], sep = "_")
+#     
+#     # Read in the rest of the data
+#     data <- read_excel(local_file, sheet = sheet_name, skip = 2, col_names = FALSE)
+#     
+#     # Assign the combined header to the data
+#     colnames(data) <- header
+#     
+#     sheet_names <- data
+#     
+# #    rm(data, header_row1, header_row2, header, sheet_name)  
+#   # Delete the downloaded file from the local system
+# #  file.remove(local_file)
+#   }
+# }
+# 
+# # Iterate through each file URL and call the function to download and extract data
+# for (file_url in file_urls) {
+#   download_and_extract_data(file_url)
+# }
+# 
+# 
+# 
+# 
+
+```
+
