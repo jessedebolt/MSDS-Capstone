@@ -1,0 +1,171 @@
+---
+title: "JAD_Capstone_CDC-UCD_EDA"
+author: "Jesse DeBolt"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Setup
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(viridis)
+library(magrittr)
+library(readxl)
+library(zoo)
+
+```
+
+
+### Load data
+```{r}
+cdc_ucd <- read.csv("C:/Users/jesse/Documents/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Data/(1) Underlying Cause of Death, 1999-2020, Oregon (no notes).csv")
+
+head(cdc_ucd)
+```
+
+
+#Exploratory Data Analysis
+
+### Determine different ubanization codes
+```{r}
+unique(cdc_ucd$X2013.Urbanization)
+
+```
+
+
+## Create Urban/Rural variable based on '2013 Urbanization'
+```{r}
+cdc_ucd$Area <- ifelse(grepl("Nonmetro", cdc_ucd$X2013.Urbanization), "Rural", "Urban")
+
+```
+
+
+## Comparison of mortality rates:
+```{r}
+# Calculate mortality rates for rural and urban areas
+rural_mortality <- sum(cdc_ucd$Deaths[cdc_ucd$Area == "Rural"])
+urban_mortality <- sum(cdc_ucd$Deaths[cdc_ucd$Area == "Urban"])
+
+# Compare mortality rates
+cat("Rural Mortality Rate:", rural_mortality, "\n")
+cat("Urban Mortality Rate:", urban_mortality, "\n")
+
+```
+
+## Visualize geographical distribution:
+```{r}
+# Mortality rates by region
+ggplot(cdc_ucd, aes(x = X2013.Urbanization)) +
+  geom_bar(stat = "count") +
+  labs(x = "Region", y = "Count", title = "Mortality Rates by Region") +
+  coord_flip()
+
+```
+
+
+
+## Explore age-specific mortality rates:
+```{r}
+# Create a subset of the data for rural and urban areas
+rural_data <- cdc_ucd[grepl("Nonmetro", cdc_ucd$`X2013.Urbanization`), ]
+urban_data <- cdc_ucd[grepl("Metro", cdc_ucd$`X2013.Urbanization`), ]
+
+# Create a function to assign age groups based on the "Ten.Year.Age.Groups" column
+assign_age_group <- function(age) {
+  if (grepl("^55-64", age)) {
+    return("55-64 years")
+  } else if (grepl("^65-74", age)) {
+    return("65-74 years")
+  } else if (grepl("^75-84", age)) {
+    return("75-84 years")
+  } else if (grepl("^85", age)) {
+    return("85+ years")
+  } else {
+    return(NA)
+  }
+}
+
+# Apply the function to create the "AgeGroup" column in the rural and urban data subsets
+rural_data$AgeGroup <- sapply(rural_data$`Ten.Year.Age.Groups`, assign_age_group)
+urban_data$AgeGroup <- sapply(urban_data$`Ten.Year.Age.Groups`, assign_age_group)
+
+# Calculate age-specific mortality rates for rural and urban areas
+rural_mortality_by_age <- aggregate(Deaths ~ AgeGroup, data = rural_data, FUN = sum)
+urban_mortality_by_age <- aggregate(Deaths ~ AgeGroup, data = urban_data, FUN = sum)
+
+# Print the results
+cat("Rural Mortality Rates by Age Group:\n")
+print(rural_mortality_by_age)
+
+cat("Urban Mortality Rates by Age Group:\n")
+print(urban_mortality_by_age)
+
+```
+
+
+## Plot age-specific mortality rates:
+```{r}
+
+# Combine rural and urban data for plotting
+combined_data <- rbind(rural_mortality_by_age, urban_mortality_by_age)
+combined_data$Area <- rep(c("Rural", "Urban"), each = nrow(rural_mortality_by_age))
+
+ggplot(combined_data, aes(x = AgeGroup, y = Deaths, fill = Area)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Age-Specific Mortality Rates by Area",
+       x = "Age Group", y = "Mortality Rate") +
+  scale_fill_manual(values = c("blue", "green")) +
+  theme_minimal()
+
+```
+
+
+## Identify leading causes of mortality:
+```{r}
+# Calculate the total deaths for each disease category in rural and urban areas
+disease_categories <- unique(cdc_ucd$Cause.of.death)
+
+rural_deaths_by_category <- aggregate(cdc_ucd$Deaths[cdc_ucd$Area == "Rural"],
+                                      by = list(cdc_ucd$Cause.of.death[cdc_ucd$Area == "Rural"]), FUN = sum)
+
+urban_deaths_by_category <- aggregate(cdc_ucd$Deaths[cdc_ucd$Area == "Urban"], 
+                                      by = list(cdc_ucd$Cause.of.death[cdc_ucd$Area == "Urban"]), 
+                                      FUN = sum)
+
+# Sort the data by total deaths in descending order
+rural_deaths_by_category <- rural_deaths_by_category[order(-rural_deaths_by_category$x), ]
+urban_deaths_by_category <- urban_deaths_by_category[order(-urban_deaths_by_category$x), ]
+
+# Print the leading causes of mortality
+print(rural_deaths_by_category)
+print(urban_deaths_by_category)
+
+```
+
+
+## 
+```{r}
+
+```
+
+
+## 
+```{r}
+
+```
+
+
+## 
+```{r}
+
+```
+
+
+## 
+```{r}
+
+```
+
+
+

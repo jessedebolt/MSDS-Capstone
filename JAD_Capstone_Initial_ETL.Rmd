@@ -136,6 +136,32 @@ rm(data, header_row1, header_row2, header, sheet_name, path_to_excel)
 ```
 
 
+### Nation Practicioners index (very large file)
+```{r}
+#npi <- read.csv("C:/Users/jesse/Documents/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/NPPES_Data_Dissemination_May_2023/npidata_pfile_20050523-20230507.csv")
+
+```
+
+
+```{r}
+#head(npi)
+
+```
+
+
+### CDC Underlying Cause of Death
+```{r}
+cdc_ucd <- read.csv("C:/Users/jesse/Documents/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Data/(1) Underlying Cause of Death, 1999-2020, Oregon (no notes).csv")
+
+head(cdc_ucd)
+```
+
+
+```{r}
+
+
+```
+
 # Fully automated:
 NOT: Not working
 ```{r}
