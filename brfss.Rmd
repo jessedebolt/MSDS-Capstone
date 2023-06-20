@@ -16,18 +16,18 @@ library(tidyverse)
 library(purrr)
 
 #Read in the data
-brfss <- read_xpt("LLCP2021.XPT")
+brfss <- read_xpt("../../LLCP2021.XPT")
 
 ```
 
 ##EDA
 ```{r}
-dim(brfss_edit)
-
 names(brfss)
 
 brfss_edit <- brfss %>% 
     select(`_STATE`, STATERE1, LADULT1, COLGSEX, LANDSEX, CADULT1, SEXVAR, GENHLTH, PHYSHLTH, POORHLTH, PRIMINSR, PERSDOC3, MEDCOST1, CHECKUP1, BPHIGH6, BPMEDS, CHOLCHK3, TOLDHI3, CHOLMED3, CVDINFR4, CVDCRHD4, CVDSTRK3, MARITAL, RENTHOM1, VETERAN3, EMPLOY1, INCOME3, WEIGHT2, HEIGHT3, SMOKE100, SMOKDAY2, USENOW3, ECIGNOW1, ALCDAY5, AVEDRNK3, DRNK3GE5, MAXDRNKS, HOMBPCHK, HOMRGCHK, WHEREBP, SHAREBP, WTCHSALT, DRADVISE, BIRTHSEX, `_METSTAT`, `_URBSTAT`, MSCODE, `_IMPRACE`, `_HLTHPLN`, `_HCVU652`, `_RFHYPE6`, `_CHOLCH3`, `_RFCHOL3`, `_MICHD`, `_MRACE1`, `_HISPANC`, `_RACE`, `_RACEG21`, `_RACEGR3`, `_RACEPRV`, `_AGEG5YR`, `_AGE65YR`, `_AGE80`, `_AGE_G`, HTIN4, `_BMI5`, `_BMI5CAT`, `_RFBMI5`)
+
+dim(brfss_edit)
 
 summary(brfss_edit)
 
@@ -41,7 +41,7 @@ sample(brfss_edit)
 ```{r}
 sapply(brfss_edit, class)
 ```
-
+##Histograms of variables
 ```{r}
 
 for (col in names(brfss_edit)) {
@@ -51,6 +51,21 @@ for (col in names(brfss_edit)) {
     message(paste("Skipping column", col, "as it is not numeric."))
   }
 }
+
+```
+##Unique Values of Variables
+```{r}
+
+showUniqueValues <- function(brfss_edit) {
+  for (col in names(brfss_edit)) {
+    unique_vals <- unique(brfss_edit[[col]])
+    cat("Unique values for", col, ":\n")
+    print(unique_vals)
+    cat("\n")
+  }
+}
+
+showUniqueValues(brfss_edit)
 
 ```
 
