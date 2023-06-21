@@ -1,0 +1,92 @@
+---
+title: "CDC Data"
+author: "Isaac Johnson and Jesse Debolt"
+date: "2023-06-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+##Read in Data
+```{r}
+library(tidyverse)
+
+prevalence_chd <- read.csv("/Volumes/Files/datasets/prevalence_chd.csv")
+prevalence_hbp <- read.csv("/Volumes/Files/datasets/prevalence_hbp.csv")
+prevalence_stroke <- read.csv("/Volumes/Files/datasets/prevalence_stroke.csv")
+hospitals <- read.csv("/Volumes/Files/datasets/hospitals.csv")
+hospitals_cic <- read.csv("/Volumes/Files/datasets/hospitals_cic.csv")
+hospitals_cr <- read.csv("/Volumes/Files/datasets/hospitals_cr.csv")
+pcp <- read.csv("/Volumes/Files/datasets/pcp.csv")
+cvdr <- read.csv("/Volumes/Files/datasets/cvdr.csv")
+pharmacies <- read.csv("/Volumes/Files/datasets/pharmacies.csv")
+insured <- read.csv("/Volumes/Files/datasets/insured.csv")
+rural_urban <- read.csv("/Volumes/Files/datasets/rural_urban.csv")
+broadband <- read.csv("/Volumes/Files/datasets/broadband.csv")
+computer <- read.csv("/Volumes/Files/datasets/computer.csv")
+
+```
+
+##Rename columns and drop columns
+```{r}
+
+prevalence_chd <- rename(prevalence_chd, prevalence_chd = Value) %>%
+    select(-theme_range)
+prevalence_hbp <- rename(prevalence_hbp, prevalence_hbp = Value) %>%
+    select(-theme_range)
+prevalence_stroke <- rename(prevalence_stroke, prevalence_stroke = Value) %>%
+    select(-theme_range)
+hospitals <- rename(hospitals, hospitals = Value) %>%
+    select(-theme_range)
+hospitals_cic <- rename(hospitals_cic, hospitals_cic = Value) %>%
+    select(-theme_range)
+hospitals_cr <- rename(hospitals_cr, hospitals_cr = Value) %>%
+    select(-theme_range)
+pcp <- rename(pcp, pcp = Value) %>%
+    select(-theme_range)
+cvdr <- rename(cvdr, cvdr = Value) %>%
+    select(-theme_range)
+pharmacies <- rename(pharmacies, pharmacies = Value) %>%
+    select(-theme_range)
+insured <- rename(insured, insured = Value) %>%
+    select(-theme_range)
+rural_urban <- rename(rural_urban, rural_urban = Value) %>%
+    select(-theme_range)
+broadband <- rename(broadband, broadband = Value) %>%
+    select(-theme_range)
+computer <- rename(computer, computer = Value) %>%
+    select(-theme_range)
+
+```
+
+
+##Join datasets
+```{r}
+
+cdc <- prevalence_chd %>%
+    full_join(prevalence_hbp, by = c("cnty_fips", "display_name")) %>%
+    full_join(prevalence_stroke, by = c("cnty_fips", "display_name")) %>%
+    full_join(hospitals, by = c("cnty_fips", "display_name")) %>%
+    full_join(hospitals_cic, by = c("cnty_fips", "display_name")) %>%
+    full_join(hospitals_cr, by = c("cnty_fips", "display_name")) %>%
+    full_join(pcp, by = c("cnty_fips", "display_name")) %>%
+    full_join(cvdr, by = c("cnty_fips", "display_name")) %>%
+    full_join(pharmacies, by = c("cnty_fips", "display_name")) %>%
+    full_join(insured, by = c("cnty_fips", "display_name")) %>%
+    full_join(rural_urban, by = c("cnty_fips", "display_name")) %>%
+    full_join(broadband, by = c("cnty_fips", "display_name")) %>%
+    full_join(computer, by = c("cnty_fips", "display_name"))
+
+cdc <- rename(cdc, county = display_name)
+
+```
+
+##Export Dataset
+```{r}
+
+write.csv(cdc, "/Users/isaacjohnson/Documents/Scanner Output/School/Willamette/Capstone/Capstone Project/cdc.csv")
+```
+
