@@ -149,9 +149,17 @@ lowest_10
 
 ```
 
-##EDA
+##EDA (auto EDA report)
 ```{r}
 
+library(DataExplorer)
+
+cdc %>%
+    create_report(
+        output_file = paste ("Report", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"), sep=" - "),
+        report_title = "EDA Report - CHD Dataset",
+        y = "cardio"
+    )
 
 ```
 
