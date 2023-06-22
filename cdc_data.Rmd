@@ -53,8 +53,8 @@ pharmacies <- rename(pharmacies, pharmacies = Value) %>%
     select(-theme_range)
 insured <- rename(insured, insured = Value) %>%
     select(-theme_range)
-rural_urban <- rename(rural_urban, rural_urban = Value) %>%
-    select(-theme_range)
+rural_urban <- rename(rural_urban, rural_urban_value = Value)
+rural_urban <- rename(rural_urban,rural_urban_size = theme_range)
 broadband <- rename(broadband, broadband = Value) %>%
     select(-theme_range)
 computer <- rename(computer, computer = Value) %>%
@@ -89,4 +89,72 @@ cdc <- rename(cdc, county = display_name)
 
 write.csv(cdc, "/Users/isaacjohnson/Documents/Scanner Output/School/Willamette/Capstone/Capstone Project/cdc.csv")
 ```
+
+##EDA (initial look)
+```{r}
+head(cdc)
+str(cdc)
+dim(cdc)
+summary(cdc)
+```
+##Any missing values?
+```{r}
+sum(is.na(cdc))
+```
+
+
+##EDA (rural values?)
+```{r}
+
+names(cdc)
+unique(cdc$rural_urban_value)
+rural_query <- filter(cdc, rural_urban_value == -1)
+head(rural_query, n=20)
+#should we drop the -1 values, they are technically. not US counties, but territories of US etc...VERIFY
+```
+##EDA - Let's pook at CHD prevalence
+```{r}
+hist(cdc$prevalence_chd)
+
+#Why are some prevalence values -1? Let's look at them. Maybe it's a non-reporting issue?
+sort(unique(cdc$prevalence_chd))
+chd_query <- filter(cdc, prevalence_chd == -1)
+head(chd_query, n=20)
+
+top_10 <- top_n(cdc, n=10, prevalence_chd)
+top_10
+
+bottom_10 <- cdc %>%
+    arrange(prevalence_chd) %>%
+    tail(10)
+
+```
+
+##EDA 10 Counties with highest CHD prevalence
+```{r}
+
+highest_10 <- top_n(cdc, n=10, prevalence_chd)
+highest_10 %>%
+    arrange(desc(prevalence_chd))
+
+```
+##EDA 10 Counties with lowest CHD prevalence
+```{r}
+
+lowest_10 <- cdc %>%
+    filter(prevalence_chd != -1) %>%
+    arrange(prevalence_chd) %>%
+    head(10)
+lowest_10
+
+```
+
+##EDA
+```{r}
+
+
+```
+
+
+
 
