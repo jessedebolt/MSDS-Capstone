@@ -13,6 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ##Read in Data
 ```{r}
 library(tidyverse)
+library(skimr)
+library(DataExplorer)
+library(GGally)
 
 prevalence_chd <- read.csv("/Volumes/Files/datasets/prevalence_chd.csv")
 prevalence_hbp <- read.csv("/Volumes/Files/datasets/prevalence_hbp.csv")
@@ -96,10 +99,17 @@ head(cdc)
 str(cdc)
 dim(cdc)
 summary(cdc)
+skim(cdc)
 ```
 ##Any missing values?
 ```{r}
+
+#total number of missing values in each column
+colSums(is.na(cdc))
+
+#total number of missing values in dataset
 sum(is.na(cdc))
+
 ```
 
 
@@ -151,16 +161,14 @@ lowest_10
 
 ##EDA Correlation
 ```{r}
-library(DataExplorer)
 
 plot_correlation(cdc)
+
 ```
 
 
 ##EDA (auto EDA report)
 ```{r}
-
-library(DataExplorer)
 
 cdc %>%
     create_report(
@@ -173,8 +181,6 @@ cdc %>%
 
 ##EDA GGally
 ```{r}
-
-library("GGally")
 
 cdc %>%
     select(prevalence_chd, prevalence_hbp, prevalence_stroke, rural_urban_value) %>%
