@@ -149,6 +149,14 @@ lowest_10
 
 ```
 
+##EDA Correlation
+```{r}
+library(DataExplorer)
+
+plot_correlation(cdc)
+```
+
+
 ##EDA (auto EDA report)
 ```{r}
 
@@ -163,6 +171,16 @@ cdc %>%
 
 ```
 
+##EDA GGally
+```{r}
+
+library("GGally")
+
+cdc %>%
+    select(prevalence_chd, prevalence_hbp, prevalence_stroke, rural_urban_value) %>%
+    ggpairs(mapping = aes(color = cdc$rural_urban_size, alpha = 0.5))
+
+```
 
 
 
