@@ -1,0 +1,106 @@
+---
+title: "CDC_Data_Read"
+author: "Jesse DeBolt & Isaac Johnson"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+### Setup
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+# Load the necessary libraries
+library(tidyverse)
+library(googledrive)
+library(gdata)
+
+```
+
+
+### Establish connection to Google drive containing data
+```{r}
+folder <- drive_get("~/CapstoneData") # In console, enter "1". In popup select account, then make sure allow checkbox is selected and continue.
+
+all_files <- drive_ls(folder)
+
+```
+
+
+### Read in all files from Google drive and instert into each as data frames into the global environment
+```{r }
+# Loop through each row of the all_files dataframe
+for (i in 1:nrow(all_files)) {
+  # Get the file ID from the current row
+  file_id <- as.character(all_files$id[i])
+
+  # Retrieve the file object from Google Drive
+  file <- drive_get(as_id(file_id))
+
+  # Define a temporary file path
+  temp_file_path <- tempfile()
+
+  # Download the file to a temporary location
+  drive_download(file, path = temp_file_path, overwrite = TRUE)
+
+  # Read the downloaded file into a data frame
+  df <- read_csv(temp_file_path)
+
+  # Assign the data frame to a new variable in the global environment
+  # Remove the file extension (.csv) from the file name before using it as a variable name
+  assign(gsub("\\.csv$", "", all_files$name[i]), df, envir = .GlobalEnv)
+}
+
+# Clean up global environment
+rm(all_files,df,file,folder,file_id,i,temp_file_path)
+
+```
+
+
+### Merge all sets together into one data frame
+```{r}
+# Get all the data frame names in the global environment
+df_names <- ls(.GlobalEnv)
+
+# Initialize an empty data frame for the final result
+final_df <- data.frame()
+
+# Loop through each data frame
+for (df_name in df_names) {
+  
+  # Get the data frame
+  df <- get(df_name, envir = .GlobalEnv)
+  
+  # Check if 'cnty_fips' and 'display_name' exist in the data frame
+  if(all(c("cnty_fips", "display_name") %in% colnames(df))){
+    
+    # Rename each variable, except 'cnty_fips' and 'display_name', to include the data frame name
+    df <- df %>%
+      rename_with(.cols = -c(cnty_fips, display_name),
+                  .fn = ~ paste(df_name, ., sep = "_"))
+    
+    # Join the data frame with the final data frame
+    if (nrow(final_df) == 0){
+      final_df <- df
+    } else {
+      final_df <- full_join(final_df, df, by = c("cnty_fips", "display_name"))
+    }
+  }
+}
+
+# Clean up global environment
+keep(final_df, sure = TRUE)
+
+```
+
+
+
+```{r}
+head(final_df)
+
+```
+
+```{r}
+
+
+```
+
