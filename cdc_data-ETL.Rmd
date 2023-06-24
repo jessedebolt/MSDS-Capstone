@@ -90,6 +90,9 @@ for (df_name in df_names) {
       
       # Remove the ".x" from the column names
       names(final_df) <- gsub("\\.x$", "", names(final_df))
+      
+      # Remove the "_Value" from the column names
+      names(final_df) <- gsub("\\_Value$", "", names(final_df))
     }
   }
 }
