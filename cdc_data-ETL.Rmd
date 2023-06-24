@@ -113,7 +113,7 @@ head(final_df)
 
 ### Export complete dataframe to csv
 ```{r}
-# Write locally
+# Write data to local in csv format
 write.csv(final_df, "CDC_all.csv")  
 
 # Establish drive location to copy to
