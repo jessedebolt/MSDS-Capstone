@@ -1,5 +1,5 @@
 ---
-title: "CDC_Data_Read"
+title: "CDC Data ETL"
 author: "Jesse DeBolt & Isaac Johnson"
 date: "`r Sys.Date()`"
 output: html_document
@@ -97,6 +97,8 @@ for (df_name in df_names) {
   }
 }
 
+# Remove extra population variable
+final_df <- final_df %>% select(-c(`final_df_Demo-Total_Population`))
 
 # Clean up global environment
 keep(final_df, sure = TRUE)
@@ -109,8 +111,16 @@ head(final_df)
 
 ```
 
+### Export complete dataframe to csv
 ```{r}
+# Write locally
+write.csv(final_df, "CDC_all.csv")  
 
+# Establish drive location to copy to
+folder <- drive_get("~/CapstoneData")
+
+# Copy file to Google drive folder
+drive_upload("CDC_all.csv", path = folder)
 
 ```
 
