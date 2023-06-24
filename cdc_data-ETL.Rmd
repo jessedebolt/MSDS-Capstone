@@ -73,6 +73,10 @@ for (df_name in df_names) {
   # Check if 'cnty_fips' and 'display_name' exist in the data frame
   if(all(c("cnty_fips", "display_name") %in% colnames(df))){
     
+    # Select all columns excluding those with "theme_range" in their name
+    df <- df %>%
+      select(-contains("theme_range"))
+    
     # Rename each variable, except 'cnty_fips' and 'display_name', to include the data frame name
     df <- df %>%
       rename_with(.cols = -c(cnty_fips, display_name),
@@ -83,15 +87,18 @@ for (df_name in df_names) {
       final_df <- df
     } else {
       final_df <- full_join(final_df, df, by = c("cnty_fips", "display_name"))
+      
+      # Remove the ".x" from the column names
+      names(final_df) <- gsub("\\.x$", "", names(final_df))
     }
   }
 }
+
 
 # Clean up global environment
 keep(final_df, sure = TRUE)
 
 ```
-
 
 
 ```{r}
