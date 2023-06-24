@@ -98,7 +98,7 @@ for (df_name in df_names) {
 }
 
 # Remove extra population variable
-final_df <- final_df %>% select(-c(`final_df_Demo-Total_Population`))
+#final_df <- final_df %>% select(-c(`final_df_Demo-Total_Population`))
 
 # Clean up global environment
 keep(final_df, sure = TRUE)
@@ -111,13 +111,37 @@ head(final_df)
 
 ```
 
+### Cleaning up some variables
+```{r}
+#change rural/urban
+# 1 = Large central metro -> Large_Urban
+# 2 = Large fringe metro -> LargeFringe_Urban
+# 3 = Medium/small metro -> MediumSmall_Urban
+# 4 = Nonmetro -> Rural
+
+final_df$`SEED-UR-Urban-Rural` <- ifelse(final_df$`SEED-UR-Urban-Rural`
+                                         == 1, "Large_Urban",
+                                  ifelse(final_df$`SEED-UR-Urban-Rural`
+                                         == 2,"LargeFringe_Urban",
+                                  ifelse(final_df$`SEED-UR-Urban-Rural` 
+                                         == 3,"MediumSmall_Urban", 
+                                  ifelse(final_df$`SEED-UR-Urban-Rural`
+                                         == 4,"Rural",
+                                  final_df$`SEED-UR-Urban-Rural`))))
+
+### Replacing '-1' with 'NA' under assumption that these are truly missing elements
+final_df[final_df == -1] <- NA
+
+```
+
+
 ### Export complete dataframe to csv
 ```{r}
 # Write data to local in csv format
-write.csv(final_df, "CDC_all.csv")  
+write_csv(final_df, "CDC_all.csv")  
 
 # Establish drive location to copy to
-folder <- drive_get("~/CapstoneData")
+folder <- drive_get("~/CapstoneDataFinal")
 
 # Copy file to Google drive folder
 drive_upload("CDC_all.csv", path = folder)
