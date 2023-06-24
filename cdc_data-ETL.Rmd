@@ -14,6 +14,10 @@ library(tidyverse)
 library(googledrive)
 library(gdata)
 
+library(skimr)
+library(DataExplorer)
+library(GGally)
+
 ```
 
 
@@ -62,7 +66,7 @@ rm(all_files,df,file,folder,file_id,i,temp_file_path)
 df_names <- ls(.GlobalEnv)
 
 # Initialize an empty data frame for the final result
-final_df <- data.frame()
+cdc <- data.frame()
 
 # Loop through each data frame
 for (df_name in df_names) {
@@ -83,31 +87,28 @@ for (df_name in df_names) {
                   .fn = ~ paste(df_name, ., sep = "_"))
     
     # Join the data frame with the final data frame
-    if (nrow(final_df) == 0){
-      final_df <- df
+    if (nrow(cdc) == 0){
+      cdc <- df
     } else {
-      final_df <- full_join(final_df, df, by = c("cnty_fips", "display_name"))
+      cdc <- full_join(cdc, df, by = c("cnty_fips", "display_name"))
       
       # Remove the ".x" from the column names
-      names(final_df) <- gsub("\\.x$", "", names(final_df))
+      names(cdc) <- gsub("\\.x$", "", names(cdc))
       
       # Remove the "_Value" from the column names
-      names(final_df) <- gsub("\\_Value$", "", names(final_df))
+      names(cdc) <- gsub("\\_Value$", "", names(cdc))
     }
   }
 }
 
-# Remove extra population variable
-#final_df <- final_df %>% select(-c(`final_df_Demo-Total_Population`))
-
 # Clean up global environment
-keep(final_df, sure = TRUE)
+keep(cdc, sure = TRUE)
 
 ```
 
 
 ```{r}
-head(final_df)
+head(cdc)
 
 ```
 
@@ -119,18 +120,18 @@ head(final_df)
 # 3 = Medium/small metro -> MediumSmall_Urban
 # 4 = Nonmetro -> Rural
 
-final_df$`SEED-UR-Urban-Rural` <- ifelse(final_df$`SEED-UR-Urban-Rural`
+cdc$`SEED-UR-Urban-Rural` <- ifelse(cdc$`SEED-UR-Urban-Rural`
                                          == 1, "Large_Urban",
-                                  ifelse(final_df$`SEED-UR-Urban-Rural`
+                                  ifelse(cdc$`SEED-UR-Urban-Rural`
                                          == 2,"LargeFringe_Urban",
-                                  ifelse(final_df$`SEED-UR-Urban-Rural` 
+                                  ifelse(cdc$`SEED-UR-Urban-Rural` 
                                          == 3,"MediumSmall_Urban", 
-                                  ifelse(final_df$`SEED-UR-Urban-Rural`
+                                  ifelse(cdc$`SEED-UR-Urban-Rural`
                                          == 4,"Rural",
-                                  final_df$`SEED-UR-Urban-Rural`))))
+                                  cdc$`SEED-UR-Urban-Rural`))))
 
 ### Replacing '-1' with 'NA' under assumption that these are truly missing elements
-final_df[final_df == -1] <- NA
+cdc[cdc == -1] <- NA
 
 ```
 
@@ -138,7 +139,7 @@ final_df[final_df == -1] <- NA
 ### Export complete dataframe to csv
 ```{r}
 # Write data to local in csv format
-write_csv(final_df, "CDC_all.csv")  
+write_csv(cdc, "CDC_all.csv")  
 
 # Establish drive location to copy to
 folder <- drive_get("~/CapstoneDataFinal")
@@ -148,3 +149,105 @@ drive_upload("CDC_all.csv", path = folder)
 
 ```
 
+# ||||||||||||||||||||||||||||||||||
+# |||||||||||||| EDA |||||||||||||||
+## ||||||| From cdc_data.Rmd |||||||
+# ||||||||||||||||||||||||||||||||||
+
+
+### EDA (Initial look)
+```{r}
+head(cdc)
+str(cdc)
+dim(cdc)
+summary(cdc)
+skim(cdc)
+
+```
+
+### Any missing values?
+```{r}
+
+#total number of missing values in each column
+colSums(is.na(cdc))
+
+#total number of missing values in dataset
+sum(is.na(cdc))
+
+```
+
+
+### EDA (rural values?)
+```{r}
+
+names(cdc)
+unique(cdc$'SEED-UR-Urban-Rural')
+rural_query <- filter(cdc, 'SEED-UR-Urban-Rural' == -1)
+head(rural_query, n=20)
+#should we drop the -1 values, they are technically. not US counties, but territories of US etc...VERIFY
+```
+##EDA - Let's pook at CHD prevalence
+```{r}
+hist(cdc$`Prev-Coronary_Heart_Disease`)
+
+#Why are some prevalence values -1? Let's look at them. Maybe it's a non-reporting issue?
+sort(unique(cdc$`Prev-Coronary_Heart_Disease`))
+chd_query <- filter(cdc, `Prev-Coronary_Heart_Disease` == -1)
+head(chd_query, n=20)
+
+top_10 <- top_n(cdc, n=10, `Prev-Coronary_Heart_Disease`)
+top_10
+
+bottom_10 <- cdc %>%
+    arrange(`Prev-Coronary_Heart_Disease`) %>%
+    tail(10)
+
+```
+
+##EDA 10 Counties with highest CHD prevalence
+```{r}
+
+highest_10 <- top_n(cdc, n=10, `Prev-Coronary_Heart_Disease`)
+highest_10 %>%
+    arrange(desc(`Prev-Coronary_Heart_Disease`))
+
+```
+##EDA 10 Counties with lowest CHD prevalence
+```{r}
+
+lowest_10 <- cdc %>%
+    filter(`Prev-Coronary_Heart_Disease` != -1) %>%
+    arrange(`Prev-Coronary_Heart_Disease`) %>%
+    head(10)
+lowest_10
+
+```
+
+##EDA Correlation
+```{r}
+
+plot_correlation(cdc)
+
+```
+
+
+##EDA (auto EDA report)
+```{r}
+
+cdc %>%
+    create_report(
+        output_file = paste ("Report", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"), sep=" - "),
+        report_title = "EDA Report - CHD Dataset",
+        y = "cardio"
+    )
+
+```
+
+##EDA GGally
+```{r}
+
+cdc %>%
+    select(`Prev-Coronary_Heart_Disease`, `Prev-High_Blood_Pressure`, `Prev-Stroke`, 'SEED-UR-Urban-Rural') %>%
+    ggpairs(mapping = aes(color = cdc$'SEED-UR-Urban-Rural', alpha = 0.5))
+
+```
