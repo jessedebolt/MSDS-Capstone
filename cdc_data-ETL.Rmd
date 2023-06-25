@@ -265,7 +265,6 @@ lowest_10
 
 ##EDA Correlation
 ```{r}
-
 plot_correlation(cdc)
 
 ```
@@ -292,8 +291,7 @@ cdc %>%
 
 ```
 
-
-# New EDA
+# New EDA (not useful as it is primarily a tool for data compression and visualization, also too many NAs)
 ### Prepare data for principle component analysis
 ```{r}
 # Remove non-numeric variables
