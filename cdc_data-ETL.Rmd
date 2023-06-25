@@ -10,54 +10,109 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 # Load the necessary libraries
+library(httr)
+library(readr)
 library(tidyverse)
-library(googledrive)
-library(gdata)
 
 library(skimr)
 library(DataExplorer)
 library(GGally)
+library(caret)
 
 ```
 
 
-### Establish connection to Google drive containing data
+### List of files located in the GitHub repository data folder
 ```{r}
-folder <- drive_get("~/CapstoneData") # In console, enter "1". In popup select account, then make sure allow checkbox is selected and continue.
-
-all_files <- drive_ls(folder)
+# File names list
+filenames <- c("SEED-UR-Urban-Rural.csv",
+               "SEED-SE-Unemployment_Rate.csv",
+               "SEED-SE-Severe_Housing_Cost_Burden.csv",
+               "SEED-SE-Poverty.csv",
+               "SEED-SE-Median_Household_Income.csv",
+               "SEED-SE-Median_Home_Value.csv",
+               "SEED-SE-Income_Inequality.csv",
+               "SEED-SE-Food_Stamp_SNAP_recipients.csv",
+               "SEED-SE-Education-LessThanHighSchool.csv",
+               "SEED-SE-Education-LessThanCollege.csv",
+               "SEED-SE-Computer.csv",
+               "SEED-SE-Broadband.csv",
+               "SEED-PE-Park_Access.csv",
+               "SEED-PE-Air_Quality.csv",
+               "RF-Smoking.csv",
+               "RF-Physical_Inactivity.csv",
+               "RF-Obesity.csv",
+               "RF-High_Cholesterol.csv",
+               "RF-Diagnosed_Diabetes.csv",
+               "Prev-Stroke.csv",
+               "Prev-High_Blood_Pressure.csv",
+               "Prev-Coronary_Heart_Disease.csv",
+               "HCDI-PS-PCP.csv",
+               "HCDI-PS-Neurosurgeons.csv",
+               "HCDI-PS-Neurologists.csv",
+               "HCDI-PS-CDP.csv",
+               "HCDI-Insurance-Health_Insurance_Status.csv",
+               "HCDI-HP-Pharmacies_and_Drug_Stores.csv",
+               "HCDI-HP-Hospitals-Services-NS.csv",
+               "HCDI-HP-Hospitals-Services-ED.csv",
+               "HCDI-HP-Hospitals-Services-CIC.csv",
+               "HCDI-HP-Hospitals-Services-CA.csv",
+               "HCDI-HP-Hospitals.csv",
+               "HCDI-CRU-Participation_Among_Eligible.csv",
+               "HCDI-CRU-Eligibility_Rate.csv",
+               "HCDI-CLM-Nonadherence.csv",
+               "HCDI-Cholesterol_Screening.csv",
+               "HCDI-BPM-Medication_Use.csv",
+               "Demo-Total_Population.csv",
+               )
 
 ```
 
 
-### Read in all files from Google drive and instert into each as data frames into the global environment
-```{r }
-# Loop through each row of the all_files dataframe
-for (i in 1:nrow(all_files)) {
-  # Get the file ID from the current row
-  file_id <- as.character(all_files$id[i])
-
-  # Retrieve the file object from Google Drive
-  file <- drive_get(as_id(file_id))
-
-  # Define a temporary file path
-  temp_file_path <- tempfile()
-
-  # Download the file to a temporary location
-  drive_download(file, path = temp_file_path, overwrite = TRUE)
-
-  # Read the downloaded file into a data frame
-  df <- read_csv(temp_file_path)
-
-  # Assign the data frame to a new variable in the global environment
-  # Remove the file extension (.csv) from the file name before using it as a variable name
-  assign(gsub("\\.csv$", "", all_files$name[i]), df, envir = .GlobalEnv)
+### Create a function to generate the URL for a given filename
+```{r}
+generate_url <- function(filename) {
+  return(paste0("https://raw.githubusercontent.com/jessedebolt/MSDS-Capstone/main/data/", filename))
 }
 
-# Clean up global environment
-rm(all_files,df,file,folder,file_id,i,temp_file_path)
+```
+
+
+### Generate urls for each filename
+```{r}
+urls <- sapply(filenames, generate_url)
 
 ```
+
+
+### Read the CSV files into a list of data frames
+```{r }
+# Read the CSV files into a list of data frames
+df_list <- lapply(urls, read_csv)
+
+# Create names for the list items (remove the .csv from the filenames)
+names(df_list) <- sapply(filenames, function(filename) gsub(".csv", "", filename))
+
+# Create individual data frames
+list2env(df_list, .GlobalEnv)
+
+```
+
+### Iterate through each CSV file, read it into R, and store it as an individual data frame
+```{r}
+# cdc <- list()
+# for (file in csv_files) {
+#   file_url <- paste0(base_url, file)
+#   data <- read_csv(file_url)
+#   file_name <- gsub(".csv", "", basename(file))
+#   data_frames[[file_name]] <- data
+# }
+
+## Clean up global environment
+#keep(cdc, sure = TRUE)
+
+```
+
 
 
 ### Merge all sets together into one data frame
@@ -148,6 +203,13 @@ folder <- drive_get("~/CapstoneDataFinal")
 drive_upload("CDC_all.csv", path = folder)
 
 ```
+
+
+```{r}
+head(cdc)
+
+```
+
 
 # ||||||||||||||||||||||||||||||||||
 # |||||||||||||| EDA |||||||||||||||
@@ -249,5 +311,48 @@ cdc %>%
 cdc %>%
     select(`Prev-Coronary_Heart_Disease`, `Prev-High_Blood_Pressure`, `Prev-Stroke`, 'SEED-UR-Urban-Rural') %>%
     ggpairs(mapping = aes(color = cdc$'SEED-UR-Urban-Rural', alpha = 0.5))
+
+```
+
+
+# New EDA
+```{r}
+library(tidyverse)
+library(ggcorrplot)
+library(ggplot2)
+library(dplyr)
+library(tidytext)
+
+library(fastDummies)
+library(randomForest)
+library(broom)
+
+```
+
+```{r}
+
+Create new DF with non-num columns excluded, change NA to NULL ("") to see if that fixes infinite issue
+
+all(sapply(cdc, is.finite))
+
+
+```
+
+#PCA
+###* Run PCA on the dataset.
+```{r results='hide'}
+pr_income <- prcomp(x = select(cdc, -c('Prev-Coronary_Heart_Disease', 'SEED-UR-Urban-Rural', 'cnty_fips', 'display_name')), scale = T, center = T)
+
+summary(pr_income)
+
+```
+
+### Determine how many principal components are needed to explain half the variation
+```{r}
+cumulative_proportion <- cumsum(pr_income$sdev^2 / sum(pr_income$sdev^2))
+
+n_components <- min(which(cumulative_proportion >= 0.5))
+
+cat("The number of principal components needed to explain 50% of the variation is", n_components)
 
 ```
