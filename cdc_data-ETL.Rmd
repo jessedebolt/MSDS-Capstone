@@ -116,10 +116,13 @@ for (df_name in df_names) {
   # Check if 'cnty_fips' and 'display_name' exist in the data frame
   if(all(c("cnty_fips", "display_name") %in% colnames(df))){
     
+    # Convert 'cnty_fips' column to character type
+    df$cnty_fips <- as.character(df$cnty_fips)
+    
     # Select all columns excluding those with "theme_range" in their name
     df <- df %>%
       select(-contains("theme_range"))
-    
+
     # Rename each variable, except 'cnty_fips' and 'display_name', to include the data frame name
     df <- df %>%
       rename_with(.cols = -c(cnty_fips, display_name),
