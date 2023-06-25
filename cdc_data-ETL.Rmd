@@ -273,13 +273,13 @@ plot_correlation(cdc)
 
 ##EDA (auto EDA report)
 ```{r}
-
-cdc %>%
-    create_report(
-        output_file = paste ("Report", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"), sep=" - "),
-        report_title = "EDA Report - CHD Dataset",
-        y = "cardio"
-    )
+# 
+# cdc %>%
+#     create_report(
+#         output_file = paste ("Report", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"), sep=" - "),
+#         report_title = "EDA Report - CHD Dataset",
+#         y = "cardio"
+#     )
 
 ```
 
@@ -294,13 +294,16 @@ cdc %>%
 
 
 # New EDA
-### 
+### Prepare data for principle component analysis
 ```{r}
+# Remove non-numeric variables
 cdc_comp <- cdc %>% 
   select(-c("cnty_fips", "display_name", "SEED-UR-Urban-Rural"))
 
+# Remove NAs
 cdc_comp[is.na(cdc_comp)] <- 0
 
+# Double check to see if all entries are finite
 all(sapply(cdc_comp, is.finite))
 
 ```
