@@ -162,15 +162,15 @@ head(cdc)
 # 3 = Medium/small metro -> MediumSmall_Urban
 # 4 = Nonmetro -> Rural
 
-cdc$`SEED-UR-Urban-Rural` <- ifelse(cdc$`SEED-UR-Urban-Rural`
+cdc$"SEED-UR-Urban-Rural" <- ifelse(cdc$"SEED-UR-Urban-Rural"
                                          == 1, "Large_Urban",
-                                  ifelse(cdc$`SEED-UR-Urban-Rural`
+                                  ifelse(cdc$"SEED-UR-Urban-Rural"
                                          == 2,"LargeFringe_Urban",
-                                  ifelse(cdc$`SEED-UR-Urban-Rural` 
+                                  ifelse(cdc$"SEED-UR-Urban-Rural" 
                                          == 3,"MediumSmall_Urban", 
-                                  ifelse(cdc$`SEED-UR-Urban-Rural`
+                                  ifelse(cdc$"SEED-UR-Urban-Rural"
                                          == 4,"Rural",
-                                  cdc$`SEED-UR-Urban-Rural`))))
+                                  cdc$"SEED-UR-Urban-Rural"))))
 
 ### Replacing '-1' with 'NA' under assumption that these are truly missing elements
 cdc[cdc == -1] <- NA
@@ -231,18 +231,18 @@ head(rural_query, n=20)
 ```
 ##EDA - Let's pook at CHD prevalence
 ```{r}
-hist(cdc$`Prev-Coronary_Heart_Disease`)
+hist(cdc$"Prev-Coronary_Heart_Disease")
 
 #Why are some prevalence values -1? Let's look at them. Maybe it's a non-reporting issue?
-sort(unique(cdc$`Prev-Coronary_Heart_Disease`))
-chd_query <- filter(cdc, `Prev-Coronary_Heart_Disease` == -1)
+sort(unique(cdc$"Prev-Coronary_Heart_Disease"))
+chd_query <- filter(cdc, "Prev-Coronary_Heart_Disease" == -1)
 head(chd_query, n=20)
 
-top_10 <- top_n(cdc, n=10, `Prev-Coronary_Heart_Disease`)
+top_10 <- top_n(cdc, n=10, "Prev-Coronary_Heart_Disease")
 top_10
 
 bottom_10 <- cdc %>%
-    arrange(`Prev-Coronary_Heart_Disease`) %>%
+    arrange("Prev-Coronary_Heart_Disease") %>%
     tail(10)
 
 ```
@@ -250,17 +250,17 @@ bottom_10 <- cdc %>%
 ##EDA 10 Counties with highest CHD prevalence
 ```{r}
 
-highest_10 <- top_n(cdc, n=10, `Prev-Coronary_Heart_Disease`)
+highest_10 <- top_n(cdc, n=10, "Prev-Coronary_Heart_Disease")
 highest_10 %>%
-    arrange(desc(`Prev-Coronary_Heart_Disease`))
+    arrange(desc("Prev-Coronary_Heart_Disease"))
 
 ```
 ##EDA 10 Counties with lowest CHD prevalence
 ```{r}
 
 lowest_10 <- cdc %>%
-    filter(`Prev-Coronary_Heart_Disease` != -1) %>%
-    arrange(`Prev-Coronary_Heart_Disease`) %>%
+    filter("Prev-Coronary_Heart_Disease" != -1) %>%
+    arrange("Prev-Coronary_Heart_Disease") %>%
     head(10)
 lowest_10
 
@@ -289,8 +289,8 @@ plot_correlation(cdc)
 ```{r}
 
 cdc %>%
-    select(`Prev-Coronary_Heart_Disease`, `Prev-High_Blood_Pressure`, `Prev-Stroke`, 'SEED-UR-Urban-Rural') %>%
-    ggpairs(mapping = aes(color = cdc$'SEED-UR-Urban-Rural', alpha = 0.5))
+    select("Prev-Coronary_Heart_Disease", "Prev-High_Blood_Pressure", "Prev-Stroke", "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
 
 ```
 
@@ -301,6 +301,12 @@ ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
                 "Prev-Stroke"
                 )])
 ```
+```{r}
+cdc %>%
+    select("Prev-Coronary_Heart_Disease", "Prev-High_Blood_Pressure", "Prev-Stroke", "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+```
+
 
 ### Correlation plot for CHD and hospitals and pharmacy access factors
 ```{r}
