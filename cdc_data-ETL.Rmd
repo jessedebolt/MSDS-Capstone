@@ -301,7 +301,7 @@ cdc_comp <- cdc %>%
 # Remove NAs
 cdc_comp[is.na(cdc_comp)] <- 0
 
-# Double check to see if all entries are finite
+0# Double check to see if all entries are finite
 all(sapply(cdc_comp, is.finite))
 
 ```
