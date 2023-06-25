@@ -1,0 +1,242 @@
+---
+title: "Capstone Initial ETL"
+author: "Jesse DeBolt"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(viridis)
+library(magrittr)
+library(readxl)
+library(zoo)
+
+```
+
+
+### Import 2021 "Outcomes & Factors Rankings"
+```{r import}
+# Define the path to the Excel file
+path_to_excel <- "~/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Country Health Rankings and Roadmaps/Oregon/2021 County Health Rankings Oregon Data - v1.xlsx"
+
+# Name of the sheet
+sheet_name <- "Outcomes & Factors Rankings"
+
+# Read in the first row (0-indexed)
+header_row1 <- read_excel(path_to_excel, sheet = sheet_name, range = "A1:G1", col_names = FALSE)
+
+# Read in the second row
+header_row2 <- read_excel(path_to_excel, sheet = sheet_name, range = "A2:G2", col_names = FALSE)
+
+# Combine the two rows to form the header
+header <- paste(header_row1[1, ], header_row2[1, ], sep = "_")
+
+# Read in the rest of the data
+data <- read_excel(path_to_excel, sheet = sheet_name, skip = 2, col_names = FALSE)
+
+# Assign the combined header to the data
+colnames(data) <- header
+
+CHR_OR_Out_Fact_Rank_2021 <- data
+
+rm(data, header_row1, header_row2, header, sheet_name, path_to_excel)
+
+```
+
+
+### Import 2021 "Outcomes & Factors SubRankings"
+```{r}
+# Define the path to the Excel file
+path_to_excel <- "~/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Country Health Rankings and Roadmaps/Oregon/2021 County Health Rankings Oregon Data - v1.xlsx"
+
+# Name of the sheet
+sheet_name <- "Outcomes & Factors SubRankings"
+
+# Read in the first row (0-indexed)
+header_row1 <- read_excel(path_to_excel, sheet = sheet_name, range = "A1:O1", col_names = FALSE)
+
+# Read in the second row
+header_row2 <- read_excel(path_to_excel, sheet = sheet_name, range = "A2:O2", col_names = FALSE)
+
+# Combine the two rows to form the header
+header <- paste(header_row1[1, ], header_row2[1, ], sep = "_")
+
+# Read in the rest of the data
+data <- read_excel(path_to_excel, sheet = sheet_name, skip = 2, col_names = FALSE)
+
+# Assign the combined header to the data
+colnames(data) <- header
+
+CHR_OR_Out_Fact_SubRank_2021 <- data
+
+rm(data, header_row1, header_row2, header, sheet_name, path_to_excel)
+
+```
+
+
+### Import 2021 "Ranked Measure Data"
+```{r}
+# Define the path to the Excel file
+path_to_excel <- "~/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Country Health Rankings and Roadmaps/Oregon/2021 County Health Rankings Oregon Data - v1.xlsx"
+
+# Name of the sheet
+sheet_name <- "Ranked Measure Data"
+
+# Read in the first row (0-indexed)
+header_row1 <- read_excel(path_to_excel, sheet = sheet_name, range = "A1:FH1", col_names = FALSE)
+
+# Read in the second row
+header_row2 <- read_excel(path_to_excel, sheet = sheet_name, range = "A2:FH2", col_names = FALSE)
+
+# Combine the two rows to form the header
+header <- paste(header_row1[1, ], header_row2[1, ], sep = "_")
+
+# Read in the rest of the data
+data <- read_excel(path_to_excel, sheet = sheet_name, skip = 2, col_names = FALSE)
+
+# Assign the combined header to the data
+colnames(data) <- header
+
+CHR_OR_Rank_Meas_Data_2021 <- data
+
+rm(data, header_row1, header_row2, header, sheet_name, path_to_excel)
+
+```
+
+
+### Import 2021 "Additional Measure Data"
+```{r}
+# Define the path to the Excel file
+path_to_excel <- "~/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Country Health Rankings and Roadmaps/Oregon/2021 County Health Rankings Oregon Data - v1.xlsx"
+
+# Name of the sheet
+sheet_name <- "Additional Measure Data"
+
+# Read in the first row (0-indexed)
+header_row1 <- read_excel(path_to_excel, sheet = sheet_name, range = "A1:CU1", col_names = FALSE)
+
+# Read in the second row
+header_row2 <- read_excel(path_to_excel, sheet = sheet_name, range = "A2:CU2", col_names = FALSE)
+
+# Combine the two rows to form the header
+header <- paste(header_row1[1, ], header_row2[1, ], sep = "_")
+
+# Read in the rest of the data
+data <- read_excel(path_to_excel, sheet = sheet_name, skip = 2, col_names = FALSE)
+
+# Assign the combined header to the data
+colnames(data) <- header
+
+CHR_OR_Add_Meas_Data_2021 <- data
+
+rm(data, header_row1, header_row2, header, sheet_name, path_to_excel)
+
+```
+
+
+### Nation Practicioners index (very large file)
+```{r}
+#npi <- read.csv("C:/Users/jesse/Documents/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/NPPES_Data_Dissemination_May_2023/npidata_pfile_20050523-20230507.csv")
+
+```
+
+
+```{r}
+#head(npi)
+
+```
+
+
+### CDC Underlying Cause of Death
+```{r}
+cdc_ucd <- read.csv("C:/Users/jesse/Documents/Schooling/Willamette-MSDS/2-DATA510_Capstone/MSDS-Capstone(not_repo'ed)/Data/(1) Underlying Cause of Death, 1999-2020, Oregon (no notes).csv")
+
+head(cdc_ucd)
+```
+
+
+```{r}
+
+
+```
+
+# Fully automated:
+NOT: Not working
+```{r}
+# # Install required packages if not already installed
+# # if (!require("readxl")) {
+# #   install.packages("readxl")
+# # }
+# # if (!require("httr")) {
+# #   install.packages("httr")
+# # }
+# 
+# # Load required libraries
+# library(readxl)
+# library(httr)
+# 
+# # Specify the list of URLs for the .xlsx files
+# file_urls <- c(
+#   "https://www.countyhealthrankings.org/sites/default/files/media/document/2023%20County%20Health%20Rankings%20Oregon%20Data%20-%20v2.xlsx"
+# #  "https://www.countyhealthrankings.org/sites/default/files/media/document/2022%20County%20Health%20Rankings%20Oregon%20Data%20-%20v1.xlsx",
+# #  "https://www.countyhealthrankings.org/sites/default/files/media/document/2021%20County%20Health%20Rankings%20Oregon%20Data%20-%20v1.xlsx",
+# #  "https://www.countyhealthrankings.org/sites/default/files/media/document/2020%20County%20Health%20Rankings%20Oregon%20Data%20-%20v1_0.xlsx",
+# #  "https://www.countyhealthrankings.org/sites/default/files/media/document/state/downloads/2019%20County%20Health%20Rankings%20Oregon%20Data%20-%20v1_0.xls"
+# )
+# 
+# # Specify the names of the sheets that contain the tables
+# sheet_names <- c("Outcomes & Factors Rankings", "Outcomes & Factors SubRankings", "Ranked Measure Data", "Additional Measure Data")
+# 
+# # Define a function to download and extract data from a file
+# download_and_extract_data <- function(url) {
+#   # Download the .xlsx file
+#   download_file <- GET(url)
+#   
+#   # Extract the file name from the URL
+#   file_name <- basename(url)
+#   
+#   # Specify the local file path to save the downloaded file
+#   local_file <- paste0("C:/Users/jesse/Downloads/temp/", file_name)
+#   
+#   # Save the downloaded file locally
+#   writeBin(content(download_file, "raw"), local_file)
+#   
+#   # Loop through each sheet and extract the data
+#   for (sheet_name in sheet_names) {
+#     # Read in the first row (0-indexed)
+# # Read in the first row (0-indexed)
+#     header_row1 <- read_excel(local_file, sheet = sheet_name, range = "A1:CU1", col_names = FALSE)
+#     
+#     # Read in the second row
+#     header_row2 <- read_excel(local_file, sheet = sheet_name, range = "A2:CU2", col_names = FALSE)
+#     
+#     # Combine the two rows to form the header
+#     header <- paste(header_row1[1, ], header_row2[1, ], sep = "_")
+#     
+#     # Read in the rest of the data
+#     data <- read_excel(local_file, sheet = sheet_name, skip = 2, col_names = FALSE)
+#     
+#     # Assign the combined header to the data
+#     colnames(data) <- header
+#     
+#     sheet_names <- data
+#     
+# #    rm(data, header_row1, header_row2, header, sheet_name)  
+#   # Delete the downloaded file from the local system
+# #  file.remove(local_file)
+#   }
+# }
+# 
+# # Iterate through each file URL and call the function to download and extract data
+# for (file_url in file_urls) {
+#   download_and_extract_data(file_url)
+# }
+# 
+# 
+# 
+# 
+
+```
+
