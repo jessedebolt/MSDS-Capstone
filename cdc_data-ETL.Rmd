@@ -294,6 +294,87 @@ cdc %>%
 
 ```
 
+### Correlation plot for CHD and prevalence of other heart conditions factors
+```{r}
+ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
+                "Prev-High_Blood_Pressure",
+                "Prev-Stroke"
+                )])
+```
+
+### Correlation plot for CHD and hospitals and pharmacy access factors
+```{r}
+ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
+                "HCDI-HP-Hospitals",
+                "HCDI-HP-Hospitals-Services-CA",
+                "HCDI-HP-Hospitals-Services-CIC",
+                "HCDI-HP-Hospitals-Services-ED",
+                "HCDI-HP-Hospitals-Services-NS",
+                "HCDI-HP-Pharmacies_and_Drug_Stores"
+                )])
+```
+
+
+### Correlation plot for CHD and various health care delivery and insurance factors
+```{r}
+ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
+                "HCDI-BPM-Medication_Use",
+                "HCDI-Cholesterol_Screening",
+                "HCDI-CLM-Nonadherence",
+                "HCDI-CRU-Eligibility_Rate",
+                "HCDI-CRU-Participation_Among_Eligible",
+                "HCDI-Insurance-Health_Insurance_Status",
+                "HCDI-PS-CDP",
+                "HCDI-PS-Neurologists",
+                "HCDI-PS-Neurosurgeons",
+                "HCDI-PS-PCP"
+                )])
+```
+
+
+### Correlation plot for CHD and various risk factors
+```{r}
+ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
+                "RF-Diagnosed_Diabetes",
+                "RF-High_Cholesterol",
+                "RF-Obesity",
+                "RF-Physical_Inactivity",
+                "RF-Smoking"
+                )])
+```
+
+
+### Correlation plot for CHD and various physical environment factors
+```{r}
+ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
+                "SEED-PE-Air_Quality",
+                "SEED-PE-Park_Access",
+                "SEED-UR-Urban-Rural"
+                )])
+
+```
+
+
+### Correlation plot for CHD and various social environmental factors
+```{r}
+ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
+                "SEED-SE-Broadband",
+                "SEED-SE-Computer",
+                "SEED-SE-Education-LessThanCollege",
+                "SEED-SE-Education-LessThanHighSchool",
+                "SEED-SE-Food_Stamp_SNAP_recipients",
+                "SEED-SE-Income_Inequality",
+                "SEED-SE-Median_Home",
+                "SEED-SE-Median_Household_Income",
+                "SEED-SE-Poverty",
+                "SEED-SE-Severe_Housing_Cost_Burden",
+                "SEED-SE-Unemployment_Rate"
+                )])
+
+```
+
+
+
 # New EDA (not useful as it is primarily a tool for data compression and visualization, also too many NAs)
 ### Prepare data for principle component analysis
 ```{r}
