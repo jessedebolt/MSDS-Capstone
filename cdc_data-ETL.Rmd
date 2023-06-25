@@ -296,87 +296,97 @@ cdc %>%
 
 ### Correlation plot for CHD and prevalence of other heart conditions factors
 ```{r}
-ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
-                "Prev-High_Blood_Pressure",
-                "Prev-Stroke"
-                )])
-```
-```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease", "Prev-High_Blood_Pressure", "Prev-Stroke", "SEED-UR-Urban-Rural") %>%
+    select("Prev-Coronary_Heart_Disease",
+           "Prev-High_Blood_Pressure",
+           "Prev-Stroke",
+           "SEED-UR-Urban-Rural") %>%
     ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+
 ```
 
 
 ### Correlation plot for CHD and hospitals and pharmacy access factors
 ```{r}
-ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
-                "HCDI-HP-Hospitals",
-                "HCDI-HP-Hospitals-Services-CA",
-                "HCDI-HP-Hospitals-Services-CIC",
-                "HCDI-HP-Hospitals-Services-ED",
-                "HCDI-HP-Hospitals-Services-NS",
-                "HCDI-HP-Pharmacies_and_Drug_Stores"
-                )])
+cdc %>%
+    select("Prev-Coronary_Heart_Disease",
+            "HCDI-HP-Hospitals",
+            "HCDI-HP-Hospitals-Services-CA",
+            "HCDI-HP-Hospitals-Services-CIC",
+            "HCDI-HP-Hospitals-Services-ED",
+            "HCDI-HP-Hospitals-Services-NS",
+            "HCDI-HP-Pharmacies_and_Drug_Stores",
+            "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+
 ```
 
 
 ### Correlation plot for CHD and various health care delivery and insurance factors
 ```{r}
-ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
-                "HCDI-BPM-Medication_Use",
-                "HCDI-Cholesterol_Screening",
-                "HCDI-CLM-Nonadherence",
-                "HCDI-CRU-Eligibility_Rate",
-                "HCDI-CRU-Participation_Among_Eligible",
-                "HCDI-Insurance-Health_Insurance_Status",
-                "HCDI-PS-CDP",
-                "HCDI-PS-Neurologists",
-                "HCDI-PS-Neurosurgeons",
-                "HCDI-PS-PCP"
-                )])
+cdc %>%
+    select("Prev-Coronary_Heart_Disease",
+           "HCDI-BPM-Medication_Use",
+           "HCDI-Cholesterol_Screening",
+           "HCDI-CLM-Nonadherence",
+           "HCDI-CRU-Eligibility_Rate",
+           "HCDI-CRU-Participation_Among_Eligible",
+           "HCDI-Insurance-Health_Insurance_Status",
+           "HCDI-PS-CDP",
+           "HCDI-PS-Neurologists",
+           "HCDI-PS-Neurosurgeons",
+           "HCDI-PS-PCP",
+           "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+
 ```
 
 
 ### Correlation plot for CHD and various risk factors
 ```{r}
-ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
-                "RF-Diagnosed_Diabetes",
-                "RF-High_Cholesterol",
-                "RF-Obesity",
-                "RF-Physical_Inactivity",
-                "RF-Smoking"
-                )])
+cdc %>%
+    select("Prev-Coronary_Heart_Disease",
+           "RF-Diagnosed_Diabetes",
+           "RF-High_Cholesterol",
+           "RF-Obesity",
+           "RF-Physical_Inactivity",
+           "RF-Smoking",
+           "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+
 ```
 
 
 ### Correlation plot for CHD and various physical environment factors
 ```{r}
-ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
-                "SEED-PE-Air_Quality",
-                "SEED-PE-Park_Access",
-                "SEED-UR-Urban-Rural"
-                )])
+cdc %>%
+    select("Prev-Coronary_Heart_Disease",
+           "SEED-PE-Air_Quality",
+           "SEED-PE-Park_Access",
+           "SEED-UR-Urban-Rural",
+           "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
 
 ```
 
 
 ### Correlation plot for CHD and various social environmental factors
 ```{r}
-ggpairs(cdc[,c("Prev-Coronary_Heart_Disease",
-                "SEED-SE-Broadband",
-                "SEED-SE-Computer",
-                "SEED-SE-Education-LessThanCollege",
-                "SEED-SE-Education-LessThanHighSchool",
-                "SEED-SE-Food_Stamp_SNAP_recipients",
-                "SEED-SE-Income_Inequality",
-                "SEED-SE-Median_Home",
-                "SEED-SE-Median_Household_Income",
-                "SEED-SE-Poverty",
-                "SEED-SE-Severe_Housing_Cost_Burden",
-                "SEED-SE-Unemployment_Rate"
-                )])
-
+cdc %>%
+    select("Prev-Coronary_Heart_Disease",
+           "SEED-SE-Broadband",
+           "SEED-SE-Computer",
+           "SEED-SE-Education-LessThanCollege",
+           "SEED-SE-Education-LessThanHighSchool",
+           "SEED-SE-Food_Stamp_SNAP_recipients",
+           "SEED-SE-Income_Inequality",
+           "SEED-SE-Median_Home",
+           "SEED-SE-Median_Household_Income",
+           "SEED-SE-Poverty",
+           "SEED-SE-Severe_Housing_Cost_Burden",
+           "SEED-SE-Unemployment_Rate",
+           "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
 ```
 
 
@@ -391,7 +401,7 @@ cdc_comp <- cdc %>%
 # Remove NAs
 cdc_comp[is.na(cdc_comp)] <- 0
 
-0# Double check to see if all entries are finite
+# Double check to see if all entries are finite
 all(sapply(cdc_comp, is.finite))
 
 ```
