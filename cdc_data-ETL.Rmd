@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(httr)
 library(readr)
 library(tidyverse)
-
+library(gdata)
 library(skimr)
 library(DataExplorer)
 library(GGally)
@@ -63,7 +63,7 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "HCDI-CLM-Nonadherence.csv",
                "HCDI-Cholesterol_Screening.csv",
                "HCDI-BPM-Medication_Use.csv",
-               "Demo-Total_Population.csv",
+               "Demo-Total_Population.csv"
                )
 
 ```
@@ -72,7 +72,7 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
 ### Create a function to generate the URL for a given filename
 ```{r}
 generate_url <- function(filename) {
-  return(paste0("https://raw.githubusercontent.com/jessedebolt/MSDS-Capstone/main/data/", filename))
+  return(paste0("https://raw.githubusercontent.com/jessedebolt/MSDS-Capstone/main/data_raw/", filename))
 }
 
 ```
@@ -97,22 +97,6 @@ names(df_list) <- sapply(filenames, function(filename) gsub(".csv", "", filename
 list2env(df_list, .GlobalEnv)
 
 ```
-
-### Iterate through each CSV file, read it into R, and store it as an individual data frame
-```{r}
-# cdc <- list()
-# for (file in csv_files) {
-#   file_url <- paste0(base_url, file)
-#   data <- read_csv(file_url)
-#   file_name <- gsub(".csv", "", basename(file))
-#   data_frames[[file_name]] <- data
-# }
-
-## Clean up global environment
-#keep(cdc, sure = TRUE)
-
-```
-
 
 
 ### Merge all sets together into one data frame
@@ -194,13 +178,7 @@ cdc[cdc == -1] <- NA
 ### Export complete dataframe to csv
 ```{r}
 # Write data to local in csv format
-write_csv(cdc, "CDC_all.csv")  
-
-# Establish drive location to copy to
-folder <- drive_get("~/CapstoneDataFinal")
-
-# Copy file to Google drive folder
-drive_upload("CDC_all.csv", path = folder)
+write_csv(cdc, "data/CDC_all.csv")  
 
 ```
 
@@ -316,43 +294,22 @@ cdc %>%
 
 
 # New EDA
+### 
 ```{r}
-library(tidyverse)
-library(ggcorrplot)
-library(ggplot2)
-library(dplyr)
-library(tidytext)
+cdc_comp <- cdc %>% 
+  select(-c("cnty_fips", "display_name", "SEED-UR-Urban-Rural"))
 
-library(fastDummies)
-library(randomForest)
-library(broom)
+cdc_comp[is.na(cdc_comp)] <- 0
 
-```
-
-```{r}
-
-Create new DF with non-num columns excluded, change NA to NULL ("") to see if that fixes infinite issue
-
-all(sapply(cdc, is.finite))
-
+all(sapply(cdc_comp, is.finite))
 
 ```
 
 #PCA
 ###* Run PCA on the dataset.
 ```{r results='hide'}
-pr_income <- prcomp(x = select(cdc, -c('Prev-Coronary_Heart_Disease', 'SEED-UR-Urban-Rural', 'cnty_fips', 'display_name')), scale = T, center = T)
+pr_income <- prcomp(x = cdc_comp, scale = T, center = T)
 
 summary(pr_income)
-
-```
-
-### Determine how many principal components are needed to explain half the variation
-```{r}
-cumulative_proportion <- cumsum(pr_income$sdev^2 / sum(pr_income$sdev^2))
-
-n_components <- min(which(cumulative_proportion >= 0.5))
-
-cat("The number of principal components needed to explain 50% of the variation is", n_components)
 
 ```
