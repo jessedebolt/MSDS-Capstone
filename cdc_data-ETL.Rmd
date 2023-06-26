@@ -180,6 +180,9 @@ cdc <- cdc %>% separate(display_name, into = c("county", "state"), sep = ", \\(|
 # Remove the closing parenthesis from the state column
 cdc$state <- gsub("\\)", "", cdc$state)
 
+# Remove the quotation marks from the 'county' column
+cdc$county <- gsub("\"", "", cdc$county)
+
 print(cdc)
 
 ```
