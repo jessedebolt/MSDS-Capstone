@@ -416,3 +416,17 @@ pr_income <- prcomp(x = cdc_comp, scale = T, center = T)
 summary(pr_income)
 
 ```
+
+
+```{r}
+
+# Separate the 'display_name' column
+cdc <- cdc %>% separate(display_name, into = c("county", "state"), sep = ", \\(|\\)", remove = TRUE, convert = TRUE)
+
+# Remove the closing parenthesis from the state column
+cdc$state <- gsub("\\)", "", cdc$state)
+
+print(cdc)
+
+```
+
