@@ -154,6 +154,7 @@ head(cdc)
 
 ```
 
+
 ### Cleaning up some variables
 ```{r}
 #change rural/urban
@@ -222,12 +223,13 @@ sum(is.na(cdc))
 
 ### EDA (rural values?)
 ```{r}
-
 names(cdc)
 unique(cdc$'SEED-UR-Urban-Rural')
-rural_query <- filter(cdc, 'SEED-UR-Urban-Rural' == -1)
+
+rural_query <- filter(cdc, `SEED-UR-Urban-Rural` %in% c(NA, "", "NA"))
 head(rural_query, n=20)
 #should we drop the -1 values, they are technically. not US counties, but territories of US etc...VERIFY
+
 ```
 ##EDA - Let's pook at CHD prevalence
 ```{r}
