@@ -250,7 +250,7 @@ colSums(is.na(cdc))
 
 #total number of missing values in each column
 count_na_func <- function(x) sum(is.na(x)) 
-cdc %>%
+cdc <- cdc %>%
   mutate(count_na = apply(., 1, count_na_func)) %>% 
   filter(count_na > 0) %>% 
   arrange(desc(count_na))
@@ -258,7 +258,18 @@ cdc %>%
 ```
 
 
-### Export complete dataframe to csv
+### Remove counties with minimal data
+```{r}
+# Remove those that have more than 8 NAs in that row
+CDC <- cdc[cdc$count_na < 8, ]
+
+# Remove count_na column
+cdc$count_na <- NULL
+
+```
+
+
+### Export cleaned data to csv
 ```{r}
 # Write data to local in csv format
 write_csv(cdc, "data/CDC_all.csv")  
