@@ -224,8 +224,9 @@ head(rural_query, n=20)
 ### Imputing Rural/Urban for missing value
 ```{r}
 # Find and impute where county is 'Kusilvak'
-# BLAH
+cdc$"SEED-UR-Urban-Rural"[grepl("Kusilvak", cdc$county)] <- "Rural"
 
+unique(cdc$'SEED-UR-Urban-Rural')
 
 # Double check for any NAs in Rural/Urban
 rural_query <- filter(cdc, `SEED-UR-Urban-Rural` %in% c(NA, "", "NA"))
