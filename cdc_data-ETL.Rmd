@@ -149,13 +149,42 @@ keep(cdc, sure = TRUE)
 ```
 
 
+### Make backup and display first few rows
 ```{r}
+cdc_copy <- cdc
+
 head(cdc)
+
+#cdc <- cdc_copy
 
 ```
 
 
-### Cleaning up some variables
+## Cleaning up some variables
+
+### Removing US territories
+```{r}
+cdc <- cdc_copy
+cdc <- cdc %>%
+  filter(!grepl("\\(AS\\)|\\(GU\\)|\\(MP\\)|\\(PR\\)|\\(County Equivalent\\)", as.character(display_name)))
+
+```
+
+
+### Separated County and State
+```{r}
+# Separate the 'display_name' column
+cdc <- cdc %>% separate(display_name, into = c("county", "state"), sep = ", \\(|\\)", remove = TRUE, convert = TRUE)
+
+# Remove the closing parenthesis from the state column
+cdc$state <- gsub("\\)", "", cdc$state)
+
+print(cdc)
+
+```
+
+
+### Relabeling Urban/Rural codes
 ```{r}
 #change rural/urban
 # 1 = Large central metro -> Large_Urban
@@ -179,6 +208,32 @@ cdc[cdc == -1] <- NA
 ```
 
 
+### Review header names, check for missing rural/urban values
+```{r}
+names(cdc)
+
+unique(cdc$'SEED-UR-Urban-Rural')
+
+rural_query <- filter(cdc, `SEED-UR-Urban-Rural` %in% c(NA, "", "NA"))
+
+head(rural_query, n=20)
+
+```
+
+
+### Imputing Rural/Urban for missing value
+```{r}
+# Find and impute where county is 'Kusilvak'
+# BLAH
+
+
+# Double check for any NAs in Rural/Urban
+rural_query <- filter(cdc, `SEED-UR-Urban-Rural` %in% c(NA, "", "NA"))
+head(rural_query, n=20)
+
+```
+
+
 ### Export complete dataframe to csv
 ```{r}
 # Write data to local in csv format
@@ -193,11 +248,7 @@ head(cdc)
 ```
 
 
-# ||||||||||||||||||||||||||||||||||
-# |||||||||||||| EDA |||||||||||||||
-## ||||||| From cdc_data.Rmd |||||||
-# ||||||||||||||||||||||||||||||||||
-
+# EDA
 
 ### EDA (Initial look)
 ```{r}
@@ -221,17 +272,7 @@ sum(is.na(cdc))
 ```
 
 
-### EDA (rural values?)
-```{r}
-names(cdc)
-unique(cdc$'SEED-UR-Urban-Rural')
-
-rural_query <- filter(cdc, `SEED-UR-Urban-Rural` %in% c(NA, "", "NA"))
-head(rural_query, n=20)
-#should we drop the -1 values, they are technically. not US counties, but territories of US etc...VERIFY
-
-```
-##EDA - Let's pook at CHD prevalence
+### Let's pook at CHD prevalence
 ```{r}
 hist(cdc$"Prev-Coronary_Heart_Disease")
 
@@ -398,7 +439,7 @@ cdc %>%
 ```{r}
 # Remove non-numeric variables
 cdc_comp <- cdc %>% 
-  select(-c("cnty_fips", "display_name", "SEED-UR-Urban-Rural"))
+  select(-c("cnty_fips", "county", "state", "SEED-UR-Urban-Rural"))
 
 # Remove NAs
 cdc_comp[is.na(cdc_comp)] <- 0
@@ -414,27 +455,6 @@ all(sapply(cdc_comp, is.finite))
 pr_income <- prcomp(x = cdc_comp, scale = T, center = T)
 
 summary(pr_income)
-
-```
-
-### Separated County and State
-```{r}
-
-# Separate the 'display_name' column
-cdc <- cdc %>% separate(display_name, into = c("county", "state"), sep = ", \\(|\\)", remove = TRUE, convert = TRUE)
-
-# Remove the closing parenthesis from the state column
-cdc$state <- gsub("\\)", "", cdc$state)
-
-print(cdc)
-
-```
-
-### testing
-```{r}
-# Write data to local in csv format
-write_csv(cdc, "data/CDC_test.csv")
-
 
 ```
 
