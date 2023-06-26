@@ -240,6 +240,24 @@ head(rural_query, n=20)
 ```
 
 
+### Any missing values?
+```{r}
+#total number of missing values in dataset
+sum(is.na(cdc))
+
+#total number of missing values in each column
+colSums(is.na(cdc))
+
+#total number of missing values in each column
+count_na_func <- function(x) sum(is.na(x)) 
+cdc %>%
+  mutate(count_na = apply(., 1, count_na_func)) %>% 
+  filter(count_na > 0) %>% 
+  arrange(desc(count_na))
+
+```
+
+
 ### Export complete dataframe to csv
 ```{r}
 # Write data to local in csv format
@@ -263,17 +281,6 @@ str(cdc)
 dim(cdc)
 summary(cdc)
 skim(cdc)
-
-```
-
-### Any missing values?
-```{r}
-
-#total number of missing values in each column
-colSums(is.na(cdc))
-
-#total number of missing values in dataset
-sum(is.na(cdc))
 
 ```
 
