@@ -38,8 +38,8 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "SEED-SE-Computer.csv",
                "SEED-SE-Broadband.csv",
                "SEED-PE-Park_Access.csv",
-               "SEED-PE-Air_Quality.csv",
-               "RF-Smoking.csv",
+               "SEED-PE-Air_Quality.csv", #REMOVE?
+               "RF-Smoking.csv", #REMOVE?
                "RF-Physical_Inactivity.csv",
                "RF-Obesity.csv",
                "RF-High_Cholesterol.csv",
@@ -48,12 +48,12 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "Prev-High_Blood_Pressure.csv",
                "Prev-Coronary_Heart_Disease.csv",
                "HCDI-PS-PCP.csv",
-               "HCDI-PS-Neurosurgeons.csv",
-               "HCDI-PS-Neurologists.csv",
+               "HCDI-PS-Neurosurgeons.csv", #REMOVE?
+               "HCDI-PS-Neurologists.csv", #REMOVE?
                "HCDI-PS-CDP.csv",
-               "HCDI-Insurance-Health_Insurance_Status.csv",
+               "HCDI-Insurance-Health_Insurance_Status.csv", #REMOVE?
                "HCDI-HP-Pharmacies_and_Drug_Stores.csv",
-               "HCDI-HP-Hospitals-Services-NS.csv",
+               "HCDI-HP-Hospitals-Services-NS.csv", #REMOVE?
                "HCDI-HP-Hospitals-Services-ED.csv",
                "HCDI-HP-Hospitals-Services-CIC.csv",
                "HCDI-HP-Hospitals-Services-CA.csv",
@@ -261,7 +261,7 @@ cdc <- cdc %>%
 ### Remove counties with minimal data
 ```{r}
 # Remove those that have more than 8 NAs in that row
-CDC <- cdc[cdc$count_na < 8, ]
+CDC <- cdc[cdc$count_na <= 8, ]
 
 # Remove count_na column
 cdc$count_na <- NULL
@@ -335,14 +335,14 @@ lowest_10
 
 ```
 
-##EDA Correlation
+### EDA Correlation
 ```{r}
 plot_correlation(cdc)
 
 ```
 
 
-##EDA (auto EDA report)
+### EDA (auto EDA report)
 ```{r}
 # 
 # cdc %>%
@@ -354,20 +354,13 @@ plot_correlation(cdc)
 
 ```
 
-##EDA GGally
-```{r}
-
-cdc %>%
-    select("Prev-Coronary_Heart_Disease", "Prev-High_Blood_Pressure", "Prev-Stroke", "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
-
-```
+### EDA GGally
 
 ### Correlation plot for CHD and prevalence of other heart conditions factors
 ```{r}
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
-           "Prev-High_Blood_Pressure",
+           #"Prev-High_Blood_Pressure", #Is causing error
            "Prev-Stroke",
            "SEED-UR-Urban-Rural") %>%
     ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
