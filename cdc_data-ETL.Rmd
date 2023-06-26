@@ -430,3 +430,11 @@ print(cdc)
 
 ```
 
+### testing
+```{r}
+# Write data to local in csv format
+write_csv(cdc, "data/CDC_test.csv")
+
+
+```
+
