@@ -131,7 +131,8 @@ for (df_name in df_names) {
     # Join the data frame with the final data frame
     if (nrow(cdc) == 0){
       cdc <- df
-    } else {
+    } 
+    else {
       cdc <- full_join(cdc, df, by = c("cnty_fips", "display_name"))
       
       # Remove the ".x" from the column names
@@ -192,15 +193,16 @@ print(cdc)
 # 3 = Medium/small metro -> MediumSmall_Urban
 # 4 = Nonmetro -> Rural
 
-cdc$"SEED-UR-Urban-Rural" <- ifelse(cdc$"SEED-UR-Urban-Rural"
-                                         == 1, "Large_Urban",
-                                  ifelse(cdc$"SEED-UR-Urban-Rural"
-                                         == 2,"LargeFringe_Urban",
-                                  ifelse(cdc$"SEED-UR-Urban-Rural" 
-                                         == 3,"MediumSmall_Urban", 
-                                  ifelse(cdc$"SEED-UR-Urban-Rural"
-                                         == 4,"Rural",
-                                  cdc$"SEED-UR-Urban-Rural"))))
+cdc$"SEED-UR-Urban-Rural" <-
+    ifelse(cdc$"SEED-UR-Urban-Rural" == 1,
+           "Large_Urban",
+    ifelse(cdc$"SEED-UR-Urban-Rural" == 2,
+           "LargeFringe_Urban",
+    ifelse(cdc$"SEED-UR-Urban-Rural" == 3,
+           "MediumSmall_Urban",
+    ifelse(cdc$"SEED-UR-Urban-Rural" == 4,
+           "Rural",
+           cdc$"SEED-UR-Urban-Rural"))))
 
 ### Replacing '-1' with 'NA' under assumption that these are truly missing elements
 cdc[cdc == -1] <- NA
@@ -279,7 +281,9 @@ hist(cdc$"Prev-Coronary_Heart_Disease")
 
 #Why are some prevalence values -1? Let's look at them. Maybe it's a non-reporting issue?
 sort(unique(cdc$"Prev-Coronary_Heart_Disease"))
-chd_query <- filter(cdc, "Prev-Coronary_Heart_Disease" == -1)
+chd_query <- filter(cdc, "Prev-Coronary_Heart_Disease" 
+                    %in% c(NA, "", "NA", NULL))
+
 head(chd_query, n=20)
 
 top_10 <- top_n(cdc, n=10, "Prev-Coronary_Heart_Disease")
@@ -303,7 +307,7 @@ highest_10 %>%
 ```{r}
 
 lowest_10 <- cdc %>%
-    filter("Prev-Coronary_Heart_Disease" != -1) %>%
+#    filter("Prev-Coronary_Heart_Disease" != -1) %>%
     arrange("Prev-Coronary_Heart_Disease") %>%
     head(10)
 lowest_10
@@ -355,12 +359,36 @@ cdc %>%
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
             "HCDI-HP-Hospitals",
+            "HCDI-HP-Pharmacies_and_Drug_Stores",
+            "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+
+```
+
+
+### Correlation plot for CHD and hospital services factors
+```{r}
+cdc %>%
+    select("Prev-Coronary_Heart_Disease",
             "HCDI-HP-Hospitals-Services-CA",
             "HCDI-HP-Hospitals-Services-CIC",
             "HCDI-HP-Hospitals-Services-ED",
             "HCDI-HP-Hospitals-Services-NS",
-            "HCDI-HP-Pharmacies_and_Drug_Stores",
             "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+
+```
+
+
+### Correlation plot for CHD and physician and specialist access factors
+```{r}
+cdc %>%
+    select("Prev-Coronary_Heart_Disease",
+           "HCDI-PS-CDP",
+           "HCDI-PS-Neurologists",
+           "HCDI-PS-Neurosurgeons",
+           "HCDI-PS-PCP",
+           "SEED-UR-Urban-Rural") %>%
     ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
 
 ```
@@ -376,10 +404,6 @@ cdc %>%
            "HCDI-CRU-Eligibility_Rate",
            "HCDI-CRU-Participation_Among_Eligible",
            "HCDI-Insurance-Health_Insurance_Status",
-           "HCDI-PS-CDP",
-           "HCDI-PS-Neurologists",
-           "HCDI-PS-Neurosurgeons",
-           "HCDI-PS-PCP",
            "SEED-UR-Urban-Rural") %>%
     ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
 
@@ -453,9 +477,9 @@ all(sapply(cdc_comp, is.finite))
 #PCA
 ###* Run PCA on the dataset.
 ```{r results='hide'}
-pr_income <- prcomp(x = cdc_comp, scale = T, center = T)
+pr_cdc <- prcomp(x = cdc_comp, scale = T, center = T)
 
-summary(pr_income)
+summary(pr_cdc)
 
 ```
 
