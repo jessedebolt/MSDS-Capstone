@@ -417,7 +417,7 @@ summary(pr_income)
 
 ```
 
-
+### Separated County and State
 ```{r}
 
 # Separate the 'display_name' column
