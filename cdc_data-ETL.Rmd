@@ -5,7 +5,9 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-### Setup
+# Primary Document for all code
+## Setup
+### Load libraries and knit setup
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
@@ -22,7 +24,7 @@ library(caret)
 ```
 
 
-### List of files located in the GitHub repository data folder
+### Files located in the GitHub repository data folder
 ```{r}
 # File names list
 filenames <- c("SEED-UR-Urban-Rural.csv",
@@ -160,9 +162,7 @@ head(cdc)
 
 ```
 
-
-## Cleaning up some variables
-
+## Data cleansing 
 ### Removing US territories
 ```{r}
 cdc <- cdc_copy
@@ -240,7 +240,7 @@ head(rural_query, n=20)
 ```
 
 
-### Any missing values?
+### Checking for missing values
 ```{r}
 #total number of missing values in dataset
 sum(is.na(cdc))
@@ -277,15 +277,9 @@ write_csv(cdc, "data/CDC_all.csv")
 ```
 
 
-```{r}
-head(cdc)
+## EDA
 
-```
-
-
-# EDA
-
-### EDA (Initial look)
+### Show basic details and information
 ```{r}
 head(cdc)
 str(cdc)
@@ -296,7 +290,7 @@ skim(cdc)
 ```
 
 
-### Let's pook at CHD prevalence
+### Reviewing CHD prevalence
 ```{r}
 hist(cdc$"Prev-Coronary_Heart_Disease")
 
@@ -316,7 +310,7 @@ bottom_10 <- cdc %>%
 
 ```
 
-##EDA 10 Counties with highest CHD prevalence
+### Top 10 Counties with highest CHD prevalence
 ```{r}
 
 highest_10 <- top_n(cdc, n=10, "Prev-Coronary_Heart_Disease")
@@ -324,7 +318,7 @@ highest_10 %>%
     arrange(desc("Prev-Coronary_Heart_Disease"))
 
 ```
-##EDA 10 Counties with lowest CHD prevalence
+### Bottom 10 Counties with lowest CHD prevalence
 ```{r}
 
 lowest_10 <- cdc %>%
@@ -335,14 +329,14 @@ lowest_10
 
 ```
 
-### EDA Correlation
+### Correlation
 ```{r}
 plot_correlation(cdc)
 
 ```
 
 
-### EDA (auto EDA report)
+### Auto EDA report
 ```{r}
 # 
 # cdc %>%
@@ -354,9 +348,10 @@ plot_correlation(cdc)
 
 ```
 
-### EDA GGally
 
-### Correlation plot for CHD and prevalence of other heart conditions factors
+## EDA GGally
+## Correlation plots: CHD and Urban/Rural vs various factors
+### Prevalence of other heart conditions factors
 ```{r}
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
@@ -368,7 +363,7 @@ cdc %>%
 ```
 
 
-### Correlation plot for CHD and hospitals and pharmacy access factors
+### Hospitals and pharmacy access factors
 ```{r}
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
@@ -380,7 +375,7 @@ cdc %>%
 ```
 
 
-### Correlation plot for CHD and hospital services factors
+### Hospital services factors
 ```{r}
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
@@ -394,7 +389,7 @@ cdc %>%
 ```
 
 
-### Correlation plot for CHD and physician and specialist access factors
+### Physician and specialist access factors
 ```{r}
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
@@ -408,7 +403,7 @@ cdc %>%
 ```
 
 
-### Correlation plot for CHD and various health care delivery and insurance factors
+### Various health care delivery and insurance factors
 ```{r}
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
@@ -424,7 +419,7 @@ cdc %>%
 ```
 
 
-### Correlation plot for CHD and various risk factors
+### Various risk factors
 ```{r}
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
@@ -439,7 +434,7 @@ cdc %>%
 ```
 
 
-### Correlation plot for CHD and various physical environment factors
+### Various physical environment factors
 ```{r}
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
@@ -452,7 +447,7 @@ cdc %>%
 ```
 
 
-### Correlation plot for CHD and various social environmental factors
+### Various social environmental factors
 ```{r}
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
