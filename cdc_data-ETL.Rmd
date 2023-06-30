@@ -312,10 +312,16 @@ bottom_10 <- cdc %>%
 
 ### Top 10 Counties with highest CHD prevalence
 ```{r}
-
+#returns all of the observations
 highest_10 <- top_n(cdc, n=10, "Prev-Coronary_Heart_Disease")
 highest_10 %>%
     arrange(desc("Prev-Coronary_Heart_Disease"))
+
+#tried this. this worked.
+highest_10 <- cdc %>%
+  arrange(desc(`Prev-Coronary_Heart_Disease`)) %>%
+  head(10)
+highest_10
 
 ```
 ### Bottom 10 Counties with lowest CHD prevalence
@@ -332,6 +338,28 @@ lowest_10
 ### Correlation
 ```{r}
 plot_correlation(cdc)
+
+
+#tried this but need to remove non numerical first
+correlation_matrix <- cdc %>% select(-c(couty, state, "SEED-UR-Urban-Rural") %>% cor()
+
+#install.packages("reshape2")
+library(reshape2)
+
+melted_cor <- melt(correlation_matrix)
+
+ggplot(data = melted_cor, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Correlation Heatmap")
+
+#looked at Urban Rural vs CHD
+ggplot(data = cdc, aes(x = `SEED-UR-Urban-Rural`, y = `Prev-Coronary_Heart_Disease`, fill = `SEED-UR-Urban-Rural`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "SEED-UR-Urban-Rural", y = "Prevalence of CHD", fill = "SEED-UR-Urban-Rural") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 
 ```
 
