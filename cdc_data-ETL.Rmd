@@ -319,7 +319,7 @@ highest_10 %>%
 
 #tried this. this worked.
 highest_10 <- cdc %>%
-  arrange(desc(`Prev-Coronary_Heart_Disease`)) %>%
+  arrange(desc("Prev-Coronary_Heart_Disease")) %>%
   head(10)
 highest_10
 
@@ -340,11 +340,11 @@ lowest_10
 plot_correlation(cdc)
 
 
-#tried this but need to remove non numerical first
-correlation_matrix <- cdc %>% select(-c(couty, state, "SEED-UR-Urban-Rural") %>% cor()
+#tried this but needed to remove non numerical first
+correlation_matrix <- cdc %>% select(-c(cnty_fips, county, state, "SEED-UR-Urban-Rural")) %>% cor()
 
 #install.packages("reshape2")
-library(reshape2)
+#library(reshape2)
 
 melted_cor <- melt(correlation_matrix)
 
@@ -353,6 +353,27 @@ ggplot(data = melted_cor, aes(x = Var1, y = Var2, fill = value)) +
   scale_fill_gradient(low = "blue", high = "red") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(title = "Correlation Heatmap")
+
+#focused on looking at high correlations only
+#correlation_matrix <- cor(your_data_frame)
+high_correlations <- subset(melt(correlation_matrix), value > 0.75)
+
+ggplot(data = high_correlations, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "High Correlation Heatmap (Correlation > 0.75)")
+
+#focused on less high correlations
+#correlation_matrix <- cor(your_data_frame)
+mid_correlations <- subset(melt(correlation_matrix), value > 0.50 & value < 0.75)
+
+ggplot(data = mid_correlations, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Mid Correlation Heatmap (0.50 < Correlation < 0.75)")
+
 
 #looked at Urban Rural vs CHD
 ggplot(data = cdc, aes(x = `SEED-UR-Urban-Rural`, y = `Prev-Coronary_Heart_Disease`, fill = `SEED-UR-Urban-Rural`)) +
