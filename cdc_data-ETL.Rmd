@@ -33,7 +33,7 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "SEED-SE-Poverty.csv",
                "SEED-SE-Median_Household_Income.csv",
                "SEED-SE-Median_Home_Value.csv",
-               "SEED-SE-Income_Inequality.csv",
+               "SEED-SE-Income_Inequality.csv", #REMOVE?
                "SEED-SE-Food_Stamp_SNAP_recipients.csv",
                "SEED-SE-Education-LessThanHighSchool.csv", #REMOVE?
                "SEED-SE-Education-LessThanCollege.csv",
@@ -344,7 +344,7 @@ plot_correlation(cdc)
 correlation_matrix <- cdc %>% select(-c(cnty_fips, county, state, "SEED-UR-Urban-Rural")) %>% cor()
 
 #install.packages("reshape2")
-#library(reshape2)
+library(reshape2)
 
 melted_cor <- melt(correlation_matrix)
 
