@@ -355,7 +355,6 @@ ggplot(data = melted_cor, aes(x = Var1, y = Var2, fill = value)) +
   labs(title = "Correlation Heatmap")
 
 #focused on looking at high correlations only
-#correlation_matrix <- cor(your_data_frame)
 high_correlations <- subset(melt(correlation_matrix), value > 0.75)
 
 ggplot(data = high_correlations, aes(x = Var1, y = Var2, fill = value)) +
@@ -365,7 +364,6 @@ ggplot(data = high_correlations, aes(x = Var1, y = Var2, fill = value)) +
   labs(title = "High Correlation Heatmap (Correlation > 0.75)")
 
 #focused on less high correlations
-#correlation_matrix <- cor(your_data_frame)
 mid_correlations <- subset(melt(correlation_matrix), value > 0.50 & value < 0.75)
 
 ggplot(data = mid_correlations, aes(x = Var1, y = Var2, fill = value)) +
