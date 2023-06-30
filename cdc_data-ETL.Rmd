@@ -35,7 +35,7 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "SEED-SE-Median_Home_Value.csv",
                "SEED-SE-Income_Inequality.csv",
                "SEED-SE-Food_Stamp_SNAP_recipients.csv",
-               "SEED-SE-Education-LessThanHighSchool.csv",
+               "SEED-SE-Education-LessThanHighSchool.csv", #REMOVE?
                "SEED-SE-Education-LessThanCollege.csv",
                "SEED-SE-Computer.csv",
                "SEED-SE-Broadband.csv",
@@ -261,7 +261,7 @@ cdc <- cdc %>%
 ### Remove counties with minimal data
 ```{r}
 # Remove those that have more than 8 NAs in that row
-CDC <- cdc[cdc$count_na <= 8, ]
+cdc <- cdc[cdc$count_na <= 8, ]
 
 # Remove count_na column
 cdc$count_na <- NULL
@@ -419,15 +419,25 @@ cdc %>%
 ```
 
 
-### Various risk factors
+### Various (physical activity/smoking) risk factors
+```{r}
+cdc %>%
+    select("Prev-Coronary_Heart_Disease",
+           "RF-Physical_Inactivity",
+           "RF-Smoking",
+           "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+
+```
+
+
+### Various (other diagnosed)risk factors
 ```{r}
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
            "RF-Diagnosed_Diabetes",
            "RF-High_Cholesterol",
            "RF-Obesity",
-           "RF-Physical_Inactivity",
-           "RF-Smoking",
            "SEED-UR-Urban-Rural") %>%
     ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
 
@@ -440,14 +450,38 @@ cdc %>%
     select("Prev-Coronary_Heart_Disease",
            "SEED-PE-Air_Quality",
            "SEED-PE-Park_Access",
-           "SEED-UR-Urban-Rural",
            "SEED-UR-Urban-Rural") %>%
     ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
 
 ```
 
 
-### Various social environmental factors
+### Various (income) social environmental factors
+```{r}
+cdc %>%
+    select("Prev-Coronary_Heart_Disease",
+           "SEED-SE-Food_Stamp_SNAP_recipients",
+           "SEED-SE-Income_Inequality",
+           "SEED-SE-Poverty",
+           "SEED-SE-Unemployment_Rate",
+           "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+```
+
+
+### Various (housing) social environmental factors
+```{r}
+cdc %>%
+    select("Prev-Coronary_Heart_Disease",
+           "SEED-SE-Median_Home",
+           "SEED-SE-Median_Household_Income",
+           "SEED-SE-Severe_Housing_Cost_Burden",
+           "SEED-UR-Urban-Rural") %>%
+    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+```
+
+
+### Various (Education) social environmental factors
 ```{r}
 cdc %>%
     select("Prev-Coronary_Heart_Disease",
@@ -455,13 +489,6 @@ cdc %>%
            "SEED-SE-Computer",
            "SEED-SE-Education-LessThanCollege",
            "SEED-SE-Education-LessThanHighSchool",
-           "SEED-SE-Food_Stamp_SNAP_recipients",
-           "SEED-SE-Income_Inequality",
-           "SEED-SE-Median_Home",
-           "SEED-SE-Median_Household_Income",
-           "SEED-SE-Poverty",
-           "SEED-SE-Severe_Housing_Cost_Burden",
-           "SEED-SE-Unemployment_Rate",
            "SEED-UR-Urban-Rural") %>%
     ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
 ```
