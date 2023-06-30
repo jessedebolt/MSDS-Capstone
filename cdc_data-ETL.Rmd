@@ -58,7 +58,7 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "HCDI-HP-Hospitals-Services-NS.csv", #REMOVE?
                "HCDI-HP-Hospitals-Services-ED.csv",
                "HCDI-HP-Hospitals-Services-CIC.csv",
-               "HCDI-HP-Hospitals-Services-CA.csv",
+               "HCDI-HP-Hospitals-Services-CR.csv",
                "HCDI-HP-Hospitals.csv",
                "HCDI-CRU-Participation_Among_Eligible.csv",
                "HCDI-CRU-Eligibility_Rate.csv",
@@ -146,6 +146,63 @@ for (df_name in df_names) {
   }
 }
 
+```
+
+
+### Renaming variables
+```{r}
+# Mapping of original names to new names
+name_mapping <- c("cnty_fips" = "fips",
+                  "display_name" = "display_name",
+                  "SEED-UR-Urban-Rural" = "UrbanRural",
+                 "SEED-SE-Unemployment_Rate" = "Unemploy",
+                 "SEED-SE-Severe_Housing_Cost_Burden"= "HouseCostBurd",
+                 "SEED-SE-Poverty" = "Poverty",
+                 "SEED-SE-Median_Household_Income" = "MedHouseIncome",
+                 "SEED-SE-Median_Home" = "MedHomeValue",
+                 "SEED-SE-Income_Inequality" = "IncomeInequality",
+                 "SEED-SE-Food_Stamp_SNAP_recipients" = "SNAPrecipients",
+                 "SEED-SE-Education-LessThanHighSchool" = "EdLessHigh",
+                 "SEED-SE-Education-LessThanCollege" = "EdLessColl",
+                 "SEED-SE-Computer" = "Computer",
+                 "SEED-SE-Broadband" = "Broadband",
+                 "SEED-PE-Park_Access" = "Parks",
+                 "SEED-PE-Air_Quality" = "AirQuality",
+                 "RF-Smoking" = "Smoker",
+                 "RF-Physical_Inactivity" = "PhysInactivity",
+                 "RF-Obesity" = "Obesity",
+                 "RF-High_Cholesterol" = "HighChol",
+                 "RF-Diagnosed_Diabetes" = "Diabetes",
+                 "Prev-Stroke" = "Stroke",
+                 "Prev-High_Blood_Pressure" = "HighBP",
+                 "Prev-Coronary_Heart_Disease" = "CHD",
+                 "HCDI-PS-PCP" = "PrimaryCarePhys",
+                 "HCDI-PS-Neurosurgeons" = "NeuroSurgeons",
+                 "HCDI-PS-Neurologists" = "Neuologists",
+                 "HCDI-PS-CDP" = "CardioPhys",
+                 "HCDI-Insurance-Health_Insurance_Status" = "HealthIns",
+                 "HCDI-HP-Pharmacies_and_Drug_Stores" = "Pharmacies",
+                 "HCDI-HP-Hospitals-Services-NS" = "HospNeuro",
+                 "HCDI-HP-Hospitals-Services-ED" = "HospED",
+                 "HCDI-HP-Hospitals-Services-CIC" = "HospCIC",
+                 "HCDI-HP-Hospitals-Services-CR" = "HospCR",
+                 "HCDI-HP-Hospitals" = "Hospitals",
+                 "HCDI-CRU-Participation_Among_Eligible" = "cruParticipate",
+                 "HCDI-CRU-Eligibility_Rate" = "CholMedElegible",
+                 "HCDI-CLM-Nonadherence" = "CholMedNonAdhear",
+                 "HCDI-Cholesterol_Screening" = "CholScreen",
+                 "HCDI-BPM-Medication_Use" = "bpmUse",
+                 "Demo-Total_Population" = "Population")
+
+# Get the column names of the data frame
+original_names <- colnames(cdc)
+
+# Find the corresponding new names using the mapping
+new_names <- name_mapping[match(original_names, names(name_mapping))]
+
+# Rename the variables in the data frame
+colnames(cdc) <- new_names
+
 # Clean up global environment
 keep(cdc, sure = TRUE)
 
@@ -165,7 +222,7 @@ head(cdc)
 ## Data cleansing 
 ### Removing US territories
 ```{r}
-cdc <- cdc_copy
+#cdc <- cdc_copy
 cdc <- cdc %>%
   filter(!grepl("\\(AS\\)|\\(GU\\)|\\(MP\\)|\\(PR\\)|\\(County Equivalent\\)", as.character(display_name)))
 
@@ -196,16 +253,16 @@ print(cdc)
 # 3 = Medium/small metro -> MediumSmall_Urban
 # 4 = Nonmetro -> Rural
 
-cdc$"SEED-UR-Urban-Rural" <-
-    ifelse(cdc$"SEED-UR-Urban-Rural" == 1,
+cdc$"UrbanRural" <-
+    ifelse(cdc$"UrbanRural" == 1,
            "Large_Urban",
-    ifelse(cdc$"SEED-UR-Urban-Rural" == 2,
+    ifelse(cdc$"UrbanRural" == 2,
            "LargeFringe_Urban",
-    ifelse(cdc$"SEED-UR-Urban-Rural" == 3,
+    ifelse(cdc$"UrbanRural" == 3,
            "MediumSmall_Urban",
-    ifelse(cdc$"SEED-UR-Urban-Rural" == 4,
+    ifelse(cdc$"UrbanRural" == 4,
            "Rural",
-           cdc$"SEED-UR-Urban-Rural"))))
+           cdc$"UrbanRural"))))
 
 ### Replacing '-1' with 'NA' under assumption that these are truly missing elements
 cdc[cdc == -1] <- NA
@@ -217,9 +274,9 @@ cdc[cdc == -1] <- NA
 ```{r}
 names(cdc)
 
-unique(cdc$'SEED-UR-Urban-Rural')
+unique(cdc$'UrbanRural')
 
-rural_query <- filter(cdc, `SEED-UR-Urban-Rural` %in% c(NA, "", "NA"))
+rural_query <- filter(cdc, `UrbanRural` %in% c(NA, "", "NA"))
 
 head(rural_query, n=20)
 
@@ -229,12 +286,12 @@ head(rural_query, n=20)
 ### Imputing Rural/Urban for missing value
 ```{r}
 # Find and impute where county is 'Kusilvak'
-cdc$"SEED-UR-Urban-Rural"[grepl("Kusilvak", cdc$county)] <- "Rural"
+cdc$"UrbanRural"[grepl("Kusilvak", cdc$county)] <- "Rural"
 
-unique(cdc$'SEED-UR-Urban-Rural')
+unique(cdc$'UrbanRural')
 
 # Double check for any NAs in Rural/Urban
-rural_query <- filter(cdc, `SEED-UR-Urban-Rural` %in% c(NA, "", "NA"))
+rural_query <- filter(cdc, `UrbanRural` %in% c(NA, "", "NA"))
 head(rural_query, n=20)
 
 ```
@@ -292,20 +349,20 @@ skim(cdc)
 
 ### Reviewing CHD prevalence
 ```{r}
-hist(cdc$"Prev-Coronary_Heart_Disease")
+hist(cdc$"CHD")
 
 #Why are some prevalence values -1? Let's look at them. Maybe it's a non-reporting issue?
-sort(unique(cdc$"Prev-Coronary_Heart_Disease"))
-chd_query <- filter(cdc, "Prev-Coronary_Heart_Disease" 
+sort(unique(cdc$"CHD"))
+chd_query <- filter(cdc, "CHD" 
                     %in% c(NA, "", "NA", NULL))
 
 head(chd_query, n=20)
 
-top_10 <- top_n(cdc, n=10, "Prev-Coronary_Heart_Disease")
+top_10 <- top_n(cdc, n=10, "CHD")
 top_10
 
 bottom_10 <- cdc %>%
-    arrange("Prev-Coronary_Heart_Disease") %>%
+    arrange("CHD") %>%
     tail(10)
 
 ```
@@ -313,13 +370,13 @@ bottom_10 <- cdc %>%
 ### Top 10 Counties with highest CHD prevalence
 ```{r}
 #returns all of the observations
-highest_10 <- top_n(cdc, n=10, "Prev-Coronary_Heart_Disease")
+highest_10 <- top_n(cdc, n=10, "CHD")
 highest_10 %>%
-    arrange(desc("Prev-Coronary_Heart_Disease"))
+    arrange(desc("CHD"))
 
 #tried this. this worked.
 highest_10 <- cdc %>%
-  arrange(desc("Prev-Coronary_Heart_Disease")) %>%
+  arrange(desc("CHD")) %>%
   head(10)
 highest_10
 
@@ -328,8 +385,8 @@ highest_10
 ```{r}
 
 lowest_10 <- cdc %>%
-#    filter("Prev-Coronary_Heart_Disease" != -1) %>%
-    arrange("Prev-Coronary_Heart_Disease") %>%
+#    filter("CHD" != -1) %>%
+    arrange("CHD") %>%
     head(10)
 lowest_10
 
@@ -341,7 +398,7 @@ plot_correlation(cdc)
 
 
 #tried this but needed to remove non numerical first
-correlation_matrix <- cdc %>% select(-c(cnty_fips, county, state, "SEED-UR-Urban-Rural")) %>% cor()
+correlation_matrix <- cdc %>% select(-c(fips, county, state, "UrbanRural")) %>% cor()
 
 #install.packages("reshape2")
 library(reshape2)
@@ -374,9 +431,9 @@ ggplot(data = mid_correlations, aes(x = Var1, y = Var2, fill = value)) +
 
 
 #looked at Urban Rural vs CHD
-ggplot(data = cdc, aes(x = `SEED-UR-Urban-Rural`, y = `Prev-Coronary_Heart_Disease`, fill = `SEED-UR-Urban-Rural`)) +
+ggplot(data = cdc, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(x = "SEED-UR-Urban-Rural", y = "Prevalence of CHD", fill = "SEED-UR-Urban-Rural") +
+  labs(x = "UrbanRural", y = "Prevalence of CHD", fill = "UrbanRural") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
@@ -401,11 +458,11 @@ ggplot(data = cdc, aes(x = `SEED-UR-Urban-Rural`, y = `Prev-Coronary_Heart_Disea
 ### Prevalence of other heart conditions factors
 ```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease",
-           #"Prev-High_Blood_Pressure", #Is causing error
-           "Prev-Stroke",
-           "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+    select("CHD",
+           "HighBP",
+           "Stroke",
+           "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 
 ```
 
@@ -413,11 +470,11 @@ cdc %>%
 ### Hospitals and pharmacy access factors
 ```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease",
-            "HCDI-HP-Hospitals",
-            "HCDI-HP-Pharmacies_and_Drug_Stores",
-            "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+    select("CHD",
+            "Hospitals",
+            "Pharmacies",
+            "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 
 ```
 
@@ -425,13 +482,13 @@ cdc %>%
 ### Hospital services factors
 ```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease",
-            "HCDI-HP-Hospitals-Services-CA",
-            "HCDI-HP-Hospitals-Services-CIC",
-            "HCDI-HP-Hospitals-Services-ED",
-            "HCDI-HP-Hospitals-Services-NS",
-            "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+    select("CHD",
+            "HospCR",
+            "HospCIC",
+            "HospED",
+            "HospNeuro",
+            "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 
 ```
 
@@ -439,13 +496,13 @@ cdc %>%
 ### Physician and specialist access factors
 ```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease",
-           "HCDI-PS-CDP",
-           "HCDI-PS-Neurologists",
-           "HCDI-PS-Neurosurgeons",
-           "HCDI-PS-PCP",
-           "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+    select("CHD",
+           "CardioPhys",
+           "Neuologists",
+           "NeuroSurgeons",
+           "PrimaryCarePhys",
+           "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 
 ```
 
@@ -453,15 +510,15 @@ cdc %>%
 ### Various health care delivery and insurance factors
 ```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease",
-           "HCDI-BPM-Medication_Use",
-           "HCDI-Cholesterol_Screening",
-           "HCDI-CLM-Nonadherence",
-           "HCDI-CRU-Eligibility_Rate",
-           "HCDI-CRU-Participation_Among_Eligible",
-           "HCDI-Insurance-Health_Insurance_Status",
-           "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+    select("CHD",
+           "bpmUse",
+           "CholScreen",
+           "CholMedNonAdhear",
+           "CholMedElegible",
+           "cruParticipate",
+           "HealthIns",
+           "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 
 ```
 
@@ -469,11 +526,11 @@ cdc %>%
 ### Various (physical activity/smoking) risk factors
 ```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease",
-           "RF-Physical_Inactivity",
-           "RF-Smoking",
-           "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+    select("CHD",
+           "PhysInactivity",
+           "Smoker",
+           "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 
 ```
 
@@ -481,12 +538,12 @@ cdc %>%
 ### Various (other diagnosed)risk factors
 ```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease",
-           "RF-Diagnosed_Diabetes",
-           "RF-High_Cholesterol",
-           "RF-Obesity",
-           "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+    select("CHD",
+           "Diabetes",
+           "HighChol",
+           "Obesity",
+           "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 
 ```
 
@@ -494,11 +551,11 @@ cdc %>%
 ### Various physical environment factors
 ```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease",
-           "SEED-PE-Air_Quality",
-           "SEED-PE-Park_Access",
-           "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+    select("CHD",
+           "AirQuality",
+           "Parks",
+           "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 
 ```
 
@@ -506,38 +563,38 @@ cdc %>%
 ### Various (income) social environmental factors
 ```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease",
-           "SEED-SE-Food_Stamp_SNAP_recipients",
-           "SEED-SE-Income_Inequality",
-           "SEED-SE-Poverty",
-           "SEED-SE-Unemployment_Rate",
-           "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+    select("CHD",
+           "SNAPrecipients",
+           "IncomeInequality",
+           "Poverty",
+           "Unemploy",
+           "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 ```
 
 
 ### Various (housing) social environmental factors
 ```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease",
-           "SEED-SE-Median_Home",
-           "SEED-SE-Median_Household_Income",
-           "SEED-SE-Severe_Housing_Cost_Burden",
-           "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+    select("CHD",
+           "MedHomeValue",
+           "MedHouseIncome",
+           "HouseCostBurd",
+           "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 ```
 
 
 ### Various (Education) social environmental factors
 ```{r}
 cdc %>%
-    select("Prev-Coronary_Heart_Disease",
-           "SEED-SE-Broadband",
-           "SEED-SE-Computer",
-           "SEED-SE-Education-LessThanCollege",
-           "SEED-SE-Education-LessThanHighSchool",
-           "SEED-UR-Urban-Rural") %>%
-    ggpairs(mapping = aes(color = cdc$"SEED-UR-Urban-Rural", alpha = 0.5))
+    select("CHD",
+           "Broadband",
+           "Computer",
+           "EdLessColl",
+           "EdLessHigh",
+           "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 ```
 
 
@@ -547,7 +604,7 @@ cdc %>%
 ```{r}
 # Remove non-numeric variables
 cdc_comp <- cdc %>% 
-  select(-c("cnty_fips", "county", "state", "SEED-UR-Urban-Rural"))
+  select(-c("fips", "county", "state", "UrbanRural"))
 
 # Remove NAs
 cdc_comp[is.na(cdc_comp)] <- 0
