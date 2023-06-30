@@ -37,11 +37,11 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "SEED-SE-Food_Stamp_SNAP_recipients.csv",
                "SEED-SE-Education-LessThanHighSchool.csv", #REMOVE?
                "SEED-SE-Education-LessThanCollege.csv",
-               "SEED-SE-Computer.csv",
+               "SEED-SE-Computer.csv", #REMOVE?
                "SEED-SE-Broadband.csv",
-               "SEED-PE-Park_Access.csv",
+               "SEED-PE-Park_Access.csv", #REMOVE?
                "SEED-PE-Air_Quality.csv", #REMOVE?
-               "RF-Smoking.csv", #REMOVE?
+               "RF-Smoking.csv",
                "RF-Physical_Inactivity.csv",
                "RF-Obesity.csv",
                "RF-High_Cholesterol.csv",
