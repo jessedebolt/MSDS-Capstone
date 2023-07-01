@@ -223,7 +223,10 @@ head(cdc)
 ## Data cleansing 
 ### Removing US territories
 ```{r}
+#Use if needed to back up changes
 #cdc <- cdc_copy
+
+#Remove territories
 cdc <- cdc %>%
   filter(!grepl("\\(AS\\)|\\(GU\\)|\\(MP\\)|\\(PR\\)|\\(County Equivalent\\)", as.character(display_name)))
 
@@ -310,7 +313,6 @@ colSums(is.na(cdc))
 count_na_func <- function(x) sum(is.na(x)) 
 cdc <- cdc %>%
   mutate(count_na = apply(., 1, count_na_func)) %>% 
-  filter(count_na > 0) %>% 
   arrange(desc(count_na))
 
 ```
@@ -599,7 +601,6 @@ cdc %>%
 ```
 
 
-
 # New EDA (not useful as it is primarily a tool for data compression and visualization, also too many NAs)
 ### Prepare data for principle component analysis
 ```{r}
@@ -616,11 +617,76 @@ all(sapply(cdc_comp, is.finite))
 ```
 
 #PCA
-###* Run PCA on the dataset.
+### Run PCA on the dataset
 ```{r results='hide'}
 pr_cdc <- prcomp(x = cdc_comp, scale = T, center = T)
 
 summary(pr_cdc)
 
 ```
+
+
+
+# ***Jesse_New2 branch workup:***
+
+## Name mapping for reference:
+| Variable Name | Variable Type | Short Name |
+| ------------- | ------------- | ---------- |
+| cnty_fips | character | fips |
+| display_name | character | display_name |
+| SEED-UR-Urban-Rural | Cat | UrbanRural |
+| SEED-SE-Unemployment_Rate | Perc | Unemploy |
+| SEED-SE-Severe_Housing_Cost_Burden | Perc | HouseCostBurd |
+| SEED-SE-Poverty | Perc | Poverty |
+| SEED-SE-Median_Household_Income | USD | MedHouseIncome |
+| SEED-SE-Median_Home_Value | USD | MedHomeValue |
+| SEED-SE-Income_Inequality | Unknown | IncomeInequality |
+| SEED-SE-Food_Stamp_SNAP_recipients | Perc | SNAPrecipients |
+| SEED-SE-Education-LessThanHighSchool | Perc | EdLessHigh |
+| SEED-SE-Education-LessThanCollege | Perc | EdLessColl |
+| SEED-SE-Computer | Perc | Computer |
+| SEED-SE-Broadband | Perc | Broadband |
+| SEED-PE-Park_Access | Perc | Parks |
+| SEED-PE-Air_Quality | Annual PM2.5 Level | AirQuality |
+| RF-Smoking | Perc | Smoker |
+| RF-Physical_Inactivity | Perc | PhysInactivity |
+| RF-Obesity | Perc | Obesity |
+| RF-High_Cholesterol | Perc | HighChol |
+| RF-Diagnosed_Diabetes | Perc | Diabetes |
+| Prev-Stroke | Perc | Stroke |
+| Prev-High_Blood_Pressure | Perc | HighBP |
+| Prev-Coronary_Heart_Disease | Perc | CHD |
+| HCDI-PS-PCP | Count | PrimaryCarePhys |
+| HCDI-PS-Neurosurgeons | Count | NeuroSurgeons |
+| HCDI-PS-Neurologists | Count | Neuologists |
+| HCDI-PS-CDP | Count | CardioPhys |
+| HCDI-Insurance-Health_Insurance_Status | Perc | HealthIns |
+| HCDI-HP-Pharmacies_and_Drug_Stores | Count | Pharmacies |
+| HCDI-HP-Hospitals-Services-NS | Count | HospNeuro |
+| HCDI-HP-Hospitals-Services-ED | Count | HospED |
+| HCDI-HP-Hospitals-Services-CIC | Count | HospCIC |
+| HCDI-HP-Hospitals-Services-CR | Count | HospCR |
+| HCDI-HP-Hospitals | Count | Hospitals |
+| HCDI-CRU-Participation_Among_Eligible | Perc | cruParticipate |
+| HCDI-CRU-Eligibility_Rate | RatePer1000 | CholMedElegible |
+| HCDI-CLM-Nonadherence | Perc | CholMedNonAdhear |
+| HCDI-Cholesterol_Screening | Perc | CholScreen |
+| HCDI-BPM-Medication_Use | Perc | bpmUse |
+| Demo-Total_Population | Count | Population |
+
+
+### 
+```{r}
+
+
+
+```
+
+
+
+
+
+
+
+
 
