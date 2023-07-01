@@ -30,15 +30,15 @@ library(caret)
 # File names list
 filenames <- c("SEED-UR-Urban-Rural.csv",
                "SEED-SE-Unemployment_Rate.csv",
-               "SEED-SE-Severe_Housing_Cost_Burden.csv",
+#               "SEED-SE-Severe_Housing_Cost_Burden.csv", #REMOVE, not relevant.
                "SEED-SE-Poverty.csv",
                "SEED-SE-Median_Household_Income.csv",
                "SEED-SE-Median_Home_Value.csv",
-               "SEED-SE-Income_Inequality.csv", #REMOVE?
+#               "SEED-SE-Income_Inequality.csv", #REMOVE, SEED-SE-Poverty.csv acts as proxy.
                "SEED-SE-Food_Stamp_SNAP_recipients.csv",
-               "SEED-SE-Education-LessThanHighSchool.csv", #REMOVE?
+#               "SEED-SE-Education-LessThanHighSchool.csv", #REMOVE, SEED-SE-Education-LessThanCollege.csv acts as proxy.
                "SEED-SE-Education-LessThanCollege.csv",
-               "SEED-SE-Computer.csv", #REMOVE?
+#               "SEED-SE-Computer.csv", #REMOVE, SEED-SE-Broadband.csv acts as proxy.
                "SEED-SE-Broadband.csv",
                "SEED-PE-Park_Access.csv", #REMOVE?
                "SEED-PE-Air_Quality.csv", #REMOVE?
@@ -51,12 +51,12 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "Prev-High_Blood_Pressure.csv",
                "Prev-Coronary_Heart_Disease.csv",
                "HCDI-PS-PCP.csv",
-               "HCDI-PS-Neurosurgeons.csv", #REMOVE?
-               "HCDI-PS-Neurologists.csv", #REMOVE?
+#               "HCDI-PS-Neurosurgeons.csv", #REMOVE, not relevant.
+#               "HCDI-PS-Neurologists.csv", #REMOVE, not relevant.
                "HCDI-PS-CDP.csv",
-               "HCDI-Insurance-Health_Insurance_Status.csv", #REMOVE?
+#               "HCDI-Insurance-Health_Insurance_Status.csv", #REMOVE, not relevant.
                "HCDI-HP-Pharmacies_and_Drug_Stores.csv",
-               "HCDI-HP-Hospitals-Services-NS.csv", #REMOVE?
+#               "HCDI-HP-Hospitals-Services-NS.csv", #REMOVE, not relevant.
                "HCDI-HP-Hospitals-Services-ED.csv",
                "HCDI-HP-Hospitals-Services-CIC.csv",
                "HCDI-HP-Hospitals-Services-CR.csv",
@@ -65,8 +65,8 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "HCDI-CRU-Eligibility_Rate.csv",
                "HCDI-CLM-Nonadherence.csv",
                "HCDI-Cholesterol_Screening.csv",
-               "HCDI-BPM-Medication_Use.csv",
-               "Demo-Total_Population.csv"
+               "HCDI-BPM-Medication_Use.csv"#,
+#               "Demo-Total_Population.csv", #REMOVE, not relevant.
                )
 
 ```
@@ -157,15 +157,15 @@ name_mapping <- c("cnty_fips" = "fips",
                   "display_name" = "display_name",
                   "SEED-UR-Urban-Rural" = "UrbanRural",
                  "SEED-SE-Unemployment_Rate" = "Unemploy",
-                 "SEED-SE-Severe_Housing_Cost_Burden"= "HouseCostBurd",
+#                 "SEED-SE-Severe_Housing_Cost_Burden"= "HouseCostBurd",
                  "SEED-SE-Poverty" = "Poverty",
                  "SEED-SE-Median_Household_Income" = "MedHouseIncome",
                  "SEED-SE-Median_Home" = "MedHomeValue",
-                 "SEED-SE-Income_Inequality" = "IncomeInequality",
+#                 "SEED-SE-Income_Inequality" = "IncomeInequality",
                  "SEED-SE-Food_Stamp_SNAP_recipients" = "SNAPrecipients",
-                 "SEED-SE-Education-LessThanHighSchool" = "EdLessHigh",
+#                 "SEED-SE-Education-LessThanHighSchool" = "EdLessHigh",
                  "SEED-SE-Education-LessThanCollege" = "EdLessColl",
-                 "SEED-SE-Computer" = "Computer",
+#                 "SEED-SE-Computer" = "Computer",
                  "SEED-SE-Broadband" = "Broadband",
                  "SEED-PE-Park_Access" = "Parks",
                  "SEED-PE-Air_Quality" = "AirQuality",
@@ -178,12 +178,12 @@ name_mapping <- c("cnty_fips" = "fips",
                  "Prev-High_Blood_Pressure" = "HighBP",
                  "Prev-Coronary_Heart_Disease" = "CHD",
                  "HCDI-PS-PCP" = "PrimaryCarePhys",
-                 "HCDI-PS-Neurosurgeons" = "NeuroSurgeons",
-                 "HCDI-PS-Neurologists" = "Neuologists",
+#                 "HCDI-PS-Neurosurgeons" = "NeuroSurgeons",
+#                 "HCDI-PS-Neurologists" = "Neurologists",
                  "HCDI-PS-CDP" = "CardioPhys",
-                 "HCDI-Insurance-Health_Insurance_Status" = "HealthIns",
+                 #"HCDI-Insurance-Health_Insurance_Status" = "HealthIns",
                  "HCDI-HP-Pharmacies_and_Drug_Stores" = "Pharmacies",
-                 "HCDI-HP-Hospitals-Services-NS" = "HospNeuro",
+#                 "HCDI-HP-Hospitals-Services-NS" = "HospNeuro",
                  "HCDI-HP-Hospitals-Services-ED" = "HospED",
                  "HCDI-HP-Hospitals-Services-CIC" = "HospCIC",
                  "HCDI-HP-Hospitals-Services-CR" = "HospCR",
@@ -192,8 +192,9 @@ name_mapping <- c("cnty_fips" = "fips",
                  "HCDI-CRU-Eligibility_Rate" = "CholMedElegible",
                  "HCDI-CLM-Nonadherence" = "CholMedNonAdhear",
                  "HCDI-Cholesterol_Screening" = "CholScreen",
-                 "HCDI-BPM-Medication_Use" = "bpmUse",
-                 "Demo-Total_Population" = "Population")
+                 "HCDI-BPM-Medication_Use" = "bpmUse"#,
+#                 "Demo-Total_Population" = "Population"
+)
 
 # Get the column names of the data frame
 original_names <- colnames(cdc)
@@ -489,7 +490,7 @@ cdc %>%
             "HospCR",
             "HospCIC",
             "HospED",
-            "HospNeuro",
+#            "HospNeuro",
             "UrbanRural") %>%
     ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 
@@ -501,8 +502,8 @@ cdc %>%
 cdc %>%
     select("CHD",
            "CardioPhys",
-           "Neuologists",
-           "NeuroSurgeons",
+#           "Neurologists",
+#           "NeuroSurgeons",
            "PrimaryCarePhys",
            "UrbanRural") %>%
     ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
@@ -519,7 +520,7 @@ cdc %>%
            "CholMedNonAdhear",
            "CholMedElegible",
            "cruParticipate",
-           "HealthIns",
+#           "HealthIns",
            "UrbanRural") %>%
     ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 
@@ -568,7 +569,7 @@ cdc %>%
 cdc %>%
     select("CHD",
            "SNAPrecipients",
-           "IncomeInequality",
+#           "IncomeInequality",
            "Poverty",
            "Unemploy",
            "UrbanRural") %>%
@@ -582,7 +583,7 @@ cdc %>%
     select("CHD",
            "MedHomeValue",
            "MedHouseIncome",
-           "HouseCostBurd",
+#           "HouseCostBurd",
            "UrbanRural") %>%
     ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 ```
@@ -593,9 +594,9 @@ cdc %>%
 cdc %>%
     select("CHD",
            "Broadband",
-           "Computer",
+#           "Computer",
            "EdLessColl",
-           "EdLessHigh",
+#           "EdLessHigh",
            "UrbanRural") %>%
     ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 ```
@@ -658,7 +659,7 @@ summary(pr_cdc)
 | Prev-Coronary_Heart_Disease | Perc | CHD |
 | HCDI-PS-PCP | Count | PrimaryCarePhys |
 | HCDI-PS-Neurosurgeons | Count | NeuroSurgeons |
-| HCDI-PS-Neurologists | Count | Neuologists |
+| HCDI-PS-Neurologists | Count | Neurologists |
 | HCDI-PS-CDP | Count | CardioPhys |
 | HCDI-Insurance-Health_Insurance_Status | Perc | HealthIns |
 | HCDI-HP-Pharmacies_and_Drug_Stores | Count | Pharmacies |
