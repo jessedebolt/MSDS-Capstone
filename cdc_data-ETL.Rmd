@@ -675,18 +675,190 @@ summary(pr_cdc)
 | Demo-Total_Population | Count | Population |
 
 
-### 
+### Additional feature engineering
 ```{r}
+# Backup
+cdc_copy_JAD <- cdc
+
+# Convert urban/rural variables to factors
+cdc$UrbanRural <- as.factor(cdc$UrbanRural)
+
+# Use one-hot encoding for the 'state' column
+cdc <- fastDummies::dummy_cols(cdc, select_columns = 'state')
+
+```
 
 
+## Exploratory Data Analysis (EDA)
+
+### Boxplot to compare coronary heart disease prevalence in rural and urban areas
+```{r}
+ggplot(cdc, aes(x=UrbanRural, y=CHD)) + geom_boxplot()
 
 ```
 
 
 
+### Histogram to understand distribution of cardiovascular providers in rural and urban areas
+```{r}
+ggplot(cdc, aes(x=CardioPhys)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
+
+```
+
+
+### Histogram to understand distribution of primary care providers in rural and urban areas
+```{r}
+ggplot(cdc, aes(x=PrimaryCarePhys)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
+
+```
+
+
+### Histogram to understand distribution of hospitals in rural and urban areas
+```{r}
+ggplot(cdc, aes(x=Hospitals)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
+
+```
+
+
+### Histogram to understand distribution of hospitals with cardiac intensive care centers in rural and urban areas
+```{r}
+ggplot(cdc, aes(x=HospCIC)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
+
+```
+
+
+### Histogram to understand distribution of hospitals with cardiac rehabilitation centers in rural and urban areas
+```{r}
+ggplot(cdc, aes(x=HospCR)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
+
+```
+
+
+### Histogram to understand distribution of pharmacies in rural and urban areas
+```{r}
+ggplot(cdc, aes(x=Pharmacies)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
+
+```
+
+
+# Statistical Analysis
+
+## Correlation Analysis
+
+### Correlation analysis between cardiovascular providers and coronary heart disease prevalence
+```{r}
+cor.test(cdc$CardioPhys, cdc$CHD)
+
+```
+
+
+### Correlation analysis between primary care providers and coronary heart disease prevalence
+```{r}
+cor.test(cdc$PrimaryCarePhys, cdc$CHD)
+
+```
+
+
+### Correlation analysis between hospitals and coronary heart disease prevalence
+```{r}
+cor.test(cdc$Hospitals, cdc$CHD)
+
+```
+
+
+### Correlation analysis between hospitals with cardiac intensive care centers and coronary heart disease prevalence
+```{r}
+cor.test(cdc$HospCIC, cdc$CHD)
+
+```
+
+
+### Correlation analysis between hospitals with cardiac rehabilitation centers and coronary heart disease prevalence
+```{r}
+cor.test(cdc$HospCR, cdc$CHD)
+
+```
 
 
 
+### Correlation analysis between pharmacies and coronary heart disease prevalence
+```{r}
+cor.test(cdc$Pharmacies, cdc$CHD)
+
+```
 
 
+## Regreassion analysis
+
+### Regression analysis for potential confounders.
+```{r}
+model <- lm(CHD ~ CardioPhys + Broadband + Smoker + UrbanRural, data = cdc)
+summary(model)
+
+```
+
+
+# Predictive Modeling
+
+### Split the data into training and test sets
+```{r}
+set.seed(2112)
+train_index <- sample(1:nrow(cdc), 0.7 * nrow(cdc))
+train_set <- cdc[train_index, ]
+test_set <- cdc[-train_index, ]
+
+```
+
+
+### Build a random forest model
+```{r}
+library(randomForest)
+
+set.seed(2112)
+
+model <- randomForest(CHD ~ PrimaryCarePhys + Broadband + UrbanRural, data=train_set, ntree=100)
+
+print(model)
+
+```
+
+
+### Predict on the test set
+```{r}
+predictions <- predict(model, test_set)
+
+```
+
+
+
+cardiovascular providers - CardioPhys
+primary care providers - PrimaryCarePhys
+hospitals - Hospitals
+hospitals with cardiac intensive care centers - HospCIC
+hospitals with cardiac rehabilitation centers - HospCR
+pharmacies - Pharmacies
+
+
+## Predictions
+### Policy intervention to increases the number of cardiovascular providers providers by 20% in rural areas
+```{r}
+data_simulation <- cdc
+data_simulation[data_simulation$UrbanRural == 'Rural', 'CardioPhys'] <- data_simulation[data_simulation$UrbanRural == 'Rural', 'CardioPhys'] * 1.20
+
+```
+
+
+### Use the model to predict outcomes with the simulated data
+```{r}
+predictions_simulation <- predict(model, data_simulation)
+
+```
+
+
+### Compare the original predictions and the simulated predictions
+```{r}
+summary(predictions)
+summary(predictions_simulation)
+
+```
 
