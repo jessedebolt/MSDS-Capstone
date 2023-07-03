@@ -288,7 +288,7 @@ head(rural_query, n=20)
 ```
 
 
-### Imputing Rural/Urban for missing value
+### Inserting Rural/Urban for missing value
 ```{r}
 # Find and impute where county is 'Kusilvak'
 cdc$"UrbanRural"[grepl("Kusilvak", cdc$county)] <- "Rural"
@@ -326,6 +326,144 @@ cdc <- cdc[cdc$count_na <= 8, ]
 
 # Remove count_na column
 cdc$count_na <- NULL
+
+```
+
+
+## Populating missing values
+## Single value entry
+### Inserting value for missing values in bpmUse for NJ
+```{r}
+# Find NAs and replace where state is 'NJ'
+cdc$"bpmUse"[grepl("NJ", cdc$state)] <- 71.71
+
+```
+Source: Average of NJ Cities from
+500_Cities: Taking medicine for high blood pressure control among adults aged >=18 Years with high blood pressure
+File: 500_Cities__Taking_medicine_for_high_blood_pressure_control_among_adults_aged___18_years_with_high_blood_pressure.csv
+Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-Taking-medicine-for-high-blood-pressure/4peq-qp55
+
+
+### Inserting value for missing values in CholScreen for NJ
+```{r}
+# Find NAs and replace where state is 'NJ'
+cdc$"CholScreen"[grepl("NJ", cdc$state)] <- 79.43
+
+```
+Source: Average of NJ Cities from
+500 Cities: Cholesterol screening among adults aged >=18 years
+FIle: 500_Cities__Cholesterol_screening_among_adults_aged___18_years.csv
+Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-Cholesterol-screening-among-adults-aged/myk4-ptre
+
+
+### Inserting value for missing values in HighBP for NJ
+```{r}
+# Find NAs and replace where state is 'NJ'
+cdc$"HighBP"[grepl("NJ", cdc$state)] <- 33.7
+
+```
+Source: Average of NJ Cities from
+500 Cities: High blood pressure among adults aged >=18 years
+File: 500_Cities__High_blood_pressure_among_adults_aged___18_years.csv
+Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-High-blood-pressure-among-adults-aged-1/ebxs-yc6e
+
+
+### Inserting value for missing values in Diabetes for NJ
+```{r}
+# Find NAs and replace where state is 'NJ'
+cdc$"Diabetes"[grepl("NJ", cdc$state)] <- 17.4
+
+```
+Source: Average of NJ Cities from
+500 Cities: Diagnosed diabetes among adults aged >=18 years
+File: 500_Cities__Diagnosed_diabetes_among_adults_aged___18_years.csv
+Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-Diagnosed-diabetes-among-adults-aged-18/cn78-b9bj
+
+
+### Inserting value for missing values in HighChol for NJ
+```{r}
+# Find NAs and replace where state is 'NJ'
+cdc$"HighChol"[grepl("NJ", cdc$state)] <- 32.41
+
+```
+Source: Average of NJ Cities from
+500 Cities: High cholesterol among adults aged >=18 years who have been screened in the past 5 years
+File:500_Cities__High_cholesterol_among_adults_aged___18_years_who_have_been_screened_in_the_past_5_years.csv
+Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-High-cholesterol-among-adults-aged-18-y/mc6z-sjie
+
+
+### Inserting value for missing values in Obesity for NJ
+```{r}
+# Find NAs and replace where state is 'NJ'
+cdc$"Obesity"[grepl("NJ", cdc$state)] <- 33.59
+
+```
+Source: Average of NJ Cities from
+500 Cities: Obesity among adults aged >=18 years
+File: 500_Cities__Obesity_among_adults_aged___18_years.csv
+Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-Obesity-among-adults-aged-18-years/bjvu-3y7d
+
+
+## Multiple value entry
+### Inserting value for missing values in PrimaryCarePhys
+```{r}
+
+```
+File: Medicare_Physician_Other_Practitioners_by_Provider_2021-Gen_Prac.xlsx
+
+
+### Inserting value for missing values in CardioPhys
+```{r}
+
+```
+File: Medicare_Physician_Other_Practitioners_by_Provider_2021-Cardio.xlsx
+
+
+## Imputations
+### Imputing missing values in CholMedNonAdhear
+```{r}
+cdc = cdc %>% 
+  mutate(CholMedNonAdhear = replace_na(CholMedNonAdhear, median(CholMedNonAdhear, na.rm=TRUE)))
+
+```
+
+
+### Imputing missing values in CholMedElegible
+```{r}
+cdc = cdc %>% 
+  mutate(CholMedElegible = replace_na(CholMedElegible, median(CholMedElegible, na.rm=TRUE)))
+
+```
+
+
+### Imputing missing values in cruParticipate
+```{r}
+cdc = cdc %>% 
+  mutate(cruParticipate = replace_na(cruParticipate, median(cruParticipate, na.rm=TRUE)))
+
+```
+
+
+### Imputing missing values in PhysInactivity
+```{r}
+cdc = cdc %>% 
+  mutate(PhysInactivity = replace_na(PhysInactivity, median(PhysInactivity, na.rm=TRUE)))
+
+```
+
+
+### Imputing missing values in AirQuality
+```{r}
+cdc = cdc %>% 
+  mutate(AirQuality = replace_na(AirQuality, median(AirQuality, na.rm=TRUE)))
+
+```
+
+
+### Checking for missing values
+```{r}
+#total number of missing values in each column
+colSums(is.na(cdc))
 
 ```
 
@@ -627,54 +765,7 @@ summary(pr_cdc)
 ```
 
 
-# ***Jesse_New2 branch workup:***
-## Name mapping for reference:
-| Variable Name | Variable Type | Short Name |
-| ------------- | ------------- | ---------- |
-| cnty_fips | character | fips |
-| display_name | character | display_name |
-| SEED-UR-Urban-Rural | Cat | UrbanRural |
-| SEED-SE-Unemployment_Rate | Perc | Unemploy |
-| SEED-SE-Severe_Housing_Cost_Burden | Perc | HouseCostBurd |
-| SEED-SE-Poverty | Perc | Poverty |
-| SEED-SE-Median_Household_Income | USD | MedHouseIncome |
-| SEED-SE-Median_Home_Value | USD | MedHomeValue |
-| SEED-SE-Income_Inequality | Unknown | IncomeInequality |
-| SEED-SE-Food_Stamp_SNAP_recipients | Perc | SNAPrecipients |
-| SEED-SE-Education-LessThanHighSchool | Perc | EdLessHigh |
-| SEED-SE-Education-LessThanCollege | Perc | EdLessColl |
-| SEED-SE-Computer | Perc | Computer |
-| SEED-SE-Broadband | Perc | Broadband |
-| SEED-PE-Park_Access | Perc | Parks |
-| SEED-PE-Air_Quality | Annual PM2.5 Level | AirQuality |
-| RF-Smoking | Perc | Smoker |
-| RF-Physical_Inactivity | Perc | PhysInactivity |
-| RF-Obesity | Perc | Obesity |
-| RF-High_Cholesterol | Perc | HighChol |
-| RF-Diagnosed_Diabetes | Perc | Diabetes |
-| Prev-Stroke | Perc | Stroke |
-| Prev-High_Blood_Pressure | Perc | HighBP |
-| Prev-Coronary_Heart_Disease | Perc | CHD |
-| HCDI-PS-PCP | Count | PrimaryCarePhys |
-| HCDI-PS-Neurosurgeons | Count | NeuroSurgeons |
-| HCDI-PS-Neurologists | Count | Neurologists |
-| HCDI-PS-CDP | Count | CardioPhys |
-| HCDI-Insurance-Health_Insurance_Status | Perc | HealthIns |
-| HCDI-HP-Pharmacies_and_Drug_Stores | Count | Pharmacies |
-| HCDI-HP-Hospitals-Services-NS | Count | HospNeuro |
-| HCDI-HP-Hospitals-Services-ED | Count | HospED |
-| HCDI-HP-Hospitals-Services-CIC | Count | HospCIC |
-| HCDI-HP-Hospitals-Services-CR | Count | HospCR |
-| HCDI-HP-Hospitals | Count | Hospitals |
-| HCDI-CRU-Participation_Among_Eligible | Perc | cruParticipate |
-| HCDI-CRU-Eligibility_Rate | RatePer1000 | CholMedElegible |
-| HCDI-CLM-Nonadherence | Perc | CholMedNonAdhear |
-| HCDI-Cholesterol_Screening | Perc | CholScreen |
-| HCDI-BPM-Medication_Use | Perc | bpmUse |
-| Demo-Total_Population | Count | Population |
-
-
-### Additional feature engineering
+#### Additional feature engineering
 ```{r}
 # Backup
 cdc_copy_JAD <- cdc
@@ -687,8 +778,6 @@ cdc <- fastDummies::dummy_cols(cdc, select_columns = 'state')
 
 ```
 
-
-## Exploratory Data Analysis (EDA)
 
 ### Boxplot to compare coronary heart disease prevalence in rural and urban areas
 ```{r}
@@ -811,13 +900,13 @@ test_set <- cdc[-train_index, ]
 
 ### Build a random forest model
 ```{r}
-#library(randomForest)
+library(randomForest)
 
-#set.seed(2112)
+set.seed(2112)
 
-#model <- randomForest(CHD ~ PrimaryCarePhys + Broadband + UrbanRural, data=train_set, ntree=100)
+model <- randomForest(CHD ~ Hospitals + Broadband + UrbanRural, data=train_set, ntree=100)
 
-#print(model)
+print(model)
 
 ```
 
@@ -853,352 +942,7 @@ summary(predictions_simulation)
 ```
 
 
-# DATA CLEANING (Move to data cleaning (line 214))
-## Populating missing values
-## Single value entry
-### Inserting value for missing values in bpmUse for NJ
-```{r}
-# Find NAs and replace where state is 'NJ'
-cdc$"bpmUse"[grepl("NJ", cdc$state)] <- 71.71
-
-```
-Source: Average of NJ Cities from
-500_Cities: Taking medicine for high blood pressure control among adults aged >=18 Years with high blood pressure
-File: 500_Cities__Taking_medicine_for_high_blood_pressure_control_among_adults_aged___18_years_with_high_blood_pressure.csv
-Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-Taking-medicine-for-high-blood-pressure/4peq-qp55
-
-
-### Inserting value for missing values in CholScreen for NJ
-```{r}
-# Find NAs and replace where state is 'NJ'
-cdc$"CholScreen"[grepl("NJ", cdc$state)] <- 79.43
-
-```
-Source: Average of NJ Cities from
-500 Cities: Cholesterol screening among adults aged >=18 years
-FIle: 500_Cities__Cholesterol_screening_among_adults_aged___18_years.csv
-Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-Cholesterol-screening-among-adults-aged/myk4-ptre
-
-
-### Inserting value for missing values in HighBP for NJ
-```{r}
-# Find NAs and replace where state is 'NJ'
-cdc$"HighBP"[grepl("NJ", cdc$state)] <- 33.7
-
-```
-Source: Average of NJ Cities from
-500 Cities: High blood pressure among adults aged >=18 years
-File: 500_Cities__High_blood_pressure_among_adults_aged___18_years.csv
-Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-High-blood-pressure-among-adults-aged-1/ebxs-yc6e
-
-
-### Inserting value for missing values in Diabetes for NJ
-```{r}
-# Find NAs and replace where state is 'NJ'
-cdc$"Diabetes"[grepl("NJ", cdc$state)] <- 17.4
-
-```
-Source: Average of NJ Cities from
-500 Cities: Diagnosed diabetes among adults aged >=18 years
-File: 500_Cities__Diagnosed_diabetes_among_adults_aged___18_years.csv
-Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-Diagnosed-diabetes-among-adults-aged-18/cn78-b9bj
-
-
-### Inserting value for missing values in HighChol for NJ
-```{r}
-# Find NAs and replace where state is 'NJ'
-cdc$"HighChol"[grepl("NJ", cdc$state)] <- 32.41
-
-```
-Source: Average of NJ Cities from
-500 Cities: High cholesterol among adults aged >=18 years who have been screened in the past 5 years
-File:500_Cities__High_cholesterol_among_adults_aged___18_years_who_have_been_screened_in_the_past_5_years.csv
-Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-High-cholesterol-among-adults-aged-18-y/mc6z-sjie
-
-
-### Inserting value for missing values in Obesity for NJ
-```{r}
-# Find NAs and replace where state is 'NJ'
-cdc$"Obesity"[grepl("NJ", cdc$state)] <- 33.59
-
-```
-Source: Average of NJ Cities from
-500 Cities: Obesity among adults aged >=18 years
-File: 500_Cities__Obesity_among_adults_aged___18_years.csv
-Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-Obesity-among-adults-aged-18-years/bjvu-3y7d
-
-
-## Multiple value entry
-### Inserting value for missing values in PrimaryCarePhys
-```{r}
-
-```
-File: Medicare_Physician_Other_Practitioners_by_Provider_2021-Gen_Prac.xlsx
-
-
-### Inserting value for missing values in CardioPhys
-```{r}
-
-```
-File: Medicare_Physician_Other_Practitioners_by_Provider_2021-Cardio.xlsx
-
-
-## Imputations
-### Imputing missing values in CholMedNonAdhear
-```{r}
-cdc = cdc %>% 
-  mutate(CholMedNonAdhear = replace_na(CholMedNonAdhear, median(CholMedNonAdhear, na.rm=TRUE)))
-
-```
-
-
-### Imputing missing values in CholMedElegible
-```{r}
-cdc = cdc %>% 
-  mutate(CholMedElegible = replace_na(CholMedElegible, median(CholMedElegible, na.rm=TRUE)))
-
-```
-
-
-### Imputing missing values in cruParticipate
-```{r}
-cdc = cdc %>% 
-  mutate(cruParticipate = replace_na(cruParticipate, median(cruParticipate, na.rm=TRUE)))
-
-```
-
-
-### Imputing missing values in PhysInactivity
-```{r}
-cdc = cdc %>% 
-  mutate(PhysInactivity = replace_na(PhysInactivity, median(PhysInactivity, na.rm=TRUE)))
-
-```
-
-
-### Imputing missing values in AirQuality
-```{r}
-cdc = cdc %>% 
-  mutate(AirQuality = replace_na(AirQuality, median(AirQuality, na.rm=TRUE)))
-
-```
-
-
-### Checking for missing values
-```{r}
-#total number of missing values in each column
-colSums(is.na(cdc))
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## New Section
-### more EDA
+## more EDA
 ```{r}
 #Histograms for numerical variables
 for (col in 2:33) {
@@ -1867,4 +1611,48 @@ ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
 
 
 
-
+# REFERENCE INFORMATION
+## Name mapping for reference:
+| Variable Name | Variable Type | Short Name |
+| ------------- | ------------- | ---------- |
+| cnty_fips | character | fips |
+| display_name | character | display_name |
+| SEED-UR-Urban-Rural | Cat | UrbanRural |
+| SEED-SE-Unemployment_Rate | Perc | Unemploy |
+| SEED-SE-Severe_Housing_Cost_Burden | Perc | HouseCostBurd |
+| SEED-SE-Poverty | Perc | Poverty |
+| SEED-SE-Median_Household_Income | USD | MedHouseIncome |
+| SEED-SE-Median_Home_Value | USD | MedHomeValue |
+| SEED-SE-Income_Inequality | Unknown | IncomeInequality |
+| SEED-SE-Food_Stamp_SNAP_recipients | Perc | SNAPrecipients |
+| SEED-SE-Education-LessThanHighSchool | Perc | EdLessHigh |
+| SEED-SE-Education-LessThanCollege | Perc | EdLessColl |
+| SEED-SE-Computer | Perc | Computer |
+| SEED-SE-Broadband | Perc | Broadband |
+| SEED-PE-Park_Access | Perc | Parks |
+| SEED-PE-Air_Quality | Annual PM2.5 Level | AirQuality |
+| RF-Smoking | Perc | Smoker |
+| RF-Physical_Inactivity | Perc | PhysInactivity |
+| RF-Obesity | Perc | Obesity |
+| RF-High_Cholesterol | Perc | HighChol |
+| RF-Diagnosed_Diabetes | Perc | Diabetes |
+| Prev-Stroke | Perc | Stroke |
+| Prev-High_Blood_Pressure | Perc | HighBP |
+| Prev-Coronary_Heart_Disease | Perc | CHD |
+| HCDI-PS-PCP | Count | PrimaryCarePhys |
+| HCDI-PS-Neurosurgeons | Count | NeuroSurgeons |
+| HCDI-PS-Neurologists | Count | Neurologists |
+| HCDI-PS-CDP | Count | CardioPhys |
+| HCDI-Insurance-Health_Insurance_Status | Perc | HealthIns |
+| HCDI-HP-Pharmacies_and_Drug_Stores | Count | Pharmacies |
+| HCDI-HP-Hospitals-Services-NS | Count | HospNeuro |
+| HCDI-HP-Hospitals-Services-ED | Count | HospED |
+| HCDI-HP-Hospitals-Services-CIC | Count | HospCIC |
+| HCDI-HP-Hospitals-Services-CR | Count | HospCR |
+| HCDI-HP-Hospitals | Count | Hospitals |
+| HCDI-CRU-Participation_Among_Eligible | Perc | cruParticipate |
+| HCDI-CRU-Eligibility_Rate | RatePer1000 | CholMedElegible |
+| HCDI-CLM-Nonadherence | Perc | CholMedNonAdhear |
+| HCDI-Cholesterol_Screening | Perc | CholScreen |
+| HCDI-BPM-Medication_Use | Perc | bpmUse |
+| Demo-Total_Population | Count | Population |
