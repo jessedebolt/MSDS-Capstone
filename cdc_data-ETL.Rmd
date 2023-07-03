@@ -811,13 +811,13 @@ test_set <- cdc[-train_index, ]
 
 ### Build a random forest model
 ```{r}
-library(randomForest)
+#library(randomForest)
 
-set.seed(2112)
+#set.seed(2112)
 
-model <- randomForest(CHD ~ PrimaryCarePhys + Broadband + UrbanRural, data=train_set, ntree=100)
+#model <- randomForest(CHD ~ PrimaryCarePhys + Broadband + UrbanRural, data=train_set, ntree=100)
 
-print(model)
+#print(model)
 
 ```
 
@@ -1197,47 +1197,297 @@ colSums(is.na(cdc))
 
 
 
+## New Section
+### more EDA
+```{r}
+#Histograms for numerical variables
+for (col in 2:33) {
+  if (is.numeric(cdc[[col]])) {
+    hist(cdc[[col]], main = names(cdc)[col])
+  } else {
+    message(paste("Skipping column", names(cdc)[col], "as it is not numeric."))
+  }
+}
+
+```
+#### Wanted to zoom in hospitals
+```{r}
+hospital_counts <- cdc$Hospitals  # Assuming "Hospitals" is the column name in the dataset "cdc"
+
+# Filter out hospitals greater than 10 (optional, if needed)
+hospital_counts <- hospital_counts[hospital_counts <= 10]
+
+# Create a table of counts for each hospital count
+count_table <- table(hospital_counts)
+
+# Create a bar plot to visualize the breakdown
+barplot(count_table, main = "Number of Hospitals per County", xlab = "Number of Hospitals", ylab = "Count")
+
+```
+#### Same as above but improved visual
+```{r}
+#Most counties have 1 hospital
+hospital_counts <- cdc$Hospitals  # Assuming "Hospitals" is the column name in the dataset "cdc"
+
+# Filter out hospitals greater than 10 (optional, if needed)
+hospital_counts <- hospital_counts[hospital_counts <= 10]
+
+# Create a data frame with counts for each hospital count
+count_df <- data.frame(Hospitals = as.factor(hospital_counts))
+count_summary <- summary(count_df$Hospitals)
+
+# Create a bar plot using ggplot2
+ggplot(count_df, aes(x = Hospitals)) +
+  geom_bar(fill = "steelblue") +
+  labs(title = "Number of Hospitals per County", x = "Number of Hospitals", y = "Count") +
+  scale_x_discrete(limits = as.character(0:10)) +
+  theme_minimal()
+
+```
+#### How many counties have no hospitals
+```{r}
+# Check the count for zero hospitals
+count_zero <- count_table[as.character(0)]
+
+# Print the number of counties with zero hospitals
+print(paste("Number of counties with zero hospitals:", count_zero))
+
+```
+#### list of counties with 0 hospitals
+```{r}
+no_hospital <- cdc %>%
+  filter(Hospitals == 0) %>%
+  select(county, state, Hospitals) %>%
+  arrange(state, county)
+
+print(no_hospital)
+
+```
+#### How many counties per state
+```{r}
+county_counts <- cdc %>%
+  group_by(state) %>%
+  summarise(counties = n())
+
+print(county_counts)
+
+```
+####
+```{r}
+# Average prevalence for the US
+us_average <- mean(cdc$CHD, na.rm = TRUE)
+us_average <- sprintf("%.1f%%", us_average)
+
+# Average prevalence for each state
+state_average <- cdc %>%
+  group_by(state) %>%
+  summarise(average_CHD = mean(CHD, na.rm = TRUE)) %>%
+  mutate(average_CHD = sprintf("%.1f%%", average_CHD))
+
+print(us_average)
+print(state_average)
+
+```
+#### states with highest and lowest prevalence
+```{r}
+
+# Top 10 states with highest prevalence
+highest_prevalence <- cdc %>%
+  group_by(state) %>%
+  summarise(average_CHD = mean(CHD, na.rm = TRUE)) %>%
+  arrange(desc(average_CHD)) %>%
+  slice(1:10) %>%
+  mutate(average_CHD = sprintf("%.1f%%", average_CHD))
+
+# Top 10 states with lowest prevalence
+lowest_prevalence <- cdc %>%
+  group_by(state) %>%
+  summarise(average_CHD = mean(CHD, na.rm = TRUE)) %>%
+  arrange(average_CHD) %>%
+  slice(1:10) %>%
+  mutate(average_CHD = sprintf("%.1f%%", average_CHD))
+
+print(highest_prevalence)
+print(lowest_prevalence)
+
+```
+#### What is distribution of Urban Rural for Each State
+```{r}
+#We should maybe bucket these? but not sure if we need to keep as is for model?
+urbanrural_counts <- cdc %>%
+  group_by(state, UrbanRural) %>%
+  summarise(count = n()) %>%
+  ungroup() %>%
+  arrange(state, desc(UrbanRural)) %>%
+  pivot_wider(names_from = UrbanRural, values_from = count, values_fill = 0)
+
+# Define the desired column order
+column_order <- c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban", "Rural")
+
+# Reorder the columns
+urbanrural_counts <- urbanrural_counts %>%
+  select(state, all_of(column_order))
+
+print(urbanrural_counts)
+```
+
+
+#### Visualization - Stacked Bar
+```{r}
+
+urbanrural_counts <- cdc %>%
+  group_by(state, UrbanRural) %>%
+  summarise(count = n()) %>%
+  ungroup()
+
+ggplot(urbanrural_counts, aes(x = state, y = count, fill = UrbanRural)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Distribution of UrbanRural Variable by State",
+       x = "State", y = "Count") +
+  scale_fill_discrete(name = "UrbanRural") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+#### Visualization Bar
+```{r}
+urbanrural_counts <- cdc %>%
+  group_by(state, UrbanRural) %>%
+  summarise(count = n()) %>%
+  ungroup()
+
+ggplot(urbanrural_counts, aes(x = state, y = count, fill = UrbanRural)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Distribution of UrbanRural Variable by State",
+       x = "State", y = "Count") +
+  scale_fill_discrete(name = "UrbanRural") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+#### Top 5 states with most Urban
+```{r}
+top_large_urban <- cdc %>%
+  filter(UrbanRural == "Large_Urban") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 5) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+ggplot(top_large_urban, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+    labs(title = "Top 5 States with the Most Large Urban Areas",
+       x = "State", y = "Count") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+```
+
+#### Top 10 states with most Rural
+```{r}
+top_rural <- cdc %>%
+  filter(UrbanRural == "Rural") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+custom_colors <- c("#FF5733", "#FFC300", "#C70039", "#900C3F", "#581845", "#FF7F50", "#FFA500", "#FFD700", "#ADFF2F", "#00FF00")
+
+ggplot(top_rural, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with the Most Rural Areas",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+#### I like this one better I think
+```{r}
+# Reverse the color palette
+custom_colors <- rev(color_func(10))
+
+top_rural <- cdc %>%
+  filter(UrbanRural == "Rural") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+ggplot(top_rural, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with the Most Rural Areas",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+```
+
+#### Top 10 states with most Large Fringe Urban
+```{r}
+# Create the color palette
+color_func <- colorRampPalette(c("lightblue", "darkblue"))
+custom_colors <- rev(color_func(10))  # Reverse to get dark colors for higher values
+
+top_large_fringe_urban <- cdc %>%
+  filter(UrbanRural == "LargeFringe_Urban") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with the Most Large Fringe Urban Areas",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +  # Use the custom color palette
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 
+```
+
+#### Medium Small Urban Areas
+```{r}
+# Create the color palette
+color_func <- colorRampPalette(c("lightblue", "darkblue"))
+custom_colors <- rev(color_func(10))  # Reverse to get dark colors for higher values
+
+top_large_fringe_urban <- cdc %>%
+  filter(UrbanRural == "MediumSmall_Urban") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with the Most Medium Small Urban Areas",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +  # Use the custom color palette
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
 
 
