@@ -1157,6 +1157,7 @@ ggplot(top_rural, aes(x = state, y = count, fill = state)) +
 #### I like this one better I think
 ```{r}
 # Reverse the color palette
+color_func <- colorRampPalette(c("lightblue", "darkblue"))
 custom_colors <- rev(color_func(10))
 
 top_rural <- cdc %>%
@@ -1233,6 +1234,152 @@ ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
 
 ```
 
+#### Boxplots for each variable
+```{r}
+# Box plots for each variable
+for (i in 1:ncol(cdc_comp)) {
+  par(mar = c(5, 4, 2, 1))  # Adjust the margins as needed
+  boxplot(cdc_comp[, i], main = names(cdc_comp)[i])
+}
+```
+#### Outliers
+```{r}
+# Outlier detection
+for (column in colnames(cdc_comp)){
+  IQR = IQR(cdc_comp[[column]], na.rm = TRUE)
+  lower_bound = quantile(cdc_comp[[column]], 0.25, na.rm = TRUE) - 1.5 * IQR
+  upper_bound = quantile(cdc_comp[[column]], 0.75, na.rm = TRUE) + 1.5 * IQR
+  outliers = length(which(cdc_comp[[column]] < lower_bound | cdc_comp[[column]] > upper_bound))
+  print(paste("Number of outliers in", column, ":", outliers))
+}
+```
+
+#### Just checking where missing values are
+```{r}
+# Checking for missing values
+missing_value_cols <- c()
+for (i in 1:ncol(cdc_comp)) {
+  if (any(is.na(cdc_comp[, i]))) {
+    missing_value_cols <- c(missing_value_cols, names(cdc_comp)[i])
+  }
+}
+cat("Columns with missing values:\n")
+print(missing_value_cols)
+
+```
+
+```{r}
+cat("Number of NA values in each column:\n")
+print(colSums(is.na(cdc_comp)))
+```
+
+
+####Test imputing data that is still missing
+```{r}
+# Handling missing values (assuming you want to impute them)
+library(mice)
+imputed_data <- mice(cdc, m = 5)  # Impute missing values (replace 'data' with your dataset)
+
+# Encoding categorical variables (assuming 'urban_rural' is a categorical variable)
+#imputed_data$UrbanRural <- as.factor(imputed_data$UrbanRural)
+
+```
+
+
+#### Interpretation of the below lm model CHD vs Urban Rural
+
+Intercept (Large_Urban): In this model, "Large_Urban" is the reference category because it is represented by the intercept. The intercept's value of approximately 5.79 is the average CHD prevalence in "Large_Urban" areas (given that the CHD data and coefficients are in a format where this interpretation makes sense).
+
+LargeFringe_Urban: The coefficient of approximately 1.01 suggests that, on average, the CHD prevalence in "LargeFringe_Urban" areas is estimated to be about 1.01 units higher than in "Large_Urban" areas.
+
+MediumSmall_Urban: Similarly, the CHD prevalence in "MediumSmall_Urban" areas is estimated to be about 1.80 units higher than in "Large_Urban" areas.
+
+Rural: Lastly, the CHD prevalence in "Rural" areas is estimated to be about 2.98 units higher than in "Large_Urban" areas.
+
+For all categories of "UrbanRural", the p-values are less than 0.05, which suggests that the differences in CHD prevalence between "Large_Urban" areas and the other types of areas are statistically significant.
+
+In other words, your model suggests that there is a significant association between the type of area and CHD prevalence. Specifically, all other types of areas have higher estimated CHD prevalence than "Large_Urban" areas.
+
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
+####Interpretation of LM model CHD vs Urban Rural + HighBP
+In your output, each row corresponds to a term in the model, and each column corresponds to an aspect of the term.
+
+- **term**: This is the name of the variable in the model. "(Intercept)" refers to the model's intercept, or baseline outcome when all the predictors are 0. In your case, "UrbanRuralLargeFringe_Urban", "UrbanRuralMediumSmall_Urban", and "UrbanRuralRural" are dummy variables derived from the categorical variable "UrbanRural", and "HighBP" is a variable representing high blood pressure.
+
+- **estimate**: This is the estimated coefficient for the term in the model. For example, the estimate for "HighBP" is 0.1983978. In the context of this model, it means that for each unit increase in "HighBP", we would expect an increase of 0.1983978 units in "CHD", holding all other variables constant.
+
+- **std.error**: This is the standard error of the estimated coefficient. It measures the variability in the estimate. A smaller standard error means the estimate is more precise.
+
+- **statistic**: This is the t-statistic for the term. It is the ratio of the estimate to the standard error. The t-statistic follows a t-distribution under the null hypothesis that the true coefficient is zero. A larger absolute value of the t-statistic means it is further from zero, which provides stronger evidence against the null hypothesis.
+
+- **df**: This is the degrees of freedom for the t-statistic.
+
+- **p.value**: This is the p-value for the hypothesis test of whether the coefficient is zero. A smaller p-value means there is stronger evidence against the null hypothesis, i.e., stronger evidence that the coefficient is not zero.
+
+In your output, all the p-values are very small, which suggests that each term in the model is significantly related to "CHD". Specifically:
+
+- For a county that's "UrbanRuralLargeFringe_Urban" versus "Large_Urban", the expected "CHD" increases by 0.2928782 units, holding all other variables constant.
+- For a county that's "UrbanRuralMediumSmall_Urban" versus "Large_Urban", the expected "CHD" increases by 0.7978104 units, holding all other variables constant.
+- For a county that's "UrbanRuralRural" versus "Large_Urban", the expected "CHD" increases by 1.4393493 units, holding all other variables constant.
+- For each unit increase in "HighBP", the expected "CHD" increases by 0.1983978 units, holding all other variables constant.
+
+Therefore, your model suggests that "HighBP" and "UrbanRural" are both significant predictors of "CHD", with "HighBP" being a particularly strong predictor given its large t-statistic. This matches with what you might expect given that high blood pressure is known to be a risk factor for coronary heart disease.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + HighBP))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
+####tried many variables in LM
+1. **(Intercept)**: The expected value of CHD when all predictor variables are zero. In practice, this might not be meaningful if zero is outside the range of your predictor variables.
+   
+2. **UrbanRuralLargeFringe_Urban**: This is the change in CHD expected with a change from Large Urban (the reference category) to Large Fringe Urban, keeping all other variables constant. The p-value is slightly more than 0.05, so this effect may not be statistically significant at the usual levels.
+   
+3. **UrbanRuralMediumSmall_Urban**: This is the change in CHD expected with a change from Large Urban to Medium or Small Urban. The positive coefficient and small p-value suggest this is associated with an increase in CHD, and this effect is statistically significant.
+   
+4. **UrbanRuralRural**: The expected change in CHD with a change from Large Urban to Rural. This is significantly associated with an increase in CHD.
+   
+5. **HighBP (High Blood Pressure)**: The expected change in CHD with a unit increase in HighBP. The positive coefficient and very small p-value suggest that higher blood pressure is significantly associated with higher CHD.
+
+6. **Broadband**: I'm not sure what this variable represents, but its positive coefficient and small p-value suggest that an increase in Broadband is associated with an increase in CHD, assuming all other variables are held constant.
+
+7. **Smoker**: This might represent whether the individual is a smoker or the proportion of smokers. The positive coefficient and small p-value suggest that smoking is significantly associated with higher CHD.
+
+8. **EdLessColl (Education Less than College)**: This might represent individuals with less than college education. The positive coefficient and small p-value suggest that having less than college education is significantly associated with higher CHD.
+
+9. **MedHouseIncome (Median Household Income)**: This might represent the median household income in an area. The negative coefficient and very small p-value suggest that higher median household income is significantly associated with lower CHD, assuming all other variables are held constant.
+
+10. **Poverty**: This might represent the proportion of individuals in poverty in an area. The negative coefficient and small p-value suggest that higher poverty is significantly associated with lower CHD, which seems counterintuitive. It might be due to confounding variables or other complex relationships in your data. 
+
+Remember, these interpretations are conditional on the other variables in the model. This means, for example, the effect of HighBP on CHD is estimated assuming all other variables (UrbanRural, Broadband, Smoker, EdLessColl, MedHouseIncome, Poverty) are held constant.
+
+Also, all these interpretations are about associations, not causal relationships. Determining whether a relationship is causal is more complex and requires more than just statistical analysis.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + HighBP + Broadband + Smoker + EdLessColl + MedHouseIncome + Poverty)) 
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
 
 
 
@@ -1240,6 +1387,38 @@ ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+####Saving for possible use later
+```{r}
+# Splitting the data into training and testing sets
+#library(caret)
+#set.seed(123)  # For reproducibility
+#train_indices <- createDataPartition(cdc$target_variable, p = 0.7, list = FALSE)
+#train_data <- data[train_indices, ]
+#test_data <- data[-train_indices, ]
+
+```
+
+```{r}
+# Example of building a linear regression model using caret
+#library(caret)
+#set.seed(123)  # For reproducibility
+#model <- train(target_variable ~ ., data = train_data, method = "lm")  # Replace 'target_variable' with #your target variable/column name
+
+# Model evaluation
+#predictions <- predict(model, newdata = test_data)
+
+```
 
 
 
