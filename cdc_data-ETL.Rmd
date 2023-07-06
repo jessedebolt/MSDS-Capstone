@@ -414,21 +414,46 @@ Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-Obesity-among-a
 
 
 ## Multiple value entry
-### Inserting value for missing values in PrimaryCarePhys
+### Read in additional data
 ```{r}
+pcp_cardio_count <- read_csv("data_support/pcp_cardio_count.csv")
+
+pcp_cardio_count$COUNTY = as.character(pcp_cardio_count$COUNTY)
 
 ```
-File: Medicare_Physician_Other_Practitioners_by_Provider_2021-Gen_Prac.xlsx
 
-
-### Inserting value for missing values in CardioPhys
+### Populating missing items for PCPs and Cardio Phys
 ```{r}
+# Joining count data frame to the cdc data frame
+cdc <- left_join(cdc, pcp_cardio_count, by = c("fips" = "COUNTY"))
+
+# Use coalesce to replace NAs in PrimaryCarePhys and CardioPhys
+cdc <- cdc %>% 
+  mutate(
+    PrimaryCarePhys = coalesce(PrimaryCarePhys, pcp),
+    CardioPhys = coalesce(CardioPhys, cardio)
+  )
+
+# Remove the temporary columns
+cdc <- cdc %>% select(-pcp, -cardio)
 
 ```
-File: Medicare_Physician_Other_Practitioners_by_Provider_2021-Cardio.xlsx
 
 
 ## Imputations
+### Impute remaining missing Cardiologists and Primary Care Physicians  based on median of urban/rural for each state
+```{r}
+# Calculate medians and impute NAs
+cdc2 <- cdc %>%
+  group_by(state) %>%
+  group_by(UrbanRural) %>% 
+  mutate(
+    CardioPhys = replace_na(CardioPhys, median(CardioPhys, na.rm = TRUE)),
+    PrimaryCarePhys = replace_na(PrimaryCarePhys, median(PrimaryCarePhys, na.rm = TRUE))
+  )
+```
+
+
 ### Imputing missing values in CholMedNonAdhear
 ```{r}
 cdc = cdc %>% 
@@ -469,8 +494,12 @@ cdc = cdc %>%
 ```
 
 
+
 ### Checking for missing values
 ```{r}
+#total number of missing values in dataset
+sum(is.na(cdc))
+
 #total number of missing values in each column
 colSums(is.na(cdc))
 
@@ -849,9 +878,33 @@ cor.test(cdc$CardioPhys, cdc$CHD)
 ```
 
 
+#### CHD/cardiovascular physicians correlation analysis visualization
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(CardioPhys), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
+
+```
+
+
 ### Correlation analysis between primary care providers and coronary heart disease prevalence
 ```{r}
 cor.test(cdc$PrimaryCarePhys, cdc$CHD)
+
+```
+
+
+#### CHD/primary care physicians correlation analysis visualization
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(PrimaryCarePhys), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
 
 ```
 
@@ -863,9 +916,33 @@ cor.test(cdc$Hospitals, cdc$CHD)
 ```
 
 
+#### CHD/hospitals correlation analysis visualization
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(Hospitals), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
+
+```
+
+
 ### Correlation analysis between hospitals with cardiac intensive care centers and coronary heart disease prevalence
 ```{r}
 cor.test(cdc$HospCIC, cdc$CHD)
+
+```
+
+
+#### CHD/cardiac intensive care centers correlation analysis visualization
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(HospCIC), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
 
 ```
 
@@ -877,9 +954,33 @@ cor.test(cdc$HospCR, cdc$CHD)
 ```
 
 
+#### CHD/hospitals with cardiac rehabilitation centers correlation analysis visualization
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(HospCR), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
+
+```
+
+
 ### Correlation analysis between pharmacies and coronary heart disease prevalence
 ```{r}
 cor.test(cdc$Pharmacies, cdc$CHD)
+
+```
+
+
+#### CHD/pharmacies correlation analysis visualization
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(Pharmacies), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
 
 ```
 
@@ -2186,86 +2287,6 @@ summary(pooled_results)
 
 
 
-# ***Jesse models, etc start***
-
-
-### CHD/cardiovascular physicians correlation analysis visualization
-```{r}
-cdc %>%
-  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
-ggplot(aes(log(CardioPhys), CHD, color=UrbanRural)) +
-geom_point(alpha=0.3)+
-facet_wrap(~UrbanRural)+
-geom_smooth(method = lm)
-
-```
-
-### CHD/primary care physicians correlation analysis visualization
-```{r}
-cdc %>%
-  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
-ggplot(aes(log(PrimaryCarePhys), CHD, color=UrbanRural)) +
-geom_point(alpha=0.3)+
-facet_wrap(~UrbanRural)+
-geom_smooth(method = lm)
-
-```
-
-### CHD/hospitals correlation analysis visualization
-```{r}
-cdc %>%
-  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
-ggplot(aes(log(Hospitals), CHD, color=UrbanRural)) +
-geom_point(alpha=0.3)+
-facet_wrap(~UrbanRural)+
-geom_smooth(method = lm)
-
-```
-
-
-### CHD/cardiac intensive care centers correlation analysis visualization
-```{r}
-cdc %>%
-  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
-ggplot(aes(log(HospCIC), CHD, color=UrbanRural)) +
-geom_point(alpha=0.3)+
-facet_wrap(~UrbanRural)+
-geom_smooth(method = lm)
-
-```
-
-
-### CHD/hospitals with cardiac rehabilitation centers correlation analysis visualization
-```{r}
-cdc %>%
-  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
-ggplot(aes(log(HospCR), CHD, color=UrbanRural)) +
-geom_point(alpha=0.3)+
-facet_wrap(~UrbanRural)+
-geom_smooth(method = lm)
-
-```
-
-
-
-### CHD/pharmacies correlation analysis visualization
-```{r}
-cdc %>%
-  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
-ggplot(aes(log(Pharmacies), CHD, color=UrbanRural)) +
-geom_point(alpha=0.3)+
-facet_wrap(~UrbanRural)+
-geom_smooth(method = lm)
-
-```
-
-
-
-
-```{r}
-colSums(is.na(cdc))
-
-```
 
 
 
