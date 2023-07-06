@@ -290,7 +290,7 @@ head(rural_query, n=20)
 
 ### Inserting Rural/Urban for missing value
 ```{r}
-# Find and impute where county is 'Kusilvak'
+# Find and insert where county is 'Kusilvak' based on Wikipedia data.
 cdc$"UrbanRural"[grepl("Kusilvak", cdc$county)] <- "Rural"
 
 unique(cdc$'UrbanRural')
@@ -300,6 +300,15 @@ rural_query <- filter(cdc, `UrbanRural` %in% c(NA, "", "NA"))
 head(rural_query, n=20)
 
 ```
+
+
+### Inserting Parks missing value
+```{r}
+# Find and insert where county is 'Kusilvak' based on average for all AK counties.
+cdc$"Parks"[grepl("Kusilvak", cdc$county)] <- 66
+
+```
+
 
 
 ### Checking for missing values
@@ -2253,8 +2262,10 @@ geom_smooth(method = lm)
 
 
 
+```{r}
+colSums(is.na(cdc))
 
-
+```
 
 
 
