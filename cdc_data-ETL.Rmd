@@ -1494,6 +1494,194 @@ summary(pooled_results)
 ```
 
 
+#### LM with Poverty
+- **(Intercept)**: The expected value of CHD when all predictor variables are zero. In the context of your model, this would mean when `UrbanRural` is at its reference level (which I'm assuming is "Large_Urban") and `Poverty` is 0. It's unlikely that the zero value of Poverty has a practical interpretation in your context. So, the intercept here is more of a technical aspect of the model, rather than something you would interpret directly.
+
+- **UrbanRuralLargeFringe_Urban**: This represents the expected change in CHD when the `UrbanRural` variable changes from "Large_Urban" to "LargeFringe_Urban", keeping the `Poverty` constant. The estimate of 1.441820 suggests that, on average, `CHD` is 1.441820 units higher in "LargeFringe_Urban" areas than in "Large_Urban" areas, when `Poverty` is the same in both areas. The p-value of 2.808080e-19 (very close to 0) suggests that this effect is statistically significant.
+
+- **UrbanRuralMediumSmall_Urban**: This represents the expected change in CHD when `UrbanRural` changes from "Large_Urban" to "MediumSmall_Urban", with `Poverty` kept constant. The estimate suggests that, on average, `CHD` is 1.802180 units higher in "MediumSmall_Urban" areas than in "Large_Urban" areas when `Poverty` is the same. The p-value (1.664810e-31) indicates that this effect is statistically significant.
+
+- **UrbanRuralRural**: This represents the expected change in CHD when `UrbanRural` changes from "Large_Urban" to "Rural", keeping `Poverty` constant. The estimate of 2.766099 suggests that `CHD` is, on average, 2.766099 units higher in "Rural" areas than in "Large_Urban" areas when `Poverty` is the same. The p-value (2.199503e-73) indicates this effect is statistically significant.
+
+- **Poverty**: This represents the expected change in CHD for a one-unit increase in `Poverty`, keeping `UrbanRural` constant. The positive estimate of 0.122293 suggests that for each unit increase in `Poverty`, `CHD` increases, on average, by 0.122293 units. The p-value (5.782284e-167) indicates this effect is statistically significant.
+
+Please note that these interpretations are based on associations, not causal relationships. The estimates give us the expected change in the outcome variable (CHD) for a unit change in the predictor variables, assuming all other predictors are held constant. However, they do not tell us whether changing the predictor variable would cause a change in the outcome. Also, be aware that other factors not included in the model could be confounding the relationships.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + Poverty))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+```
+####Linear Model with interactions
+1. **Intercept:** The intercept of the model is approximately 2.89. In the context of this model, the intercept represents the expected value of CHD when all the predictor variables are 0. However, since some of your variables are categorical (UrbanRural), the interpretation of the intercept becomes less straightforward. 
+
+2. **UrbanRural:** The coefficients for UrbanRural indicate the change in the expected value of CHD for a given level of UrbanRural compared to the reference level (which in this case is "Large_Urban"), while all other predictors remain constant. For example, for "MediumSmall_Urban", the expected CHD decreases by about 1.81 units compared to "Large_Urban", assuming all other variables stay constant. Keep in mind that this coefficient is not statistically significant as the p-value is larger than 0.05.
+
+3. **HighBP:** HighBP is positively associated with CHD, with a one-unit increase in HighBP leading to a ~0.092 increase in the expected value of CHD, assuming all other variables stay constant.
+
+4. **Smoker:** Being a smoker increases the expected value of CHD by about 0.15, assuming all other variables stay constant.
+
+5. **MedHouseIncome:** The coefficient for MedHouseIncome is close to 0 and its p-value is greater than 0.05, suggesting that there is no significant linear relationship between MedHouseIncome and CHD when other variables are controlled.
+
+6. **Broadband, EdLessColl, and Poverty:** Similar to HighBP and Smoker, Broadband and EdLessColl are positively associated with CHD while Poverty is negatively associated. The more detailed interpretation would be similar to what we've gone over for HighBP and Smoker.
+
+7. **Interaction Terms:** The coefficients for the interaction terms represent how much the relationship between HighBP and CHD changes for different levels of UrbanRural and how much the relationship between Smoker and CHD changes for different levels of MedHouseIncome. For instance, the interaction term UrbanRuralMediumSmall_Urban:HighBP suggests that the effect of HighBP on CHD is 0.068 units higher in MediumSmall_Urban areas compared to Large_Urban areas. 
+
+   The interpretation of interaction terms can be complex, especially when the variables involved are not continuous. The main point here is that the relationship between CHD and HighBP and between CHD and Smoker varies depending on the level of UrbanRural and MedHouseIncome, respectively.
+
+Overall, this model provides a nuanced view of the factors influencing CHD. However, it's essential to remember that this is a statistical model that captures associations, not necessarily causal relationships. For instance, while Broadband is positively associated with CHD, we wouldn't conclude that increasing broadband availability causes an increase in coronary heart disease prevalence. The associations we observe could be influenced by a variety of other factors not included in the model.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural * HighBP + Smoker * MedHouseIncome + Broadband + EdLessColl + Poverty))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+```
+
+
+
+
+#### Saved the data (can delete this)
+```{r}
+#write.csv(cdc, "/Users/isaacjohnson/Documents/Scanner Output/School/Willamette/Capstone/Capstone Project/Backup/cdc.csv", row.names = FALSE)
+```
+
+#### Proportion for each level of Urban Rural
+```{r}
+
+# proportion of each level 'UrbanRural'
+urban_rural_proportions <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(n = n()) %>%
+  mutate(prop = n / sum(n))
+
+# Print the proportions
+print(urban_rural_proportions)
+
+```
+
+
+
+#### Mean Prevalence for CHD by each level of Urban/Rural
+```{r}
+
+# Compute mean CHD prevalence for each category of UrbanRural
+mean_chd <- cdc %>% 
+  group_by(UrbanRural) %>% 
+  summarise(mean_chd = mean(CHD))
+
+# Print mean CHD prevalence
+print(mean_chd)
+
+```
+
+#### Look at extremes for Urban RUral
+```{r}
+# Find urban areas (Large_Urban, LargeFringe_Urban, MediumSmall_Urban) with high CHD
+urban_high_chd <- cdc %>% 
+  filter(UrbanRural %in% c('Large_Urban', 'LargeFringe_Urban', 'MediumSmall_Urban'), 
+         CHD > quantile(CHD, 0.95))
+
+# Find rural areas with low CHD
+rural_low_chd <- cdc %>% 
+  filter(UrbanRural == 'Rural', CHD < quantile(CHD, 0.05))
+
+# Print the top 5 urban areas with high CHD
+print(head(urban_high_chd, 5))
+
+# Print the top 5 rural areas with low CHD
+print(head(rural_low_chd, 5))
+```
+
+
+
+#### side by side of what's different between the two extremes
+```{r}
+# Get the names of numeric columns
+numeric_columns <- names(cdc)[sapply(cdc, is.numeric)]
+
+# Select the first 29 numeric columns
+numeric_columns <- numeric_columns[1:29]
+
+# Compute descriptive statistics for urban areas with high CHD
+urban_high_chd_stats <- urban_high_chd %>%
+  select(numeric_columns) %>%
+  summarise_all(list(mean = mean, sd = sd), na.rm = TRUE)
+
+# Compute descriptive statistics for rural areas with low CHD
+rural_low_chd_stats <- rural_low_chd %>%
+  select(numeric_columns) %>%
+  summarise_all(list(mean = mean, sd = sd), na.rm = TRUE)
+
+# Add a group indicator
+urban_high_chd_stats$group <- "urban_high_chd"
+rural_low_chd_stats$group <- "rural_low_chd"
+
+# Bind the rows
+combined_stats <- bind_rows(urban_high_chd_stats, rural_low_chd_stats)
+
+# Reshape from wide to long format
+long_stats <- pivot_longer(combined_stats, -group, names_to = c(".value", "statistic"), names_pattern = "(.+)_(.+)")
+
+# Print the long format stats
+print(long_stats)
+```
+
+
+
+
+```{r}
+
+# Separate the mean and standard deviation rows
+mean_stats <- long_stats %>% filter(statistic == "mean")
+sd_stats <- long_stats %>% filter(statistic == "sd")
+
+# Merge the data frames by group and variable names
+merged_stats <- merge(mean_stats, sd_stats, by = c("group"), suffixes = c("_mean", "_sd"))
+
+# Plot mean and sd for CHD
+ggplot(merged_stats, aes(x = group, y = CHD_mean, fill = group)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_errorbar(aes(ymin = CHD_mean - CHD_sd, ymax = CHD_mean + CHD_sd), width = 0.2, position = position_dodge(0.9)) +
+  labs(title = "Mean and Standard Deviation of CHD", x = "Group", y = "Mean CHD")
+
+```
+
+
+
+#### 
+```{r}
+# Convert data from wide to long format
+long_data <- gather(merged_stats, variable, value, -group)
+
+# Select variables
+selected_vars <- c("bpmUse", "CholScreen", "Obesity")
+
+# Loop over selected variables
+for (var in selected_vars) {
+  # Filter data for this variable (mean only)
+  var_data <- filter(long_data, variable == paste0(var, "_mean"))
+  
+  # Create bar plot
+  p <- ggplot(var_data, aes(x = group, y = value, fill = group)) +
+    geom_bar(stat = "identity", position = position_dodge()) +
+    labs(title = paste("Comparison of", var, "between Groups"),
+         x = "Group",
+         y = "Value") 
+  
+  # Print plot
+  print(p)
+}
+
+
+```
 
 
 
