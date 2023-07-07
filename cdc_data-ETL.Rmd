@@ -1510,6 +1510,9 @@ summary(pooled_results)
 
 
 
+
+
+
 ####Saving for possible use later
 ```{r}
 # Splitting the data into training and testing sets
@@ -2221,51 +2224,50 @@ summary(pooled_results)
 
 # Jesse 7/6/23 work
 
-Feature selection
-
-Basic Model
+### Split the data
 ```{r}
-cdc_index <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
-cdc_train <- cdc[ cdc_index, ]
-cdc_test <- cdc[-cdc_index, ]
-cdc_model <- train(CHD ~ .,
-                   data = cdc_train,
-                   method = "lm",
-                   trControl = control)
+# # Drop non numeric variables (note, rural/urban has been hot coded)
+# cdc2 <- cdc %>% 
+#   select(c(4:32, 85:88))
+# 
+# cdc2_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+# cdc2_train <- cdc2[ cdc2_index, ]
+# cdc2_test <- cdc2[-cdc2_index, ]
+
+```
+
+```{r}
+# # Compute the correlation matrix
+# cor_matrix <- cor(cdc2_train)
+# 
+# # Display the correlation matrix
+# print(cor_matrix)
 
 ```
 
 
-Results (train)
+### Fit a basic model
 ```{r}
+# library(rpart)
+# 
+# ctrl <- trainControl(method = "cv")
+# 
+# cdc2_model <- train(CHD ~ .,
+#                    data = cdc2_train,
+#                    method = "lm",
+#                    trControl = ctrl
+#                    )
+# 
+# cdc2_model
 
 ```
 
 
+### Variable Importance
+```{r}
+# cdc_model$finalModel$variable.importance
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
 
 
