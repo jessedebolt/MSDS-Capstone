@@ -1419,13 +1419,13 @@ summary(pooled_results)
 
 ```
 #### Linear Model with CHD vs Urban Rural Explanation:
-Intercept (Large_Urban): In this model, "Large_Urban" is the reference category because it is represented by the intercept. The intercept's value of approximately 5.79 is the average CHD prevalence in "Large_Urban" areas (given that the CHD data and coefficients are in a format where this interpretation makes sense).
+**Intercept (Large_Urban)**: In this model, "Large_Urban" is the reference category because it is represented by the intercept. The intercept's value of approximately 5.79 is the average CHD prevalence in "Large_Urban" areas (given that the CHD data and coefficients are in a format where this interpretation makes sense).
 
-LargeFringe_Urban: The coefficient of approximately 1.01 suggests that, on average, the CHD prevalence in "LargeFringe_Urban" areas is estimated to be about 1.01 units higher than in "Large_Urban" areas.
+**LargeFringe_Urban**: The coefficient of approximately 1.01 suggests that, on average, the CHD prevalence in "LargeFringe_Urban" areas is estimated to be about 1.01 units higher than in "Large_Urban" areas.
 
-MediumSmall_Urban: Similarly, the CHD prevalence in "MediumSmall_Urban" areas is estimated to be about 1.80 units higher than in "Large_Urban" areas.
+**MediumSmall_Urban**: Similarly, the CHD prevalence in "MediumSmall_Urban" areas is estimated to be about 1.80 units higher than in "Large_Urban" areas.
 
-Rural: Lastly, the CHD prevalence in "Rural" areas is estimated to be about 2.98 units higher than in "Large_Urban" areas.
+**Rural**: Lastly, the CHD prevalence in "Rural" areas is estimated to be about 2.98 units higher than in "Large_Urban" areas.
 
 For all categories of "UrbanRural", the p-values are less than 0.05, which suggests that the differences in CHD prevalence between "Large_Urban" areas and the other types of areas are statistically significant.
 
