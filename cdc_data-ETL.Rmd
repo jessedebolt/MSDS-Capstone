@@ -444,7 +444,7 @@ cdc <- cdc %>% select(-pcp, -cardio)
 ### Impute remaining missing Cardiologists and Primary Care Physicians  based on median of urban/rural for each state
 ```{r}
 # Calculate medians and impute NAs
-cdc2 <- cdc %>%
+cdc <- cdc %>%
   group_by(state) %>%
   group_by(UrbanRural) %>% 
   mutate(
@@ -2219,12 +2219,27 @@ summary(pooled_results)
 
 
 
+# Jesse 7/6/23 work
+
+Feature selection
+
+Basic Model
+```{r}
+cdc_index <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
+cdc_train <- cdc[ cdc_index, ]
+cdc_test <- cdc[-cdc_index, ]
+cdc_model <- train(CHD ~ .,
+                   data = cdc_train,
+                   method = "lm",
+                   trControl = control)
+
+```
 
 
+Results (train)
+```{r}
 
-
-
-
+```
 
 
 
