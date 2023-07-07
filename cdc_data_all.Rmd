@@ -1405,8 +1405,20 @@ imputed_data <- mice(cdc, m = 5)  # Impute missing values (replace 'data' with y
 ```
 
 
-#### Interpretation of the below lm model CHD vs Urban Rural
 
+### Linear Model with CHD vs Urban Rural
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
+#### Linear Model with CHD vs Urban Rural Explanation:
 Intercept (Large_Urban): In this model, "Large_Urban" is the reference category because it is represented by the intercept. The intercept's value of approximately 5.79 is the average CHD prevalence in "Large_Urban" areas (given that the CHD data and coefficients are in a format where this interpretation makes sense).
 
 LargeFringe_Urban: The coefficient of approximately 1.01 suggests that, on average, the CHD prevalence in "LargeFringe_Urban" areas is estimated to be about 1.01 units higher than in "Large_Urban" areas.
@@ -1419,9 +1431,11 @@ For all categories of "UrbanRural", the p-values are less than 0.05, which sugge
 
 In other words, your model suggests that there is a significant association between the type of area and CHD prevalence. Specifically, all other types of areas have higher estimated CHD prevalence than "Large_Urban" areas.
 
+
+### Linear Model CHD vs Urban Rural + HighBP
 ```{r}
 # Fit models to each imputed dataset
-models <- with(imputed_data, exp = lm(CHD ~ UrbanRural))
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + HighBP))
 
 # Pool results
 pooled_results <- pool(models)
@@ -1430,7 +1444,7 @@ pooled_results <- pool(models)
 summary(pooled_results)
 
 ```
-####Interpretation of LM model CHD vs Urban Rural + HighBP
+#### Linear Model CHD vs Urban Rural + HighBP Explanation:
 In your output, each row corresponds to a term in the model, and each column corresponds to an aspect of the term.
 
 - **term**: This is the name of the variable in the model. "(Intercept)" refers to the model's intercept, or baseline outcome when all the predictors are 0. In your case, "UrbanRuralLargeFringe_Urban", "UrbanRuralMediumSmall_Urban", and "UrbanRuralRural" are dummy variables derived from the categorical variable "UrbanRural", and "HighBP" is a variable representing high blood pressure.
@@ -1453,9 +1467,12 @@ In your output, all the p-values are very small, which suggests that each term i
 - For each unit increase in "HighBP", the expected "CHD" increases by 0.1983978 units, holding all other variables constant.
 
 Therefore, your model suggests that "HighBP" and "UrbanRural" are both significant predictors of "CHD", with "HighBP" being a particularly strong predictor given its large t-statistic. This matches with what you might expect given that high blood pressure is known to be a risk factor for coronary heart disease.
+
+
+### Linear Model with various variables
 ```{r}
 # Fit models to each imputed dataset
-models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + HighBP))
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + HighBP + Broadband + Smoker + EdLessColl + MedHouseIncome + Poverty)) 
 
 # Pool results
 pooled_results <- pool(models)
@@ -1464,7 +1481,7 @@ pooled_results <- pool(models)
 summary(pooled_results)
 
 ```
-####tried many variables in LM
+#### Linear Model with various variables Explanation:
 1. **(Intercept)**: The expected value of CHD when all predictor variables are zero. In practice, this might not be meaningful if zero is outside the range of your predictor variables.
    
 2. **UrbanRuralLargeFringe_Urban**: This is the change in CHD expected with a change from Large Urban (the reference category) to Large Fringe Urban, keeping all other variables constant. The p-value is slightly more than 0.05, so this effect may not be statistically significant at the usual levels.
@@ -1488,20 +1505,20 @@ summary(pooled_results)
 Remember, these interpretations are conditional on the other variables in the model. This means, for example, the effect of HighBP on CHD is estimated assuming all other variables (UrbanRural, Broadband, Smoker, EdLessColl, MedHouseIncome, Poverty) are held constant.
 
 Also, all these interpretations are about associations, not causal relationships. Determining whether a relationship is causal is more complex and requires more than just statistical analysis.
+
+
+### Linear Model with Poverty
 ```{r}
 # Fit models to each imputed dataset
-models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + HighBP + Broadband + Smoker + EdLessColl + MedHouseIncome + Poverty)) 
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + Poverty))
 
 # Pool results
 pooled_results <- pool(models)
 
 # Print summary of pooled results
 summary(pooled_results)
-
 ```
-
-
-#### LM with Poverty
+#### Linear Model with Poverty Explanation:
 - **(Intercept)**: The expected value of CHD when all predictor variables are zero. In the context of your model, this would mean when `UrbanRural` is at its reference level (which I'm assuming is "Large_Urban") and `Poverty` is 0. It's unlikely that the zero value of Poverty has a practical interpretation in your context. So, the intercept here is more of a technical aspect of the model, rather than something you would interpret directly.
 
 - **UrbanRuralLargeFringe_Urban**: This represents the expected change in CHD when the `UrbanRural` variable changes from "Large_Urban" to "LargeFringe_Urban", keeping the `Poverty` constant. The estimate of 1.441820 suggests that, on average, `CHD` is 1.441820 units higher in "LargeFringe_Urban" areas than in "Large_Urban" areas, when `Poverty` is the same in both areas. The p-value of 2.808080e-19 (very close to 0) suggests that this effect is statistically significant.
@@ -1513,17 +1530,21 @@ summary(pooled_results)
 - **Poverty**: This represents the expected change in CHD for a one-unit increase in `Poverty`, keeping `UrbanRural` constant. The positive estimate of 0.122293 suggests that for each unit increase in `Poverty`, `CHD` increases, on average, by 0.122293 units. The p-value (5.782284e-167) indicates this effect is statistically significant.
 
 Please note that these interpretations are based on associations, not causal relationships. The estimates give us the expected change in the outcome variable (CHD) for a unit change in the predictor variables, assuming all other predictors are held constant. However, they do not tell us whether changing the predictor variable would cause a change in the outcome. Also, be aware that other factors not included in the model could be confounding the relationships.
+
+
+### Linear Model with interactions 
 ```{r}
 # Fit models to each imputed dataset
-models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + Poverty))
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural * HighBP + Smoker * MedHouseIncome + Broadband + EdLessColl + Poverty))
 
 # Pool results
 pooled_results <- pool(models)
 
 # Print summary of pooled results
 summary(pooled_results)
+
 ```
-####Linear Model with interactions
+#### Linear Model with interactions explanation:
 1. **Intercept:** The intercept of the model is approximately 2.89. In the context of this model, the intercept represents the expected value of CHD when all the predictor variables are 0. However, since some of your variables are categorical (UrbanRural), the interpretation of the intercept becomes less straightforward. 
 
 2. **UrbanRural:** The coefficients for UrbanRural indicate the change in the expected value of CHD for a given level of UrbanRural compared to the reference level (which in this case is "Large_Urban"), while all other predictors remain constant. For example, for "MediumSmall_Urban", the expected CHD decreases by about 1.81 units compared to "Large_Urban", assuming all other variables stay constant. Keep in mind that this coefficient is not statistically significant as the p-value is larger than 0.05.
@@ -1541,18 +1562,6 @@ summary(pooled_results)
    The interpretation of interaction terms can be complex, especially when the variables involved are not continuous. The main point here is that the relationship between CHD and HighBP and between CHD and Smoker varies depending on the level of UrbanRural and MedHouseIncome, respectively.
 
 Overall, this model provides a nuanced view of the factors influencing CHD. However, it's essential to remember that this is a statistical model that captures associations, not necessarily causal relationships. For instance, while Broadband is positively associated with CHD, we wouldn't conclude that increasing broadband availability causes an increase in coronary heart disease prevalence. The associations we observe could be influenced by a variety of other factors not included in the model.
-```{r}
-# Fit models to each imputed dataset
-models <- with(imputed_data, exp = lm(CHD ~ UrbanRural * HighBP + Smoker * MedHouseIncome + Broadband + EdLessColl + Poverty))
-
-# Pool results
-pooled_results <- pool(models)
-
-# Print summary of pooled results
-summary(pooled_results)
-```
-
-
 
 
 #### Saved the data (can delete this)
