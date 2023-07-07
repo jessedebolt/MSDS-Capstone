@@ -805,9 +805,6 @@ summary(pr_cdc)
 
 #### Additional feature engineering
 ```{r}
-# Backup
-cdc_copy_JAD <- cdc
-
 # Convert urban/rural variables to factors
 cdc$UrbanRural <- as.factor(cdc$UrbanRural)
 
@@ -2247,9 +2244,13 @@ summary(pooled_results)
 
 
 
+# Line 813
+### Use one-hot encoding for the 'UrbanRural' column
 
+```{r}
+cdc2 <- fastDummies::dummy_cols(cdc, select_columns = 'UrbanRural')
 
-
+```
 
 
 
