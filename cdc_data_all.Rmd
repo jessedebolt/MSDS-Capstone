@@ -537,9 +537,16 @@ head(cdc)
 str(cdc)
 dim(cdc)
 summary(cdc)
+
+```
+
+
+### Additional details
+```{r}
 skim(cdc)
 
 ```
+
 
 
 ### Reviewing CHD prevalence
@@ -2414,8 +2421,8 @@ for (var in selected_vars) {
 
 ### Split the data
 ```{r}
-# # Drop non numeric variables (note, rural/urban has been hot coded)
-# cdc2 <- cdc %>% 
+# Drop non numeric variables (note, rural/urban has been hot coded)
+# cdc2 <- cdc %>%
 #   select(c(4:32, 85:88))
 # 
 # cdc2_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
@@ -2453,7 +2460,7 @@ for (var in selected_vars) {
 
 ### Variable Importance
 ```{r}
-# cdc_model$finalModel$variable.importance
+# cdc2_model$finalModel$variable.importance
 
 ```
 
