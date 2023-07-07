@@ -506,7 +506,22 @@ colSums(is.na(cdc))
 ```
 
 
-### Export cleaned data to csv
+## Additional feature engineering
+### One-hot encoding for the 'state' and 'UrbanRural' columns
+```{r}
+# Convert urban/rural variables to factors
+cdc$UrbanRural <- as.factor(cdc$UrbanRural)
+
+# Use fastDummies for the 'state' column
+cdc <- fastDummies::dummy_cols(cdc, select_columns = 'state')
+
+# Use fastDummies for the 'UrbanRural' column
+cdc <- fastDummies::dummy_cols(cdc, select_columns = 'UrbanRural')
+
+```
+
+
+## Export cleaned data to csv
 ```{r}
 # Write data to local in csv format
 write_csv(cdc, "data/CDC_all.csv")  
@@ -799,17 +814,6 @@ all(sapply(cdc_comp, is.finite))
 pr_cdc <- prcomp(x = cdc_comp, scale = T, center = T)
 
 summary(pr_cdc)
-
-```
-
-
-#### Additional feature engineering
-```{r}
-# Convert urban/rural variables to factors
-cdc$UrbanRural <- as.factor(cdc$UrbanRural)
-
-# Use one-hot encoding for the 'state' column
-cdc <- fastDummies::dummy_cols(cdc, select_columns = 'state')
 
 ```
 
@@ -2244,13 +2248,6 @@ summary(pooled_results)
 
 
 
-# Line 813
-### Use one-hot encoding for the 'UrbanRural' column
-
-```{r}
-cdc2 <- fastDummies::dummy_cols(cdc, select_columns = 'UrbanRural')
-
-```
 
 
 
