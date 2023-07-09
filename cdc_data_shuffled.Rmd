@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ---
 title: "CDC Data ETL"
 author: "Jesse DeBolt & Isaac Johnson"
@@ -536,7 +535,7 @@ cdc <- fastDummies::dummy_cols(cdc, select_columns = 'UrbanRural')
 #### Convert number of hospitals per county to number of hospitals per 100k residents
 ```{r}
 # Create column for number of hospitals per 100k residents
-cdc$Hosp100k <- (cdc$Hospitals / cdc$population) * 100000
+cdc$Hosp100k <- (cdc$Hospitals / cdc$pop) * 100000
 
 ```
 
@@ -544,7 +543,7 @@ cdc$Hosp100k <- (cdc$Hospitals / cdc$population) * 100000
 #### Convert number of pharmacies per population to number of pharmacies per 100k residents
 ```{r}
 # Create column for number of hospitals per 100k residents
-cdc$Pharm100k <- (cdc$Pharmacies / cdc$population) * 100000
+cdc$Pharm100k <- (cdc$Pharmacies / cdc$pop) * 100000
 
 ```
 
@@ -552,9 +551,9 @@ cdc$Pharm100k <- (cdc$Pharmacies / cdc$population) * 100000
 #### Convert population per physicians to physician per 1k residents
 ```{r}
 # Calculate the number of physicians
-cdc$TotalPCP <- cdc$population / cdc$PrimaryCarePhys
+cdc$TotalPCP <- cdc$pop / cdc$PCP
 # Create columns for number of physicians per 1k residents
-cdc$PSP1k <- (cdc$TotalPCP / cdc$population) * 1000
+cdc$PSP1k <- (cdc$TotalPCP / cdc$pop) * 1000
 
 ```
 
@@ -562,9 +561,9 @@ cdc$PSP1k <- (cdc$TotalPCP / cdc$population) * 1000
 #### Convert population per cardiovascular physicians to cardiovascular physician per 100k residents
 ```{r}
 # Calculate the number of physicians
-cdc$TotalCardio <- cdc$population / cdc$CardioPhys
+cdc$TotalCardio <- cdc$pop / cdc$CardioPhys
 # Create columns for number of physicians per 1k residents
-cdc$Cardio100k <- (cdc$CardioPhys / cdc$population) * 100000
+cdc$Cardio100k <- (cdc$CardioPhys / cdc$pop) * 100000
 
 ```
 
@@ -3313,7 +3312,7 @@ cdc <- fastDummies::dummy_cols(cdc, select_columns = 'UrbanRural')
 #### Convert number of hospitals per county to number of hospitals per 100k residents
 ```{r}
 # Create column for number of hospitals per 100k residents
-cdc$Hosp100k <- (cdc$Hospitals / cdc$population) * 100000
+cdc$Hosp100k <- (cdc$Hospitals / cdc$pop) * 100000
 
 ```
 
@@ -3321,7 +3320,7 @@ cdc$Hosp100k <- (cdc$Hospitals / cdc$population) * 100000
 #### Convert number of pharmacies per population to number of pharmacies per 100k residents
 ```{r}
 # Create column for number of hospitals per 100k residents
-cdc$Pharm100k <- (cdc$Pharmacies / cdc$population) * 100000
+cdc$Pharm100k <- (cdc$Pharmacies / cdc$pop) * 100000
 
 ```
 
@@ -3329,9 +3328,9 @@ cdc$Pharm100k <- (cdc$Pharmacies / cdc$population) * 100000
 #### Convert population per physicians to physician per 1k residents
 ```{r}
 # Calculate the number of physicians
-cdc$TotalPCP <- cdc$population / cdc$PrimaryCarePhys
+cdc$TotalPCP <- cdc$pop / cdc$PCP
 # Create columns for number of physicians per 1k residents
-cdc$PSP1k <- (cdc$TotalPCP / cdc$population) * 1000
+cdc$PSP1k <- (cdc$TotalPCP / cdc$pop) * 1000
 
 ```
 
@@ -3339,9 +3338,9 @@ cdc$PSP1k <- (cdc$TotalPCP / cdc$population) * 1000
 #### Convert population per cardiovascular physicians to cardiovascular physician per 100k residents
 ```{r}
 # Calculate the number of physicians
-cdc$TotalCardio <- cdc$population / cdc$CardioPhys
+cdc$TotalCardio <- cdc$pop / cdc$CardioPhys
 # Create columns for number of physicians per 1k residents
-cdc$Cardio100k <- (cdc$CardioPhys / cdc$population) * 100000
+cdc$Cardio100k <- (cdc$CardioPhys / cdc$pop) * 100000
 
 ```
 
