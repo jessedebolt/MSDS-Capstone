@@ -504,7 +504,6 @@ cdc = cdc %>%
 ```
 
 
-
 ### Checking for missing values
 ```{r}
 #total number of missing values in dataset
@@ -628,6 +627,8 @@ highest_10 <- cdc %>%
 highest_10
 
 ```
+
+
 ### Bottom 10 Counties with lowest CHD prevalence
 ```{r}
 
@@ -638,6 +639,7 @@ lowest_10 <- cdc %>%
 lowest_10
 
 ```
+
 
 ### Correlation
 ```{r}
@@ -890,7 +892,6 @@ ggplot(cdc, aes(x=UrbanRural, y=CHD)) + geom_boxplot()
 ```
 
 
-
 ### Histogram to understand distribution of cardiovascular providers in rural and urban areas
 ```{r}
 ggplot(cdc, aes(x=CardioPhys)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
@@ -934,9 +935,7 @@ ggplot(cdc, aes(x=Pharmacies)) + geom_histogram(binwidth=10) + facet_grid(~ Urba
 
 
 # Statistical Analysis
-
 ## Correlation Analysis
-
 ### Correlation analysis between cardiovascular providers and coronary heart disease prevalence
 ```{r}
 cor.test(cdc$CardioPhys, cdc$CHD)
@@ -1171,6 +1170,8 @@ count_table <- table(hospital_counts)
 barplot(count_table, main = "Number of Hospitals per County", xlab = "Number of Hospitals", ylab = "Count")
 
 ```
+
+
 #### Same as above but improved visual
 ```{r}
 #Most counties have 1 hospital
@@ -1191,6 +1192,8 @@ ggplot(count_df, aes(x = Hospitals)) +
   theme_minimal()
 
 ```
+
+
 #### How many counties have no hospitals
 ```{r}
 # Check the count for zero hospitals
@@ -1200,6 +1203,8 @@ count_zero <- count_table[as.character(0)]
 print(paste("Number of counties with zero hospitals:", count_zero))
 
 ```
+
+
 #### list of counties with 0 hospitals
 ```{r}
 no_hospital <- cdc %>%
@@ -1210,6 +1215,8 @@ no_hospital <- cdc %>%
 print(no_hospital)
 
 ```
+
+
 #### How many counties per state
 ```{r}
 county_counts <- cdc %>%
@@ -1221,7 +1228,7 @@ print(county_counts)
 ```
 
 
-####
+#### Average prevalence of CHD
 ```{r}
 # Average prevalence for the US
 us_average <- mean(cdc$CHD, na.rm = TRUE)
@@ -1262,6 +1269,8 @@ print(highest_prevalence)
 print(lowest_prevalence)
 
 ```
+
+
 #### What is distribution of Urban Rural for Each State
 ```{r}
 #We should maybe bucket these? but not sure if we need to keep as is for model?
@@ -1342,6 +1351,7 @@ ggplot(top_large_urban, aes(x = state, y = count, fill = state)) +
 
 ```
 
+
 #### Top 10 states with most Rural
 ```{r}
 top_rural <- cdc %>%
@@ -1415,8 +1425,6 @@ ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-
-
 ```
 
 
@@ -1486,6 +1494,7 @@ print(missing_value_cols)
 ```{r}
 cat("Number of NA values in each column:\n")
 print(colSums(is.na(cdc_comp)))
+
 ```
 
 
@@ -1666,7 +1675,6 @@ Overall, this model provides a nuanced view of the factors influencing CHD. Howe
 
 #### Proportion for each level of Urban Rural
 ```{r}
-
 # proportion of each level 'UrbanRural'
 urban_rural_proportions <- cdc %>%
   group_by(UrbanRural) %>%
@@ -1677,7 +1685,6 @@ urban_rural_proportions <- cdc %>%
 print(urban_rural_proportions)
 
 ```
-
 
 
 #### Mean Prevalence for CHD by each level of Urban/Rural
@@ -1693,7 +1700,8 @@ print(mean_chd)
 
 ```
 
-#### Look at extremes for Urban RUral
+
+#### Look at extremes for Urban Rural
 ```{r}
 # Find urban areas (Large_Urban, LargeFringe_Urban, MediumSmall_Urban) with high CHD
 urban_high_chd <- cdc %>% 
@@ -1712,8 +1720,7 @@ print(head(rural_low_chd, 5))
 ```
 
 
-
-#### side by side of what's different between the two extremes
+#### Side by side of what's different between the two extremes
 ```{r}
 # Get the names of numeric columns
 numeric_columns <- names(cdc)[sapply(cdc, is.numeric)]
@@ -1747,9 +1754,7 @@ print(long_stats)
 
 
 
-
 ```{r}
-
 # Separate the mean and standard deviation rows
 mean_stats <- long_stats %>% filter(statistic == "mean")
 sd_stats <- long_stats %>% filter(statistic == "sd")
@@ -1764,7 +1769,6 @@ ggplot(merged_stats, aes(x = group, y = CHD_mean, fill = group)) +
   labs(title = "Mean and Standard Deviation of CHD", x = "Group", y = "Mean CHD")
 
 ```
-
 
 
 #### 
@@ -2198,329 +2202,6 @@ for (var in selected_vars) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # **Jesse new work**
 ## Move when ready
 ### Split the data
@@ -2543,6 +2224,7 @@ for (var in selected_vars) {
 # print(cor_matrix)
 
 ```
+
 
 ### Fit a basic model
 ```{r}
