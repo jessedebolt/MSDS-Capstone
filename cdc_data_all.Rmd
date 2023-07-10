@@ -700,13 +700,13 @@ ggplot(data = neg_mid_correlations, aes(x = Var1, y = Var2, fill = value)) +
 
 ### Auto EDA report (from DataExplorer)
 ```{r}
-cdc %>%
-    select(2:33,) %>%
-    create_report(
-        output_file = paste ("Report", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"), sep=" - "),
-        report_title = "EDA Report - CHD Dataset",
-        y = "CHD"
-    )
+# cdc %>%
+#     select(2:33,) %>%
+#     create_report(
+#         output_file = paste ("Report", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"), sep=" - "),
+#         report_title = "EDA Report - CHD Dataset",
+#         y = "CHD"
+#     )
 
 ```
 
@@ -1782,6 +1782,7 @@ Overall, this model provides a nuanced view of the factors influencing CHD. Howe
 ```{r}
 #write.csv(cdc, "/Users/isaacjohnson/Documents/Scanner Output/School/Willamette/Capstone/Capstone Project/Backup/cdc.csv", row.names = FALSE)
 ```
+
 
 #### Proportion for each level of Urban Rural
 ```{r}
