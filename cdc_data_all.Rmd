@@ -1963,6 +1963,8 @@ cdc_lm <- cdc_copy %>% select (3:33,)
 model <- lm(CHD ~ ., data = cdc_lm)
 
 model
+
+summary(model)
 ```
 
 
