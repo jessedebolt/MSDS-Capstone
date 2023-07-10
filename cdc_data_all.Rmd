@@ -1958,7 +1958,7 @@ for (var in selected_vars) {
 
 
 ```{r}
-cdc_lm <- cdc_copy %>% select (3:32,)
+cdc_lm <- cdc_copy %>% select (3:33,)
 
 model <- lm(CHD ~ ., data = cdc_lm)
 
@@ -1970,7 +1970,7 @@ model
 ```{r}
 library(rpart)
 
-cdc_test <- cdc_copy %>% select (8:32 ,)
+cdc_test <- cdc_copy %>% select (8:33 ,)
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol))
 
@@ -1985,7 +1985,7 @@ rpart.plot(tree_model)
 ```{r}
 library(rpart)
 
-cdc_test <- cdc_copy %>% select (8:32 ,)
+cdc_test <- cdc_copy %>% select (8:33 ,)
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
 
