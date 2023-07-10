@@ -1833,15 +1833,6 @@ for (var in selected_vars) {
 
 
 ####Saving for possible use later
-```{r}
-# Splitting the data into training and testing sets
-#library(caret)
-#set.seed(123)  # For reproducibility
-#train_indices <- createDataPartition(cdc$target_variable, p = 0.7, list = FALSE)
-#train_data <- data[train_indices, ]
-#test_data <- data[-train_indices, ]
-
-```
 
 ```{r}
 # Example of building a linear regression model using caret
@@ -1855,8 +1846,42 @@ for (var in selected_vars) {
 ```
 
 
+```{r}
+cdc_lm <- cdc_copy %>% select (3:32,)
+
+model <- lm(CHD ~ ., data = cdc_lm)
+
+model
+```
 
 
+```{r}
+library(rpart)
+
+cdc_test <- cdc_copy %>% select (8:32 ,)
+
+cdc_test <- cdc_test %>% select(-c(Stroke, HighChol))
+
+tree_model <- rpart(CHD ~ ., data=cdc_test)
+
+library(rpart.plot)
+rpart.plot(tree_model)
+```
+
+
+
+```{r}
+library(rpart)
+
+cdc_test <- cdc_copy %>% select (8:32 ,)
+
+cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
+
+tree_model <- rpart(CHD ~ ., data=cdc_test)
+
+library(rpart.plot)
+rpart.plot(tree_model)
+```
 
 
 
