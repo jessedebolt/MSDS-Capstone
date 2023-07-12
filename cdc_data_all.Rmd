@@ -2727,9 +2727,6 @@ for(category in unique(cdc$UrbanRural)) {
 ```
 
 
-
-
-
 ## Histograms to understand distribution of factors in rural and urban areas
 
 ### Population
@@ -2772,11 +2769,6 @@ ggplot(cdc, aes(x=EdLessColl)) + geom_histogram(binwidth=10) + facet_grid(~ Urba
 ggplot(cdc, aes(x=Age65Plus)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
 
 ```
-
-
-
-
-
 
 
 ## Correlation analysis between CHD and various factors
@@ -2895,15 +2887,6 @@ geom_smooth(method = lm)
 ```
 
 
-
-
-
-
-
-
-
-
-
 ## Linear Model with various variables
 ### CHD, Population, Air Quality, Parks, Broadband Access, Education Less Than College, and Age greater than 65.
 ```{r}
@@ -2922,7 +2905,7 @@ summary(pooled_results)
 ### CHD, Population,  Age greater than 65.
 ```{r}
 # Fit models to each imputed dataset
-models <- with(imputed_data, exp = lm(CHD ~ pop + Age65Plus)) # need to add age, when available
+models <- with(imputed_data, exp = lm(CHD ~ pop + Age65Plus))
 
 # Pool results
 pooled_results <- pool(models)
@@ -2933,15 +2916,117 @@ summary(pooled_results)
 ```
 
 
+### CHD, Broadband, Parks, Age greater than 65.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + Broadband + Parks + Age65Plus))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
 
 
+### CHD, Parks, Age greater than 65.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + Parks + Age65Plus))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
 
 
+### CHD, Air Quality, Age greater than 65.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + AirQuality + Age65Plus))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
 
 
+## Linear Model with interactions
+### CHD, Population, Air Quality, Parks, Broadband Access, Education Less Than College, and Age greater than 65.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + pop + EdLessColl * Broadband + AirQuality * Parks + Age65Plus))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
 
 
+### CHD, Population,  Age greater than 65.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ pop * Age65Plus))
 
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
+
+
+### CHD, Broadband, Parks, Age greater than 65.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + Broadband * Parks * Age65Plus))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
+
+
+### CHD, Parks, Age greater than 65.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + Parks * Age65Plus))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
+
+
+### CHD, Air Quality, Age greater than 65.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + AirQuality * Age65Plus))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
 
 
 
