@@ -839,7 +839,7 @@ cdc %>%
     select("CHD",
            "MedHomeValue",
            "MedHouseIncome",
-#           "HouseCostBurd",
+           "Poverty",
            "UrbanRural") %>%
     ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 ```
@@ -1998,457 +1998,457 @@ tree_model <- rpart(CHD ~ ., data=cdc_test)
 library(rpart.plot)
 rpart.plot(tree_model)
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# **Isaac new work**
+## **Additional eda**
+Diabetes
+Obesity
+Physical Inactivity
+Health Insurance
+Non Adherence all med types
+Med Home Value/med house income/Income Inequality/poverty
+### Diabetes
+```{r}
+summary(cdc$Diabetes)
+hist(cdc$"Diabetes")
+
+# Calculate the average prevalence of Diabetes for each UrbanRural status
+avg_diabetes_urbanrural <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(avg_diabetes = mean(Diabetes, na.rm = TRUE))
+
+# Print the result
+print(avg_diabetes_urbanrural)
+
+# Plot a bar graph
+ggplot(avg_diabetes_urbanrural, aes(x=UrbanRural, y=avg_diabetes)) +
+  geom_bar(stat='identity', fill='skyblue') +
+  labs(x='UrbanRural Status', y='Average Diabetes %', title='Average Prevalence of Diabetes for Each UrbanRural Status')
+
+
+#looked at CHD vs Diabetes
+ggplot(data = cdc, aes(x = `CHD`, y = `Diabetes`, fill = `CHD`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "CHD", y = "Prevalence of Diabetes", fill = "CHD") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+### Top 10 Counties with highest Diabetes prevalence
+```{r}
+highest_10 <- cdc %>%
+  arrange(desc(Diabetes)) %>%
+  head(10)
+highest_10
+```
+### Bottom 10 Counties with lowest Diabetes prevalence
+```{r}
+lowest_10 <- cdc %>%
+    arrange(Diabetes) %>%
+    head(10)
+lowest_10
+```
+### Correlation plots
+```{r}
+cdc %>%
+    select("CHD",
+           "UrbanRural",
+           "Diabetes",
+           "Obesity",
+           "PhysInactivity") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
+
+```
+#### Density plot for Diabetes UrbanRural
+```{r}
+
+ggplot(cdc, aes(x = Diabetes, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Diabetes", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("Diabetes", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$Diabetes, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = Diabetes, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "Diabetes", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
+
+```
+### Diabetes Boxplot
+```{r}
+ggplot(cdc, aes(x=UrbanRural, y=Diabetes)) + geom_boxplot()
+
+```
+
+### Correlation analysis between Diabetes, Obesity, and physical inactivity
+```{r}
+cor.test(cdc$Diabetes, cdc$Obesity)
+cor.test(cdc$Diabetes, cdc$PhysInactivity)
+```
+#### Highest and Lowest States Diabetes Prevalence
+```{r}
+# Top 10 states with highest prevalence
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_diabetes = mean(Diabetes, na.rm=TRUE)) %>%
+    arrange(desc(avg_diabetes)) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_diabetes), y=avg_diabetes)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average Diabetes %', title='Top 10 States with Highest Prevalence of Diabetes')
+
+# Bottom 10 states with lowest prevalence
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_diabetes = mean(Diabetes, na.rm=TRUE)) %>%
+    arrange(avg_diabetes) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_diabetes), y=avg_diabetes)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average Diabetes %', title='Top 10 States with Lowest Prevalence of Diabetes')
+```
+
+### Obesity
+```{r}
+summary(cdc$Obesity)
+hist(cdc$"Obesity")
+
+# Calculate the average prevalence of Diabetes for each UrbanRural status
+avg_obesity_urbanrural <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(avg_obesity = mean(Obesity, na.rm = TRUE))
+
+# Print the result
+print(avg_obesity_urbanrural)
+
+# Plot a bar graph
+ggplot(avg_obesity_urbanrural, aes(x=UrbanRural, y=avg_obesity)) +
+  geom_bar(stat='identity', fill='skyblue') +
+  labs(x='UrbanRural Status', y='Average Obesity %', title='Average Obesity for Each UrbanRural Status')
+
+
+#looked at CHD vs Diabetes
+ggplot(data = cdc, aes(x = `CHD`, y = `Obesity`, fill = `CHD`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "CHD", y = "Obesity Rates", fill = "CHD") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+### Top 10 Counties with highest Diabetes prevalence
+```{r}
+highest_10 <- cdc %>%
+  arrange(desc(Obesity)) %>%
+  head(10)
+highest_10
+```
+### Bottom 10 Counties with lowest Diabetes prevalence
+```{r}
+lowest_10 <- cdc %>%
+    arrange(Obesity) %>%
+    head(10)
+lowest_10
+```
+
+#### Density plot for Obesity UrbanRural
+```{r}
+
+ggplot(cdc, aes(x = Obesity, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Obesity", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("Obesity", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$Obesity, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = Obesity, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "Obesity", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
+
+```
+### Obesity Boxplot
+```{r}
+ggplot(cdc, aes(x=UrbanRural, y=Obesity)) + geom_boxplot()
+
+```
+
+#### Highest and Lowest States rates of Obesity
+```{r}
+# Top 10 states with highest rates
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_obesity = mean(Obesity, na.rm=TRUE)) %>%
+    arrange(desc(avg_obesity)) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_obesity), y=avg_obesity)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average Obesity %', title='Top 10 States with Highest Rates of Obesity')
+
+# Bottom 10 states with lowest rates
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_obesity = mean(Obesity, na.rm=TRUE)) %>%
+    arrange(avg_obesity) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_obesity), y=avg_obesity)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average Obesity %', title='Top 10 States with Rates of Obesity')
+
+```
+
+### Physical Inactivity
+```{r}
+summary(cdc$PhysInactivity)
+hist(cdc$"PhysInactivity")
+
+# Calculate the average prevalence of Diabetes for each UrbanRural status
+avg_inactivity_urbanrural <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(avg_inactivity = mean(PhysInactivity, na.rm = TRUE))
+
+# Print the result
+print(avg_inactivity_urbanrural)
+
+# Plot a bar graph
+ggplot(avg_inactivity_urbanrural, aes(x=UrbanRural, y=avg_inactivity)) +
+  geom_bar(stat='identity', fill='skyblue') +
+  labs(x='UrbanRural Status', y='Average Physical Inactivity %', title='Average Physical Inactivity for Each UrbanRural Status')
+
+
+#looked at CHD vs Physical Inactivity
+ggplot(data = cdc, aes(x = `CHD`, y = `PhysInactivity`, fill = `CHD`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "CHD", y = "Rate of Physical Inactivity", fill = "CHD") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+### Top 10 Counties with highest Diabetes prevalence
+```{r}
+highest_10 <- cdc %>%
+  arrange(desc(PhysInactivity)) %>%
+  head(10)
+highest_10
+```
+### Bottom 10 Counties with lowest Diabetes prevalence
+```{r}
+lowest_10 <- cdc %>%
+    arrange(PhysInactivity) %>%
+    head(10)
+lowest_10
+```
+
+#### Density plot for Physical Inactivity UrbanRural
+```{r}
+
+ggplot(cdc, aes(x = PhysInactivity, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "PhysInactivity", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("PhysInactivity", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$PhysInactivity, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = PhysInactivity, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "PhysInactivity", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
+
+```
+### PhysInactivity Boxplot
+```{r}
+ggplot(cdc, aes(x=UrbanRural, y=PhysInactivity)) + geom_boxplot()
+
+```
+
+
+#### Highest and Lowest States Rates of Physical Inactivity
+```{r}
+# Top 10 states with highest activity
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_inactivity = mean(PhysInactivity, na.rm=TRUE)) %>%
+    arrange(desc(avg_inactivity)) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_inactivity), y=avg_inactivity)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average PhysInactivity %', title='Top 10 States with Highest Rates of Physical Inactivity')
+
+# Bottom 10 states with lowest activity
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_inactivity = mean(PhysInactivity, na.rm=TRUE)) %>%
+    arrange(avg_inactivity) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_inactivity), y=avg_inactivity)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average PhysInactivity %', title='Top 10 States with Lowest Rates of Physical Inactivity')
+```
+
+
+
+### Medication Non Adherence
+```{r}
+summary(cdc$CholMedNonAdhear)
+hist(cdc$"CholMedNonAdhear")
+
+# Calculate the average rate of CholMedNonAdhear for each UrbanRural status
+avg_nonadhear_urbanrural <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(avg_nonadhear = mean(CholMedNonAdhear, na.rm = TRUE))
+
+# Print the result
+print(avg_nonadhear_urbanrural)
+
+# Plot a bar graph
+ggplot(avg_nonadhear_urbanrural, aes(x=UrbanRural, y=avg_nonadhear)) +
+  geom_bar(stat='identity', fill='skyblue') +
+  labs(x='UrbanRural Status', y='Average CholMedNonAdhear %', title='Average CholMedNonAdhear for Each UrbanRural Status')
+
+
+#looked at CHD vs CholMedNonAdhear
+ggplot(data = cdc, aes(x = `CHD`, y = `CholMedNonAdhear`, fill = `CHD`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "CHD", y = "Rate of CholMedNonAdhear", fill = "CHD") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+### Top 10 Counties with highest CholMedNonAdhear
+```{r}
+highest_10 <- cdc %>%
+  arrange(desc(CholMedNonAdhear)) %>%
+  head(10)
+highest_10
+```
+### Bottom 10 Counties with lowest CholMedNonAdhear
+```{r}
+lowest_10 <- cdc %>%
+    arrange(CholMedNonAdhear) %>%
+    head(10)
+lowest_10
+```
+
+#### Density plot for CholMedNonAdhear UrbanRural
+```{r}
+
+ggplot(cdc, aes(x = CholMedNonAdhear, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "CholMedNonAdhear", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("CholMedNonAdhear", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$CholMedNonAdhear, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = CholMedNonAdhear, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "CholMedNonAdhear", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
+
+```
+### PhysInactivity Boxplot
+```{r}
+ggplot(cdc, aes(x=UrbanRural, y=CholMedNonAdhear)) + geom_boxplot()
+
+```
+
+
+#### Highest and Lowest States Rates of CholMedNonAdhear
+```{r}
+# Top 10 states with highest CholMedNonAdhear
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_nonadhear = mean(CholMedNonAdhear, na.rm=TRUE)) %>%
+    arrange(desc(avg_nonadhear)) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_nonadhear), y=avg_nonadhear)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average CholMedNonAdhear %', title='Top 10 States with Highest Rates of CholMedNonAdhear')
+
+# Bottom 10 states with lowest CholMedNonAdhear
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_nonadhear = mean(CholMedNonAdhear, na.rm=TRUE)) %>%
+    arrange(avg_nonadhear) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_nonadhear), y=avg_nonadhear)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average CholMedNonAdhear %', title='Top 10 States with Lowest Rates of CholMedNonAdhear')
+```
 
 
 
