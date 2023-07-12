@@ -66,7 +66,8 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "HCDI-CLM-Nonadherence.csv",
                "HCDI-Cholesterol_Screening.csv",
                "HCDI-BPM-Medication_Use.csv",
-               "Demo-Total_Population.csv"
+               "Demo-Total_Population.csv",
+                "Demo-Age65Plus.csv"
                )
 
 ```
@@ -193,7 +194,8 @@ name_mapping <- c("cnty_fips" = "fips",
                  "HCDI-CLM-Nonadherence" = "CholMedNonAdhear",
                  "HCDI-Cholesterol_Screening" = "CholScreen",
                  "HCDI-BPM-Medication_Use" = "bpmUse",
-                 "Demo-Total_Population" = "pop"
+                 "Demo-Total_Population" = "pop",
+                  "Demo-Age65Plus" = "Age65Plus"
                   )
 
 # Get the column names of the data frame
@@ -701,7 +703,7 @@ ggplot(data = neg_mid_correlations, aes(x = Var1, y = Var2, fill = value)) +
 ### Auto EDA report (from DataExplorer)
 ```{r}
 cdc %>%
-    select(2:33,) %>%
+    select(2:34,) %>%
     create_report(
         output_file = paste ("Report", format(Sys.time(), "%Y-%m-%d %H-%M-%S %Z"), sep=" - "),
         report_title = "EDA Report - CHD Dataset",
@@ -2496,191 +2498,458 @@ rpart.plot(tree_model)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # **Jesse new work**
-## Move when ready
-### Split the data
+## **Additional eda**
+Population = "pop"
+Air Quality = "AirQuality"
+Parks = "Parks"
+Broadband = "Broadband"
+Education = "EdLessColl"
+% over 65 = ""
+
+## General correlations
+### Various (other) factors
 ```{r}
-# Drop non numeric variables (note, rural/urban has been hot coded)
-# cdc2 <- cdc %>%
-#   select(c(4:32, 85:88))
-# 
-# cdc2_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
-# cdc2_train <- cdc2[ cdc2_index, ]
-# cdc2_test <- cdc2[-cdc2_index, ]
+cdc %>%
+    select("CHD",
+           "pop",
+           "AirQuality",
+           "Parks",
+           "Broadband",
+           "EdLessColl",
+           "UrbanRural") %>%
+    ggpairs(mapping = aes(color = cdc$"UrbanRural", alpha = 0.5))
 
 ```
 
+## Density and Correlations for individual features and CHD
+#### Population
 ```{r}
-# # Compute the correlation matrix
-# cor_matrix <- cor(cdc2_train)
-# 
-# # Display the correlation matrix
-# print(cor_matrix)
+ggplot(cdc, aes(x = pop, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Population", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("pop", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$pop, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = pop, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "pop", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
 
 ```
 
 
-### Fit a basic model
+#### Air Quality
 ```{r}
-# library(rpart)
-# 
-# ctrl <- trainControl(method = "cv")
-# 
-# cdc2_model <- train(CHD ~ .,
-#                    data = cdc2_train,
-#                    method = "lm",
-#                    trControl = ctrl
-#                    )
-# 
-# cdc2_model
+ggplot(cdc, aes(x = AirQuality, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Air Quality", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("AirQuality", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$AirQuality, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = AirQuality, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "AirQuality", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
 
 ```
 
 
-### Variable Importance
+#### Parks
 ```{r}
-# cdc2_model$finalModel$variable.importance
+ggplot(cdc, aes(x = Parks, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Parks", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("Parks", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$Parks, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = Parks, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "Parks", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
 
 ```
+
+
+#### Broadband Access
+```{r}
+ggplot(cdc, aes(x = Broadband, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Broadband", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("Broadband", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$Broadband, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = Broadband, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "Broadband", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
+
+```
+
+
+#### Education Less Than College
+```{r}
+ggplot(cdc, aes(x = EdLessColl, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "EdLessColl", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("EdLessColl", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$EdLessColl, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = EdLessColl, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "EdLessColl", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
+
+```
+
+
+#### Greater than 65 years old
+```{r}
+ggplot(cdc, aes(x = Age65Plus, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Age65Plus", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("Age65Plus", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$Age65Plus, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = Age65Plus, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "Age65Plus", y = "CHD") +
+    theme_minimal()
+
+  print(p)
+}
+
+```
+
+
+
+
+
+## Histograms to understand distribution of factors in rural and urban areas
+
+### Population
+```{r}
+ggplot(cdc, aes(x=log(pop))) + geom_histogram(binwidth=1) + facet_grid(~ UrbanRural)
+
+```
+
+
+### Air Quality
+```{r}
+ggplot(cdc, aes(x=AirQuality)) + geom_histogram(binwidth=1) + facet_grid(~ UrbanRural)
+
+```
+
+
+### Parks
+```{r}
+ggplot(cdc, aes(x=Parks)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
+
+```
+
+
+### Broadband Access
+```{r}
+ggplot(cdc, aes(x=Broadband)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
+
+```
+
+
+### Education Less Than College
+```{r}
+ggplot(cdc, aes(x=EdLessColl)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
+
+```
+
+
+### Greater than 65 years old
+```{r}
+ggplot(cdc, aes(x=Age65Plus)) + geom_histogram(binwidth=10) + facet_grid(~ UrbanRural)
+
+```
+
+
+
+
+
+
+
+## Correlation analysis between CHD and various factors
+### Population
+```{r}
+cor.test(cdc$pop, cdc$CHD)
+
+```
+
+
+### Air Quality
+```{r}
+cor.test(cdc$AirQuality, cdc$CHD)
+
+```
+
+
+### Parks
+```{r}
+cor.test(cdc$Parks, cdc$CHD)
+
+```
+
+
+### Broadband
+```{r}
+cor.test(cdc$Broadband, cdc$CHD)
+
+```
+
+
+### Education Less Than College
+```{r}
+cor.test(cdc$EdLessColl, cdc$CHD)
+
+```
+
+
+### Age over 65 years old
+```{r}
+cor.test(cdc$Age65Plus, cdc$CHD)
+
+```
+
+
+## Correlation Visualizations between CHD and various factors
+### Population
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(pop), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
+
+```
+
+
+### Air Quality
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(AirQuality), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
+
+```
+
+
+### Parks
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(Parks), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
+
+```
+
+
+### Broadband
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(Broadband), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
+
+```
+
+
+### Education Less Than College
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(EdLessColl), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
+
+```
+
+
+### Age Over 65 years old
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(log(Age65Plus), CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+## Linear Model with various variables
+### CHD, Population, Air Quality, Parks, Broadband Access, Education Less Than College, and Age greater than 65.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ UrbanRural + pop + Broadband + AirQuality + EdLessColl + Parks + Age65Plus))
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
+
+
+### CHD, Population,  Age greater than 65.
+```{r}
+# Fit models to each imputed dataset
+models <- with(imputed_data, exp = lm(CHD ~ pop + Age65Plus)) # need to add age, when available
+
+# Pool results
+pooled_results <- pool(models)
+
+# Print summary of pooled results
+summary(pooled_results)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2803,7 +3072,7 @@ rpart.plot(tree_model)
 
 
 # REFERENCE INFORMATION
-## Name mapping for reference:
+## Name mapping:
 | Variable Name | Variable Type | Short Name |
 | ------------- | ------------- | ---------- |
 | cnty_fips | character | fips |
