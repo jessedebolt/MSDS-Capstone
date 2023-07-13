@@ -3029,7 +3029,12 @@ summary(pooled_results)
 ```
 
 
+#
+```{r}
+cor_matrix <- cor(cdc_comp)
 
+cor_matrix
+```
 
 
 
