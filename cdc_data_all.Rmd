@@ -703,9 +703,9 @@ ggplot(data = neg_mid_correlations, aes(x = Var1, y = Var2, fill = value)) +
 ### Auto EDA report (from DataExplorer)
 ```{r}
 cdc %>%
-    select(2:34,) %>%
+    select(c(4:34, 36, 92:97)) %>%
     create_report(
-        output_file = paste ("Report", format(Sys.time(), "%Y-%m-%d %H-%M-%S %Z"), sep=" - "),
+        output_file = paste ("Auto EDA Report"),
         report_title = "EDA Report - CHD Dataset",
         y = "CHD"
     )
@@ -924,7 +924,7 @@ summary(pr_cdc)
 ```{r}
 #Drop non numeric variables (note, rural/urban has been hot coded)
 cdc_comp2 <- cdc %>%
-  select(c(4:32, 85:88))
+  select(c(4:34, 36, 92:97))
 
 pr_cdc2 <- prcomp(x = cdc_comp2, scale = T, center = T)
 
@@ -1193,7 +1193,7 @@ summary(predictions_simulation)
 ## more EDA
 ```{r}
 #Histograms for numerical variables
-for (col in 2:33) {
+for (col in c(4:34, 36, 92:97)) {
   if (is.numeric(cdc[[col]])) {
     hist(cdc[[col]], main = names(cdc)[col])
   } else {
@@ -1564,7 +1564,7 @@ ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
 ```{r}
 # Create the subset
 cdc_subset <- cdc %>%
-  select(4:32)
+  select(c(4:34, 36, 92:97))
 
 # Box plots for each variable in the subset
 for (i in 1:ncol(cdc_subset)) {
@@ -1960,7 +1960,7 @@ for (var in selected_vars) {
 
 
 ```{r}
-cdc_lm <- cdc_copy %>% select (3:33,)
+cdc_lm <- cdc_copy %>% select (3:35,)
 
 model <- lm(CHD ~ ., data = cdc_lm)
 
@@ -2449,6 +2449,146 @@ cdc %>%
     coord_flip() +
     labs(x='State', y='Average CholMedNonAdhear %', title='Top 10 States with Lowest Rates of CholMedNonAdhear')
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
