@@ -54,7 +54,7 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
 #               "HCDI-PS-Neurosurgeons.csv", #REMOVE, not relevant.
 #               "HCDI-PS-Neurologists.csv", #REMOVE, not relevant.
                "HCDI-PS-CDP.csv",
-#               "HCDI-Insurance-Health_Insurance_Status.csv", #REMOVE, not relevant.
+               "HCDI-Insurance-Health_Insurance_Status.csv", 
                "HCDI-HP-Pharmacies_and_Drug_Stores.csv",
 #               "HCDI-HP-Hospitals-Services-NS.csv", #REMOVE, not relevant.
                "HCDI-HP-Hospitals-Services-ED.csv",
@@ -182,7 +182,7 @@ name_mapping <- c("cnty_fips" = "fips",
 #                 "HCDI-PS-Neurosurgeons" = "NeuroSurgeons",
 #                 "HCDI-PS-Neurologists" = "Neurologists",
                  "HCDI-PS-CDP" = "CardioPhys",
-                 #"HCDI-Insurance-Health_Insurance_Status" = "HealthIns",
+                 "HCDI-Insurance-Health_Insurance_Status" = "HealthIns",
                  "HCDI-HP-Pharmacies_and_Drug_Stores" = "Pharmacies",
 #                 "HCDI-HP-Hospitals-Services-NS" = "HospNeuro",
                  "HCDI-HP-Hospitals-Services-ED" = "HospED",
