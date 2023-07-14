@@ -1846,8 +1846,8 @@ print(head(rural_low_chd, 5))
 # Get the names of numeric columns
 numeric_columns <- names(cdc)[sapply(cdc, is.numeric)]
 
-# Select the first 29 numeric columns
-numeric_columns <- numeric_columns[1:29]
+# Select the first 32 numeric columns
+numeric_columns <- numeric_columns[1:32]
 
 # Compute descriptive statistics for urban areas with high CHD
 urban_high_chd_stats <- urban_high_chd %>%
@@ -1982,7 +1982,7 @@ summary(model)
 ```{r}
 library(rpart)
 
-cdc_test <- cdc_copy %>% select (8:33 ,)
+cdc_test <- cdc_copy %>% select (8:35, )
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol))
 
@@ -1997,7 +1997,7 @@ rpart.plot(tree_model)
 ```{r}
 library(rpart)
 
-cdc_test <- cdc_copy %>% select (8:33 ,)
+cdc_test <- cdc_copy %>% select (8:35, )
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
 
@@ -2014,7 +2014,7 @@ Physical Inactivity
 Health Insurance
 Non Adherence all med types
 Med Home Value/med house income/Income Inequality/poverty
-### Diabetes
+## Diabetes
 ```{r}
 summary(cdc$Diabetes)
 hist(cdc$"Diabetes")
@@ -2135,12 +2135,12 @@ cdc %>%
     labs(x='State', y='Average Diabetes %', title='Top 10 States with Lowest Prevalence of Diabetes')
 ```
 
-### Obesity
+## Obesity
 ```{r}
 summary(cdc$Obesity)
 hist(cdc$"Obesity")
 
-# Calculate the average prevalence of Diabetes for each UrbanRural status
+# Calculate the average prevalence of Obesity for each UrbanRural status
 avg_obesity_urbanrural <- cdc %>%
   group_by(UrbanRural) %>%
   summarise(avg_obesity = mean(Obesity, na.rm = TRUE))
@@ -2154,20 +2154,20 @@ ggplot(avg_obesity_urbanrural, aes(x=UrbanRural, y=avg_obesity)) +
   labs(x='UrbanRural Status', y='Average Obesity %', title='Average Obesity for Each UrbanRural Status')
 
 
-#looked at CHD vs Diabetes
+#looked at CHD vs Obesity
 ggplot(data = cdc, aes(x = `CHD`, y = `Obesity`, fill = `CHD`)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "CHD", y = "Obesity Rates", fill = "CHD") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-### Top 10 Counties with highest Diabetes prevalence
+### Top 10 Counties with highest Obesity prevalence
 ```{r}
 highest_10 <- cdc %>%
   arrange(desc(Obesity)) %>%
   head(10)
 highest_10
 ```
-### Bottom 10 Counties with lowest Diabetes prevalence
+### Bottom 10 Counties with lowest Obesity prevalence
 ```{r}
 lowest_10 <- cdc %>%
     arrange(Obesity) %>%
@@ -2242,12 +2242,12 @@ cdc %>%
 
 ```
 
-### Physical Inactivity
+## Physical Inactivity
 ```{r}
 summary(cdc$PhysInactivity)
 hist(cdc$"PhysInactivity")
 
-# Calculate the average prevalence of Diabetes for each UrbanRural status
+# Calculate the average % Physical Inactivity for each UrbanRural status
 avg_inactivity_urbanrural <- cdc %>%
   group_by(UrbanRural) %>%
   summarise(avg_inactivity = mean(PhysInactivity, na.rm = TRUE))
@@ -2267,14 +2267,14 @@ ggplot(data = cdc, aes(x = `CHD`, y = `PhysInactivity`, fill = `CHD`)) +
   labs(x = "CHD", y = "Rate of Physical Inactivity", fill = "CHD") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-### Top 10 Counties with highest Diabetes prevalence
+### Top 10 Counties with highest % of Physical Inactivity
 ```{r}
 highest_10 <- cdc %>%
   arrange(desc(PhysInactivity)) %>%
   head(10)
 highest_10
 ```
-### Bottom 10 Counties with lowest Diabetes prevalence
+### Bottom 10 Counties with lowest % of Physical Inactivity
 ```{r}
 lowest_10 <- cdc %>%
     arrange(PhysInactivity) %>%
@@ -2351,7 +2351,7 @@ cdc %>%
 
 
 
-### Medication Non Adherence
+## Medication Non Adherence
 ```{r}
 summary(cdc$CholMedNonAdhear)
 hist(cdc$"CholMedNonAdhear")
@@ -2426,7 +2426,7 @@ for(category in unique(cdc$UrbanRural)) {
 }
 
 ```
-### PhysInactivity Boxplot
+### Medication Nonadherence Boxplot
 ```{r}
 ggplot(cdc, aes(x=UrbanRural, y=CholMedNonAdhear)) + geom_boxplot()
 
@@ -2458,8 +2458,444 @@ cdc %>%
     labs(x='State', y='Average CholMedNonAdhear %', title='Top 10 States with Lowest Rates of CholMedNonAdhear')
 ```
 
+## Health Insurance (no Health Insurance %)
+```{r}
+summary(cdc$HealthIns)
+hist(cdc$"HealthIns")
+
+# Calculate the average % amount of No Health Insurance for each UrbanRural status
+avg_NoHealthIns <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(avg_NoHealthIns = mean(HealthIns, na.rm = TRUE))
+
+# Print the result
+print(avg_NoHealthIns)
+
+# Plot a bar graph
+ggplot(avg_NoHealthIns, aes(x=UrbanRural, y=avg_NoHealthIns)) +
+  geom_bar(stat='identity', fill='skyblue') +
+  labs(x='UrbanRural Status', y='Average W/O Health Insurance %', title='Average % W/O Health Insurance for Each UrbanRural Status')
 
 
+#looked at CHD vs No Health Insurance
+ggplot(data = cdc, aes(x = `CHD`, y = `HealthIns`, fill = `CHD`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "CHD", y = "% Rate of No Health Insurance", fill = "CHD") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+### Top 10 Counties with highest rates % of No Health Insurance
+```{r}
+highest_10 <- cdc %>%
+  arrange(desc(HealthIns)) %>%
+  head(10)
+highest_10
+```
+### Bottom 10 Counties with lowest rates % of No Health Insurance
+```{r}
+lowest_10 <- cdc %>%
+    arrange(HealthIns) %>%
+    head(10)
+lowest_10
+```
+
+#### Density plot for No HealthIns UrbanRural
+```{r}
+
+ggplot(cdc, aes(x = HealthIns, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "PhysInactivity", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("HealthIns", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$HealthIns, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = HealthIns, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "HealthIns", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
+
+```
+### HealthIns Boxplot
+```{r}
+ggplot(cdc, aes(x=UrbanRural, y=HealthIns)) + geom_boxplot()
+
+```
+
+
+#### Highest and Lowest States Rates of No Health Insurance
+```{r}
+# Top 10 states with highest % No Health Insurance
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_NoHealthIns = mean(HealthIns, na.rm=TRUE)) %>%
+    arrange(desc(avg_NoHealthIns)) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_NoHealthIns), y=avg_NoHealthIns)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average % No Health Insurance', title='Top 10 States with Highest Rates of No Health Insurance')
+
+# Bottom 10 states with lowest rates % of No Health Insurance
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_NoHealthIns = mean(HealthIns, na.rm=TRUE)) %>%
+    arrange(avg_NoHealthIns) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_NoHealthIns), y=avg_NoHealthIns)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average % No Health Insurance', title='Top 10 States with Lowest Rates % of No Health Insurance')
+```
+
+## Median Home Value
+```{r}
+#need to fix this - 2 counties in SD and 2 in TX -66670000
+cdc %>% select(c(state, MedHomeValue)) %>% arrange(MedHomeValue)
+```
+
+
+```{r}
+summary(cdc$MedHomeValue)
+hist(cdc$"MedHomeValue")
+
+# Calculate the median home value for each UrbanRural status
+avg_MedHomeValue_urbanrural <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(avg_MedHomeValue = mean(MedHomeValue, na.rm = TRUE))
+
+# Print the result
+print(avg_MedHomeValue_urbanrural)
+
+# Plot a bar graph
+ggplot(avg_MedHomeValue_urbanrural, aes(x=UrbanRural, y=avg_MedHomeValue)) +
+  geom_bar(stat='identity', fill='skyblue') +
+  labs(x='UrbanRural Status', y='MedHomeValue %', title='MedHomeValue for Each UrbanRural Status')
+
+
+#looked at CHD vs MedHomeValue
+ggplot(data = cdc, aes(x = `CHD`, y = `MedHomeValue`, fill = `CHD`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "CHD", y = "MedHomeValue", fill = "CHD") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+### Top 10 Counties with highest MedHomeValue
+```{r}
+highest_10 <- cdc %>%
+  arrange(desc(MedHomeValue)) %>%
+  head(10)
+highest_10
+```
+### Bottom 10 Counties with lowest MedHomeValue
+```{r}
+lowest_10 <- cdc %>%
+    arrange(MedHomeValue) %>%
+    head(10)
+lowest_10
+```
+
+#### Density plot for MedHomeValue UrbanRural
+```{r}
+
+ggplot(cdc, aes(x = MedHomeValue, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "MedHomeValue", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("MedHomeValue", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$MedHomeValue, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = MedHomeValue, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "MedHomeValue", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
+
+```
+### MedHomeValue Boxplot
+```{r}
+ggplot(cdc, aes(x=UrbanRural, y=MedHomeValue)) + geom_boxplot()
+
+```
+
+
+#### Highest and Lowest States of MedHomeValue
+```{r}
+# Top 10 states with highest MedHomeValue
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_MedHomeValue = mean(MedHomeValue, na.rm=TRUE)) %>%
+    arrange(desc(avg_MedHomeValue)) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_MedHomeValue), y=avg_MedHomeValue)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='MedHomeValue %', title='Top 10 States with Highest Rates of MedHomeValue')
+
+# Bottom 10 states with lowest MedHomeValue
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_MedHomeValue = mean(MedHomeValue, na.rm=TRUE)) %>%
+    arrange(avg_MedHomeValue) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_MedHomeValue), y=avg_MedHomeValue)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average MedHomeValue %', title='Top 10 States with Lowest MedHomeValue')
+```
+
+## Median Household Income
+```{r}
+summary(cdc$MedHouseIncome)
+hist(cdc$"MedHouseIncome")
+
+# Calculate the median household income for each UrbanRural status
+avg_MedHouseIncome_urbanrural <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(avg_MedHouseIncome = mean(MedHouseIncome, na.rm = TRUE))
+
+# Print the result
+print(avg_MedHouseIncome_urbanrural)
+
+# Plot a bar graph
+ggplot(avg_MedHouseIncome_urbanrural, aes(x=UrbanRural, y=avg_MedHouseIncome)) +
+  geom_bar(stat='identity', fill='skyblue') +
+  labs(x='UrbanRural Status', y='MedHouseIncome %', title='MedHouseIncome for Each UrbanRural Status')
+
+
+#looked at CHD vs MedHouseIncome
+ggplot(data = cdc, aes(x = `CHD`, y = `MedHouseIncome`, fill = `CHD`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "CHD", y = "MedHouseIncome", fill = "CHD") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+### Top 10 Counties with highest MedHouseIncome
+```{r}
+highest_10 <- cdc %>%
+  arrange(desc(MedHouseIncome)) %>%
+  head(10)
+highest_10
+```
+### Bottom 10 Counties with lowest MedHouseIncome
+```{r}
+lowest_10 <- cdc %>%
+    arrange(MedHouseIncome) %>%
+    head(10)
+lowest_10
+```
+
+#### Density plot for MedHouseIncome UrbanRural
+```{r}
+
+ggplot(cdc, aes(x = MedHouseIncome, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "MedHouseIncome", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("MedHouseIncome", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$MedHouseIncome, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = MedHouseIncome, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "MedHouseIncome", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
+
+```
+### MedHouseIncome Boxplot
+```{r}
+ggplot(cdc, aes(x=UrbanRural, y=MedHouseIncome)) + geom_boxplot()
+
+```
+
+
+#### Highest and Lowest States of MedHouseIncome
+```{r}
+# Top 10 states with highest MedHouseIncome
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_MedHouseIncome = mean(MedHouseIncome, na.rm=TRUE)) %>%
+    arrange(desc(avg_MedHouseIncome)) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_MedHouseIncome), y=avg_MedHouseIncome)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='MedHouseIncome %', title='Top 10 States with Highest Rates of MedHouseIncome')
+
+# Bottom 10 states with lowest MedHouseIncome
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_MedHouseIncome = mean(MedHouseIncome, na.rm=TRUE)) %>%
+    arrange(avg_MedHouseIncome) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_MedHouseIncome), y=avg_MedHouseIncome)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average MedHouseIncome %', title='Top 10 States with Lowest MedHouseIncome')
+```
+
+## Poverty
+```{r}
+summary(cdc$Poverty)
+hist(cdc$"Poverty")
+
+# Calculate the % Poverty level for each UrbanRural status
+avg_Poverty_urbanrural <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(avg_Poverty = mean(Poverty, na.rm = TRUE))
+
+# Print the result
+print(avg_Poverty_urbanrural)
+
+# Plot a bar graph
+ggplot(avg_Poverty_urbanrural, aes(x=UrbanRural, y=avg_Poverty)) +
+  geom_bar(stat='identity', fill='skyblue') +
+  labs(x='UrbanRural Status', y='Poverty %', title='Poverty for Each UrbanRural Status')
+
+
+#looked at CHD vs Poverty
+ggplot(data = cdc, aes(x = `CHD`, y = `Poverty`, fill = `CHD`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "CHD", y = "Poverty", fill = "CHD") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+### Top 10 Counties with highest % Poverty
+```{r}
+highest_10 <- cdc %>%
+  arrange(desc(Poverty)) %>%
+  head(10)
+highest_10
+```
+### Bottom 10 Counties with lowest % Poverty
+```{r}
+lowest_10 <- cdc %>%
+    arrange(Poverty) %>%
+    head(10)
+lowest_10
+```
+
+#### Density plot for Poverty UrbanRural
+```{r}
+
+ggplot(cdc, aes(x = Poverty, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Poverty", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+library(corrplot)
+
+correlation_matrix <- cor(cdc[, c("Poverty", "CHD")])
+corrplot(correlation_matrix, method = "number")
+
+
+
+# Create a plot for each UrbanRural category
+for(category in unique(cdc$UrbanRural)) {
+  data_subset <- subset(cdc, UrbanRural == category)
+
+  # Calculate correlation
+  correlation <- round(cor(data_subset$Poverty, data_subset$CHD, use = "pairwise.complete.obs"), 2)
+
+  # Create the plot
+  p <- ggplot(data_subset, aes(x = Poverty, y = CHD)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
+    geom_text(aes(label = paste("Correlation = ", correlation), x = Inf, y = Inf), hjust = "right", vjust = "top") +
+    labs(title = paste("UrbanRural category:", category), x = "Poverty", y = "CHD") +
+    theme_minimal()
+  
+  print(p)
+}
+
+```
+### Poverty Boxplot
+```{r}
+ggplot(cdc, aes(x=UrbanRural, y=Poverty)) + geom_boxplot()
+
+```
+
+
+#### Highest and Lowest States % of Poverty
+```{r}
+# Top 10 states with highest % Poverty
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_Poverty = mean(Poverty, na.rm=TRUE)) %>%
+    arrange(desc(avg_Poverty)) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_Poverty), y=avg_Poverty)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Poverty %', title='Top 10 States with Highest % of Poverty')
+
+# Bottom 10 states with lowest % of Poverty
+cdc %>%
+    group_by(state) %>%
+    summarise(avg_Poverty = mean(Poverty, na.rm=TRUE)) %>%
+    arrange(avg_Poverty) %>%
+    head(10) %>%
+    ggplot(aes(x=reorder(state, avg_Poverty), y=avg_Poverty)) +
+    geom_bar(stat='identity', fill='skyblue') +
+    coord_flip() +
+    labs(x='State', y='Average Poverty %', title='Top 10 States with Lowest % Poverty')
+```
+
+```{r}
+correlation_matrix <- cor(cdc[, c("MedHomeValue", "MedHouseIncome", "Poverty", "CHD")])
+corrplot(correlation_matrix, method = "number")
+```
 
 
 
