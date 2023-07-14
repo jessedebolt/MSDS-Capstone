@@ -223,6 +223,14 @@ head(cdc)
 
 ```
 
+
+### Read in data for table descriptions
+```{r}
+TableDesc <- read_csv("data_support/Table_Descriptions.csv")
+
+```
+
+
 ## Data cleansing 
 ### Removing US territories
 ```{r}
@@ -3175,7 +3183,6 @@ cor_matrix <- cor(cdc_comp)
 
 cor_matrix
 ```
-
 
 
 
