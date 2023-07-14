@@ -2,7 +2,9 @@
 title: "CDC Data ETL"
 author: "Jesse DeBolt & Isaac Johnson"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 
