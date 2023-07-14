@@ -322,7 +322,6 @@ cdc$"Parks"[grepl("Kusilvak", cdc$county)] <- 66
 ```
 
 
-
 ### Checking for missing values
 ```{r}
 #total number of missing values in dataset
@@ -489,38 +488,38 @@ cdc$Pharm100k <- (cdc$Pharmacies / cdc$pop) * 100000
 ```
 
 
+# .
+# .
+# BREAK (Below is broken)
+# .
+# .
+
 ### Convert population per physicians to physician per 1k residents
 ```{r}
-# Calculate the number of physicians
-cdc$TotalPCP <- cdc$pop / cdc$pcp
-# Create columns for number of physicians per 1k residents
-cdc$PSP1k <- (cdc$TotalPCP / cdc$pop) * 1000
+# # Calculate the number of physicians
+# cdc$TotalPCP <- cdc$pop / cdc$pcp
+# # Create columns for number of physicians per 1k residents
+# cdc$PSP1k <- (cdc$TotalPCP / cdc$pop) * 1000
 
 ```
 
 
 ### Convert population per cardiovascular physicians to cardiovascular physician per 100k residents
 ```{r}
-# Calculate the number of physicians
-cdc$TotalCardio <- cdc$pop / cdc$CardioPhys
-# Create columns for number of physicians per 1k residents
-cdc$Cardio100k <- (cdc$CardioPhys / cdc$pop) * 100000
+# # Calculate the number of physicians
+# cdc$TotalCardio <- cdc$pop / cdc$CardioPhys
+# # Create columns for number of physicians per 1k residents
+# cdc$Cardio100k <- (cdc$CardioPhys / cdc$pop) * 100000
 
 ```
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+# .
+# .
+# BREAK (Above is broken)
+# .
+# .
 
 
 
@@ -605,23 +604,24 @@ colSums(is.na(cdc))
 ```
 
 
-
-
-
-
 #.
+#.
+# BREAK
+#.
+#.
+
 # Remove one hot encode for states and urban/rural ?????????
 ## Additional feature engineering
 ### One-hot encoding for the 'state' and 'UrbanRural' columns
 ```{r}
-# # Convert urban/rural variables to factors
-# cdc$UrbanRural <- as.factor(cdc$UrbanRural)
-# 
-# # Use fastDummies for the 'state' column
-# cdc <- fastDummies::dummy_cols(cdc, select_columns = 'state')
-# 
-# # Use fastDummies for the 'UrbanRural' column
-# cdc <- fastDummies::dummy_cols(cdc, select_columns = 'UrbanRural')
+# Convert urban/rural variables to factors
+cdc$UrbanRural <- as.factor(cdc$UrbanRural)
+
+# Use fastDummies for the 'state' column
+cdc <- fastDummies::dummy_cols(cdc, select_columns = 'state')
+
+# Use fastDummies for the 'UrbanRural' column
+cdc <- fastDummies::dummy_cols(cdc, select_columns = 'UrbanRural')
 
 ```
 
@@ -747,7 +747,7 @@ lowest_10
 ### Auto EDA report (from DataExplorer)
 ```{r}
 cdc %>%
-    select(c(4:34, 36, 92:97)) %>%
+    select(c(4:34, 36:38)) %>%
     create_report(
         output_file = paste ("Auto EDA Report"),
         report_title = "EDA Report - CHD Dataset",
@@ -864,6 +864,16 @@ ggplot(cdc, aes(x=Age65Plus)) + geom_histogram(binwidth=10) + facet_grid(~ Urban
 
 ## Statistical Analysis
 ### Correlation Analysis
+#### General Correlation Matrix
+```{r}
+cor_matrix <- cdc %>%
+  select(c(4:34, 36:38)) %>% cor()
+
+cor_matrix
+
+```
+
+
 ### Correlation plots: CHD and Urban/Rural vs various factors
 #### Prevalence of other heart conditions factors
 ```{r}
@@ -1530,7 +1540,7 @@ summary(pr_cdc)
 ```{r}
 #Drop non numeric variables (note, rural/urban has been hot coded)
 cdc_comp2 <- cdc %>%
-  select(c(4:34, 36, 92:97))
+  select(c(4:34, 36, 90:93))
 
 pr_cdc2 <- prcomp(x = cdc_comp2, scale = T, center = T)
 
@@ -1651,7 +1661,7 @@ summary(predictions_simulation)
 ## more EDA
 ```{r}
 #Histograms for numerical variables
-for (col in c(4:34, 36, 92:97)) {
+for (col in c(4:34, 36:38)) {
   if (is.numeric(cdc[[col]])) {
     hist(cdc[[col]], main = names(cdc)[col])
   } else {
@@ -2022,7 +2032,7 @@ ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
 ```{r}
 # Create the subset
 cdc_subset <- cdc %>%
-  select(c(4:34, 36, 92:97))
+  select(c(4:34, 36:38))
 
 # Box plots for each variable in the subset
 for (i in 1:ncol(cdc_subset)) {
@@ -2456,6 +2466,14 @@ tree_model <- rpart(CHD ~ ., data=cdc_test)
 library(rpart.plot)
 rpart.plot(tree_model)
 ```
+
+
+# .
+# .
+# BREAK
+# .
+# .
+
 # **Isaac new work**
 ## **Additional eda**
 Diabetes
@@ -3349,203 +3367,15 @@ corrplot(correlation_matrix, method = "number")
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# .
+# .
+# BREAK
+# .
+# .
 
 
 # **Jesse new work**
 ## **Additional eda**
-Population = "pop"
-Air Quality = "AirQuality"
-Parks = "Parks"
-Broadband = "Broadband"
-Education = "EdLessColl"
-% over 65 = ""
-
-
-
-
-
-
 
 ## Linear Model with various variables
 ### CHD, Population, Air Quality, Parks, Broadband Access, Education Less Than College, and Age greater than 65.
@@ -3689,136 +3519,11 @@ summary(pooled_results)
 ```
 
 
-#
-```{r}
-cor_matrix <- cor(cdc_comp)
-
-cor_matrix
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# .
+# .
+# BREAK
+# .
+# .
 
 # REFERENCE INFORMATION
 ## Name mapping:
