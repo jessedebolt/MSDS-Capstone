@@ -870,7 +870,9 @@ cor_matrix <- cdc %>%
   select(c(4:34, 36:38)) %>% cor()
 
 cor_matrix
-
+#Interesting way to see this
+#cor_matrix[abs(cor_matrix)<0.5]=""
+#cor_matrix
 ```
 
 
