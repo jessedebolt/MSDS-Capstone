@@ -423,6 +423,25 @@ File: 500_Cities__Obesity_among_adults_aged___18_years.csv
 Source: https://chronicdata.cdc.gov/500-Cities-Places/500-Cities-Obesity-among-adults-aged-18-years/bjvu-3y7d
 
 
+### Inserting values for missing values in Median Home Value
+```{r}
+cdc$"MedHomeValue"[grepl("48261", cdc$fips)] <- 42550
+cdc$"MedHomeValue"[grepl("48301", cdc$fips)] <- 38143
+cdc$"MedHomeValue"[grepl("46017", cdc$fips)] <- 101393
+cdc$"MedHomeValue"[grepl("46095", cdc$fips)] <- 60537
+
+```
+Reference:
+Kenedy TX (fips 48261): Median Home Value = $42,550
+https://www.city-data.com/county/Kenedy_County-TX.html
+Loving TX (fips 48301): Median Home Value = $38,143
+http://www.city-data.com/county/Loving_County-TX.html
+Buffalo SD (fips 46017): Median Home Value = $101,393
+http://www.city-data.com/county/Buffalo_County-SD.html
+Mellette SD (fips 46095): Median Home Value = $60,537
+http://www.city-data.com/county/Mellette_County-SD.html
+
+
 ## Multiple value entry
 ### Read in additional data
 ```{r}
