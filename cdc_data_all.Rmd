@@ -2442,7 +2442,7 @@ summary(model)
 ```{r}
 library(rpart)
 
-cdc_test <- cdc_copy %>% select (8:35, )
+cdc_test <- cdc %>% select (3:38, )
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol))
 
@@ -2450,21 +2450,46 @@ tree_model <- rpart(CHD ~ ., data=cdc_test)
 
 library(rpart.plot)
 rpart.plot(tree_model)
+
+tree_model$variable.importance
 ```
 
 
 
 ```{r}
 library(rpart)
+library(rpart.plot)
 
-cdc_test <- cdc_copy %>% select (8:35, )
+cdc_test <- cdc %>% select (3:38, )
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
 
 tree_model <- rpart(CHD ~ ., data=cdc_test)
 
-library(rpart.plot)
 rpart.plot(tree_model)
+tree_model$variable.importance
+
+cdc_test <- cdc %>% select (4:38, )
+
+cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
+
+tree_model <- rpart(CHD ~ ., data=cdc_test)
+
+rpart.plot(tree_model)
+tree_model$variable.importance
+```
+```{r}
+cdc_test <- cdc %>% select (3:38, )
+
+cdc_test <- cdc_test %>% select(-c(bpmUse, Age65Plus, Stroke, HighChol, Smoker, HighBP))
+
+tree_model <- rpart(CHD ~ ., data=cdc_test)
+
+rpart.plot(tree_model)
+tree_model$variable.importance
+
+modeltest <- lm(CHD ~ MedHouseIncome*EdLessColl*Broadband + bpmUse + Age65Plus + Stroke + HighChol + Smoker + HighBP, data=cdc)
+summary(modeltest)
 ```
 
 
