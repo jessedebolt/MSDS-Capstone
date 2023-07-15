@@ -713,6 +713,188 @@ skim(cdc)
 ```
 
 
+#### What is distribution of Urban Rural for Each State
+```{r}
+#We should maybe bucket these? but not sure if we need to keep as is for model?
+urbanrural_counts <- cdc %>%
+  group_by(state, UrbanRural) %>%
+  summarise(count = n()) %>%
+  ungroup() %>%
+  arrange(state, desc(UrbanRural)) %>%
+  pivot_wider(names_from = UrbanRural, values_from = count, values_fill = 0)
+
+# Define the desired column order
+column_order <- c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban", "Rural")
+
+# Reorder the columns
+urbanrural_counts <- urbanrural_counts %>%
+  select(state, all_of(column_order))
+
+print(urbanrural_counts)
+```
+
+
+#### Visualization - Stacked Bar
+```{r}
+urbanrural_counts <- cdc %>%
+  group_by(state, UrbanRural) %>%
+  summarise(count = n()) %>%
+  ungroup()
+
+ggplot(urbanrural_counts, aes(x = state, y = count, fill = UrbanRural)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Distribution of UrbanRural Variable by State",
+       x = "State", y = "Count") +
+  scale_fill_discrete(name = "UrbanRural") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+#### Visualization Bar
+```{r}
+urbanrural_counts <- cdc %>%
+  group_by(state, UrbanRural) %>%
+  summarise(count = n()) %>%
+  ungroup()
+
+ggplot(urbanrural_counts, aes(x = state, y = count, fill = UrbanRural)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Distribution of UrbanRural Variable by State",
+       x = "State", y = "Count") +
+  scale_fill_discrete(name = "UrbanRural") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+#### Top 5 states with most Urban
+```{r}
+top_large_urban <- cdc %>%
+  filter(UrbanRural == "Large_Urban") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 5) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+ggplot(top_large_urban, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+    labs(title = "Top 5 States with the Most Large Urban Areas",
+       x = "State", y = "Count") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+```
+
+
+#### Top 10 states with most Rural
+```{r}
+top_rural <- cdc %>%
+  filter(UrbanRural == "Rural") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+custom_colors <- c("#FF5733", "#FFC300", "#C70039", "#900C3F", "#581845", "#FF7F50", "#FFA500", "#FFD700", "#ADFF2F", "#00FF00")
+
+ggplot(top_rural, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with the Most Rural Areas",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+#### I like this one better I think
+```{r}
+# Reverse the color palette
+color_func <- colorRampPalette(c("lightblue", "darkblue"))
+custom_colors <- rev(color_func(10))
+
+top_rural <- cdc %>%
+  filter(UrbanRural == "Rural") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+ggplot(top_rural, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with the Most Rural Areas",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+#### Top 10 states with most Large Fringe Urban
+```{r}
+# Create the color palette
+color_func <- colorRampPalette(c("lightblue", "darkblue"))
+custom_colors <- rev(color_func(10))  # Reverse to get dark colors for higher values
+
+top_large_fringe_urban <- cdc %>%
+  filter(UrbanRural == "LargeFringe_Urban") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with the Most Large Fringe Urban Areas",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +  # Use the custom color palette
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+#### Medium Small Urban Areas
+```{r}
+# Create the color palette
+color_func <- colorRampPalette(c("lightblue", "darkblue"))
+custom_colors <- rev(color_func(10))  # Reverse to get dark colors for higher values
+
+top_large_fringe_urban <- cdc %>%
+  filter(UrbanRural == "MediumSmall_Urban") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with the Most Medium Small Urban Areas",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +  # Use the custom color palette
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
 ### Correlations
 ```{r}
 plot_correlation(cdc)
@@ -755,7 +937,6 @@ ggplot(data = cdc, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "UrbanRural", y = "Prevalence of CHD", fill = "UrbanRural") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
 
 ```
 
@@ -801,6 +982,17 @@ lowest_10 <- cdc %>%
     arrange(CHD) %>%
     head(10)
 lowest_10
+
+```
+
+
+### How many counties per state
+```{r}
+county_counts <- cdc %>%
+  group_by(state) %>%
+  summarise(counties = n())
+
+print(county_counts)
 
 ```
 
@@ -1719,9 +1911,10 @@ summary(predictions_simulation)
 # .
 # .
 
-## more EDA
+## more EDA (Hospitals)
+
+### Histograms for numerical variables
 ```{r}
-#Histograms for numerical variables
 for (col in c(5:66)) {  #(5:70) All numeric excluding state and rural/urban hot coded
   if (is.numeric(cdc[[col]])) {
     hist(cdc[[col]], main = names(cdc)[col])
@@ -1733,7 +1926,7 @@ for (col in c(5:66)) {  #(5:70) All numeric excluding state and rural/urban hot 
 ```
 
 
-#### Wanted to zoom in hospitals
+#### Looking closer at Hospitals
 ```{r}
 hospital_counts <- cdc$Hospitals  # Assuming "Hospitals" is the column name in the dataset "cdc"
 
@@ -1782,7 +1975,7 @@ print(paste("Number of counties with zero hospitals:", count_zero))
 ```
 
 
-#### list of counties with 0 hospitals
+#### List of counties with 0 hospitals
 ```{r}
 no_hospital <- cdc %>%
   filter(Hospitals == 0) %>%
@@ -1801,16 +1994,14 @@ print(no_hospital_counts)
 
 ```
 
+#.
+#.
+# BREAK
+#.
+#.
 
-#### How many counties per state
-```{r}
-county_counts <- cdc %>%
-  group_by(state) %>%
-  summarise(counties = n())
 
-print(county_counts)
 
-```
 
 
 #### Average prevalence of CHD
@@ -1906,187 +2097,6 @@ ggplot(chd_prevalence_long, aes(x = state, y = UrbanRural, fill = average_CHD)) 
 ```
 
 
-#### What is distribution of Urban Rural for Each State
-```{r}
-#We should maybe bucket these? but not sure if we need to keep as is for model?
-urbanrural_counts <- cdc %>%
-  group_by(state, UrbanRural) %>%
-  summarise(count = n()) %>%
-  ungroup() %>%
-  arrange(state, desc(UrbanRural)) %>%
-  pivot_wider(names_from = UrbanRural, values_from = count, values_fill = 0)
-
-# Define the desired column order
-column_order <- c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban", "Rural")
-
-# Reorder the columns
-urbanrural_counts <- urbanrural_counts %>%
-  select(state, all_of(column_order))
-
-print(urbanrural_counts)
-```
-
-
-#### Visualization - Stacked Bar
-```{r}
-
-urbanrural_counts <- cdc %>%
-  group_by(state, UrbanRural) %>%
-  summarise(count = n()) %>%
-  ungroup()
-
-ggplot(urbanrural_counts, aes(x = state, y = count, fill = UrbanRural)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Distribution of UrbanRural Variable by State",
-       x = "State", y = "Count") +
-  scale_fill_discrete(name = "UrbanRural") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-```
-
-
-#### Visualization Bar
-```{r}
-urbanrural_counts <- cdc %>%
-  group_by(state, UrbanRural) %>%
-  summarise(count = n()) %>%
-  ungroup()
-
-ggplot(urbanrural_counts, aes(x = state, y = count, fill = UrbanRural)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Distribution of UrbanRural Variable by State",
-       x = "State", y = "Count") +
-  scale_fill_discrete(name = "UrbanRural") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-```
-
-
-#### Top 5 states with most Urban
-```{r}
-top_large_urban <- cdc %>%
-  filter(UrbanRural == "Large_Urban") %>%
-  group_by(state) %>%
-  summarise(count = n()) %>%
-  arrange(count) %>%
-  slice_tail(n = 5) %>%
-  mutate(state = factor(state, levels = rev(state)))
-
-ggplot(top_large_urban, aes(x = state, y = count, fill = state)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = count), vjust = -0.5) +
-    labs(title = "Top 5 States with the Most Large Urban Areas",
-       x = "State", y = "Count") +
-  scale_fill_brewer(palette = "Dark2") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
-```
-
-
-#### Top 10 states with most Rural
-```{r}
-top_rural <- cdc %>%
-  filter(UrbanRural == "Rural") %>%
-  group_by(state) %>%
-  summarise(count = n()) %>%
-  arrange(count) %>%
-  slice_tail(n = 10) %>%
-  mutate(state = factor(state, levels = rev(state)))
-
-custom_colors <- c("#FF5733", "#FFC300", "#C70039", "#900C3F", "#581845", "#FF7F50", "#FFA500", "#FFD700", "#ADFF2F", "#00FF00")
-
-ggplot(top_rural, aes(x = state, y = count, fill = state)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = count), vjust = -0.5) +
-  labs(title = "Top 10 States with the Most Rural Areas",
-       x = "State", y = "Count") +
-  scale_fill_manual(values = custom_colors) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-```
-
-
-#### I like this one better I think
-```{r}
-# Reverse the color palette
-color_func <- colorRampPalette(c("lightblue", "darkblue"))
-custom_colors <- rev(color_func(10))
-
-top_rural <- cdc %>%
-  filter(UrbanRural == "Rural") %>%
-  group_by(state) %>%
-  summarise(count = n()) %>%
-  arrange(count) %>%
-  slice_tail(n = 10) %>%
-  mutate(state = factor(state, levels = rev(state)))
-
-ggplot(top_rural, aes(x = state, y = count, fill = state)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = count), vjust = -0.5) +
-  labs(title = "Top 10 States with the Most Rural Areas",
-       x = "State", y = "Count") +
-  scale_fill_manual(values = custom_colors) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-```
-
-
-#### Top 10 states with most Large Fringe Urban
-```{r}
-# Create the color palette
-color_func <- colorRampPalette(c("lightblue", "darkblue"))
-custom_colors <- rev(color_func(10))  # Reverse to get dark colors for higher values
-
-top_large_fringe_urban <- cdc %>%
-  filter(UrbanRural == "LargeFringe_Urban") %>%
-  group_by(state) %>%
-  summarise(count = n()) %>%
-  arrange(count) %>%
-  slice_tail(n = 10) %>%
-  mutate(state = factor(state, levels = rev(state)))
-
-ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = count), vjust = -0.5) +
-  labs(title = "Top 10 States with the Most Large Fringe Urban Areas",
-       x = "State", y = "Count") +
-  scale_fill_manual(values = custom_colors) +  # Use the custom color palette
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-```
-
-
-#### Medium Small Urban Areas
-```{r}
-# Create the color palette
-color_func <- colorRampPalette(c("lightblue", "darkblue"))
-custom_colors <- rev(color_func(10))  # Reverse to get dark colors for higher values
-
-top_large_fringe_urban <- cdc %>%
-  filter(UrbanRural == "MediumSmall_Urban") %>%
-  group_by(state) %>%
-  summarise(count = n()) %>%
-  arrange(count) %>%
-  slice_tail(n = 10) %>%
-  mutate(state = factor(state, levels = rev(state)))
-
-ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = count), vjust = -0.5) +
-  labs(title = "Top 10 States with the Most Medium Small Urban Areas",
-       x = "State", y = "Count") +
-  scale_fill_manual(values = custom_colors) +  # Use the custom color palette
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-```
 
 
 #### Boxplots for each variable
