@@ -69,7 +69,31 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "HCDI-Cholesterol_Screening.csv",
                "HCDI-BPM-Medication_Use.csv",
                "Demo-Total_Population.csv",
-               "Demo-Age65Plus.csv"
+               "Demo-Age65Plus.csv",
+               "Demo-AIAN.csv",
+               "Demo-AIANmen.csv",
+               "Demo-AIANwomen.csv",
+               "Demo-ANHPI.csv",
+               "Demo-ANHPImen.csv",
+               "Demo-ANHPIwomen.csv",
+               "Demo-Black.csv",
+               "Demo-BlackMen.csv",
+               "Demo-BlackWomen.csv",
+               "Demo-Hispanic.csv",
+               "Demo-HispanicMen.csv",
+               "Demo-HispanicWomen.csv",
+               "Demo-OtherRace.csv",
+               "Demo-OtherRaceMen.csv",
+               "Demo-OtherRaceWomen.csv",
+               "Demo-PopAllGenders.csv",
+               "Demo-PopMen.csv",
+               "Demo-PopWomen.csv",
+               "Demo-TwoPlus.csv",
+               "Demo-TwoPlusMen.csv",
+               "Demo-TwoPlusWomen.csv",
+               "Demo-White.csv",
+               "Demo-WhiteMen.csv",
+               "Demo-WhiteWomen.csv"
                )
 
 ```
@@ -197,7 +221,31 @@ name_mapping <- c("cnty_fips" = "fips",
                  "HCDI-Cholesterol_Screening" = "CholScreen",
                  "HCDI-BPM-Medication_Use" = "bpmUse",
                  "Demo-Total_Population" = "pop",
-                  "Demo-Age65Plus" = "Age65Plus"
+                 "Demo-Age65Plus" = "Age65Plus",
+                 "Demo-AIAN" = "AIAN",
+                 "Demo-AIANmen" = "AIANmen",
+                 "Demo-AIANwomen" = "AIANwomen",
+                 "Demo-ANHPI" = "ANHPI",
+                 "Demo-ANHPImen" = "ANHPImen",
+                 "Demo-ANHPIwomen" = "ANHPIwomen",
+                 "Demo-Black" = "Black",
+                 "Demo-BlackMen" = "BlackMen",
+                 "Demo-BlackWomen" = "BlackWomen",
+                 "Demo-Hispanic" = "Hispanic",
+                 "Demo-HispanicMen" = "HispanicMen",
+                 "Demo-HispanicWomen" = "HispanicWomen",
+                 "Demo-OtherRace" = "OtherRace",
+                 "Demo-OtherRaceMen" = "OtherRaceMen",
+                 "Demo-OtherRaceWomen" = "OtherRaceWomen",
+                 "Demo-PopAllGenders" = "PopAllGenders",
+                 "Demo-PopMen" = "PopMen",
+                 "Demo-PopWomen" = "PopWomen",
+                 "Demo-TwoPlus" = "TwoPlus",
+                 "Demo-TwoPlusMen" = "TwoPlusMen",
+                 "Demo-TwoPlusWomen" = "TwoPlusWomen",
+                 "Demo-White" = "White",
+                 "Demo-WhiteMen" = "WhiteMen",
+                 "Demo-WhiteWomen" = "WhiteWomen"
                   )
 
 # Get the column names of the data frame
@@ -211,17 +259,6 @@ colnames(cdc) <- new_names
 
 # Clean up global environment
 keep(cdc, sure = TRUE)
-
-```
-
-
-### Make backup and display first few rows
-```{r}
-cdc_copy <- cdc
-
-head(cdc)
-
-#cdc <- cdc_copy
 
 ```
 
@@ -258,6 +295,17 @@ cdc$state <- gsub("\\)", "", cdc$state)
 cdc$county <- gsub("\"", "", cdc$county)
 
 print(cdc)
+
+```
+
+
+### Make backup and display first few rows
+```{r}
+cdc_copy <- cdc
+
+head(cdc)
+
+#cdc <- cdc_copy
 
 ```
 
@@ -471,56 +519,6 @@ cdc <- cdc %>% select(-PrimaryCarePhys, -cardio)
 ```
 
 
-## Convert provider demographics
-### Convert number of hospitals per county to number of hospitals per 100k residents
-```{r}
-# Create column for number of hospitals per 100k residents
-cdc$Hosp100k <- (cdc$Hospitals / cdc$pop) * 100000
-
-```
-
-
-### Convert number of pharmacies per population to number of pharmacies per 100k residents
-```{r}
-# Create column for number of hospitals per 100k residents
-cdc$Pharm100k <- (cdc$Pharmacies / cdc$pop) * 100000
-
-```
-
-
-# .
-# .
-# BREAK (Below is broken)
-# .
-# .
-
-### Convert population per physicians to physician per 1k residents
-```{r}
-# # Calculate the number of physicians
-# cdc$TotalPCP <- cdc$pop / cdc$pcp
-# # Create columns for number of physicians per 1k residents
-# cdc$PSP1k <- (cdc$TotalPCP / cdc$pop) * 1000
-
-```
-
-
-### Convert population per cardiovascular physicians to cardiovascular physician per 100k residents
-```{r}
-# # Calculate the number of physicians
-# cdc$TotalCardio <- cdc$pop / cdc$CardioPhys
-# # Create columns for number of physicians per 1k residents
-# cdc$Cardio100k <- (cdc$CardioPhys / cdc$pop) * 100000
-
-```
-
-
-
-# .
-# .
-# BREAK (Above is broken)
-# .
-# .
-
 
 
 # .
@@ -604,6 +602,69 @@ colSums(is.na(cdc))
 ```
 
 
+
+## Convert provider demographics
+### Convert number of hospitals per county to number of hospitals per 100k residents
+```{r}
+# Create column for number of hospitals per 100k residents
+cdc$Hosp100k <- (cdc$Hospitals / cdc$pop) * 100000
+
+```
+
+
+### Convert number of pharmacies per population to number of pharmacies per 100k residents
+```{r}
+# Create column for number of hospitals per 100k residents
+cdc$Pharm100k <- (cdc$Pharmacies / cdc$pop) * 100000
+
+```
+
+
+### Convert population per physicians to physician per 1k residents
+```{r}
+# Calculate the number of physicians
+cdc$TotalPCP <- cdc$pop / cdc$pcp
+# Create columns for number of physicians per 1k residents
+cdc$PSP1k <- (cdc$TotalPCP / cdc$pop) * 1000
+
+```
+
+
+### Convert population per cardiovascular physicians to cardiovascular physician per 100k residents
+```{r}
+# Calculate the number of physicians
+cdc$TotalCardio <- cdc$pop / cdc$CardioPhys
+# Create columns for number of physicians per 1k residents
+cdc$Cardio100k <- (cdc$CardioPhys / cdc$pop) * 100000
+
+```
+
+
+### Rearrange column layout
+```{r}
+# Define order of columns
+order = c("fips", "county", "state", "UrbanRural", "CHD",
+"HighBP", "HighChol", "Stroke", "Diabetes", "Obesity",
+"PhysInactivity", "Smoker", "Age65Plus","CholScreen",
+"CholMedNonAdhear", "CholMedElegible", "cruParticipate",
+"bpmUse", "MedHouseIncome", "Poverty", "Unemploy",
+"SNAPrecipients", "EdLessColl", "MedHomeValue",
+"HealthIns", "AirQuality", "Parks", "Broadband","pcp",
+"TotalPCP", "PSP1k", "CardioPhys", "TotalCardio",
+"Cardio100k", "Hospitals", "Hosp100k", "HospCR", 
+"HospCIC", "HospED", "Pharmacies", "Pharm100k", "pop",
+"PopAllGenders", "PopMen", "PopWomen", "AIAN","AIANmen",
+"AIANwomen", "ANHPI", "ANHPImen", "ANHPIwomen", "Black",
+"BlackMen", "BlackWomen", "Hispanic", "HispanicMen",
+"HispanicWomen", "TwoPlusWomen", "TwoPlus", "TwoPlusMen",
+"OtherRace", "OtherRaceMen", "OtherRaceWomen", "White",
+"WhiteMen", "WhiteWomen")	
+
+# Invoke column reorganization
+cdc <- cdc[, order]		
+
+```
+
 #.
 #.
 # BREAK
@@ -617,11 +678,11 @@ colSums(is.na(cdc))
 # Convert urban/rural variables to factors
 cdc$UrbanRural <- as.factor(cdc$UrbanRural)
 
-# Use fastDummies for the 'state' column
-cdc <- fastDummies::dummy_cols(cdc, select_columns = 'state')
-
 # Use fastDummies for the 'UrbanRural' column
 cdc <- fastDummies::dummy_cols(cdc, select_columns = 'UrbanRural')
+
+# Use fastDummies for the 'state' column
+cdc <- fastDummies::dummy_cols(cdc, select_columns = 'state')
 
 ```
 
@@ -747,7 +808,7 @@ lowest_10
 ### Auto EDA report (from DataExplorer)
 ```{r}
 cdc %>%
-    select(c(4:34, 36:38)) %>%
+    select(c(5:66)) %>% #(5:66) All excluding state and rural/urban hot coded
     create_report(
         output_file = paste ("Auto EDA Report"),
         report_title = "EDA Report - CHD Dataset",
@@ -867,10 +928,11 @@ ggplot(cdc, aes(x=Age65Plus)) + geom_histogram(binwidth=10) + facet_grid(~ Urban
 #### General Correlation Matrix
 ```{r}
 cor_matrix <- cdc %>%
-  select(c(4:34, 36:38)) %>% cor()
-
+  select(c(5:66)) %>% cor() #(5:66) All excluding state and rural/urban hot coded
 cor_matrix
-
+#Interesting way to see this
+#cor_matrix[abs(cor_matrix)<0.5]=""
+#cor_matrix
 ```
 
 
@@ -1540,8 +1602,7 @@ summary(pr_cdc)
 ```{r}
 #Drop non numeric variables (note, rural/urban has been hot coded)
 cdc_comp2 <- cdc %>%
-  select(c(4:34, 36, 90:93))
-
+  select(c(5:70)) #(5:70) All excluding state and rural/urban hot coded
 pr_cdc2 <- prcomp(x = cdc_comp2, scale = T, center = T)
 
 summary(pr_cdc2)
@@ -1661,7 +1722,7 @@ summary(predictions_simulation)
 ## more EDA
 ```{r}
 #Histograms for numerical variables
-for (col in c(4:34, 36:38)) {
+for (col in c(5:66)) {  #(5:70) All numeric excluding state and rural/urban hot coded
   if (is.numeric(cdc[[col]])) {
     hist(cdc[[col]], main = names(cdc)[col])
   } else {
@@ -2032,7 +2093,7 @@ ggplot(top_large_fringe_urban, aes(x = state, y = count, fill = state)) +
 ```{r}
 # Create the subset
 cdc_subset <- cdc %>%
-  select(c(4:34, 36:38))
+  select(c(5:66))  #(5:66) All excluding state and rural/urban hot coded
 
 # Box plots for each variable in the subset
 for (i in 1:ncol(cdc_subset)) {
@@ -2307,7 +2368,7 @@ print(head(rural_low_chd, 5))
 numeric_columns <- names(cdc)[sapply(cdc, is.numeric)]
 
 # Select the first 32 numeric columns
-numeric_columns <- numeric_columns[1:32]
+numeric_columns <- numeric_columns[1:32] #(1:32) Age95Plus:pcp
 
 # Compute descriptive statistics for urban areas with high CHD
 urban_high_chd_stats <- urban_high_chd %>%
@@ -2428,7 +2489,8 @@ for (var in selected_vars) {
 
 
 ```{r}
-cdc_lm <- cdc_copy %>% select (3:35,)
+cdc_lm <- cdc %>% select (5:66,) #(5:66) All numeric excluding hot coded
+#NOTE: Above changed from cdc_copy to cdc by Jesse after adding additional cols
 
 model <- lm(CHD ~ ., data = cdc_lm)
 
@@ -2442,7 +2504,7 @@ summary(model)
 ```{r}
 library(rpart)
 
-cdc_test <- cdc %>% select (3:38, )
+cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol))
 
@@ -2460,7 +2522,7 @@ tree_model$variable.importance
 library(rpart)
 library(rpart.plot)
 
-cdc_test <- cdc %>% select (3:38, )
+cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
 
@@ -2469,7 +2531,7 @@ tree_model <- rpart(CHD ~ ., data=cdc_test)
 rpart.plot(tree_model)
 tree_model$variable.importance
 
-cdc_test <- cdc %>% select (4:38, )
+cdc_test <- cdc %>% select (5:66, ) #(5:66) All numeric excluding hot coded
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
 
@@ -2479,7 +2541,7 @@ rpart.plot(tree_model)
 tree_model$variable.importance
 ```
 ```{r}
-cdc_test <- cdc %>% select (3:38, )
+cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
 
 cdc_test <- cdc_test %>% select(-c(bpmUse, Age65Plus, Stroke, HighChol, Smoker, HighBP))
 
