@@ -3593,6 +3593,71 @@ summary(predictions_simulation)
 
 ```
 
+
+#.
+# ↓↓↓↓↓ NEW (Jesse) ↓↓↓↓↓
+#.
+
+## Logistic Regression
+### Logistic Regression on state and urban/rural
+```{r}
+# Create new data frame to work with
+cdc_logReg <- cdc %>% select(c(CHD, county, state, UrbanRural))
+
+# Convert categorical variables to factors
+cdc_logReg$state <- as.factor(cdc_logReg$state)
+cdc_logReg$UrbanRural <- as.factor(cdc_logReg$UrbanRural)
+
+# Convert CHD to binary
+cdc_logReg$CHD_bi <- ifelse(cdc_logReg$CHD > 10.0, 1, 0)
+
+# Perform logistic regression
+model_logReg <- glm(CHD_bi ~ state + UrbanRural, data = cdc_logReg, family = binomial())
+
+# Print the summary of the model
+summary(model_logReg)
+
+```
+#### Logistical regression model with CHD vs state and urban/rural features Explanation:
+
+The glm function is used for generalized linear models, with the family parameter set to "binomial()" indicating that we are fitting a logistic regression. The response variable is CHD_bi (binary Coronary Heart Disease), and the predictors are state and UrbanRural.
+
+**Coefficients**
+This section gives the results of the model fitting.
+
+The "Estimate" column gives the estimated coefficients for the model. For example, the coefficient for stateAL is 1.850e+01. This coefficient is in log-odds units, so to interpret it, we need to exponentiate it. The exponentiated coefficient represents the odds ratio for a one-unit increase in the corresponding predictor variable, holding all other predictors constant.
+
+The "Std. Error" column gives the standard error of the estimates. The larger the standard error, the less certain we are about our estimate of the coefficient.
+
+The "z value" is the estimate divided by the standard error. This is a test statistic that follows a standard normal distribution under the null hypothesis.
+
+The "Pr(>|z|)" column is the two-sided p-value associated with the observed value of the z-statistic. It's calculated under the null hypothesis of no effect (i.e., a coefficient of 0). If the p-value is small (usually ≤ 0.05), you can reject the null hypothesis and conclude that the predictor is having an effect on the response. However, in this case, all of the p-values are quite high, indicating that none of the predictors are statistically significant at the 0.05 level.
+
+**Deviance Residuals**
+The null deviance shows how well the response variable is predicted by a model that includes only the intercept. Lower numbers indicate a better fit. The residual deviance shows how well the response variable is predicted by the model when the predictors are included. Again, lower numbers are better.
+
+In this case, the residual deviance is significantly lower than the null deviance, which suggests that the model with the predictors is a better fit than the null model.
+
+**AIC**
+The Akaike Information Criterion (AIC) is a measure of the relative quality of a statistical model, for a given set of data. As a method of model selection, AIC balances the complexity of a model against how well the model fits the data. The preferred model is the one with the minimum AIC. In this case, the AIC is 1725.1.
+
+**Number of Fisher Scoring iterations**
+This is the number of iterations it took for the algorithm to converge, or find the maximum likelihood estimates of the coefficients.
+
+Overall, it appears that none of the predictors are statistically significant at the 0.05 level, according to the p-values. However, the model does a better job of predicting the response than a null model, according to the deviance. You might want to consider other predictors, or perhaps there are interactions between predictors that are not being considered in this model.
+
+
+
+
+
+
+
+
+
+
+
+
+
 # .
 # REFERENCE INFORMATION
 # .
@@ -3618,17 +3683,19 @@ Services-CIC = Cardiac Intensive Care
 Services-CR = Cardiovascular Rehabilitation
 
 
+#.
+# ↓↓↓↓↓ NEW(Isaac) ↓↓↓↓↓
+#.
 
-#New
 ###This was just a base test to start, but got some warnings-mostly related to including variables that are highly correlated with each other (we knew that)
 ```{r}
-cdc_index <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
-cdc_tr <- cdc[cdc_index, ]
-cdc_te <- cdc[-cdc_index, ]
-control <- trainControl(method="repeatedcv", number =5, repeats=3)
-m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
-print(m1$resample)
-m1
+# cdc_index <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
+# cdc_tr <- cdc[cdc_index, ]
+# cdc_te <- cdc[-cdc_index, ]
+# control <- trainControl(method="repeatedcv", number =5, repeats=3)
+# m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
+# print(m1$resample)
+# m1
 ```
 ###didn't work
 ```{r}
@@ -3681,13 +3748,12 @@ print(high_correlations)
 ```
 ###another try at a basic model 63%RMSE
 ```{r}
-cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
-cdc_tr <- cdc2[cdc_index, ]
-cdc_te <- cdc2[-cdc_index, ]
-control <- trainControl(method="repeatedcv", number =5, repeats=3)
-m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
-print(m1$resample)
-m1
+# cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+# cdc_tr <- cdc2[cdc_index, ]
+# cdc_te <- cdc2[-cdc_index, ]
+# control <- trainControl(method="repeatedcv", number =5, repeats=3)
+# m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
+# print(m1$resample)
+# m1
 ```
 
-x
