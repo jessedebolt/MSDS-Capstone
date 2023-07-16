@@ -25,6 +25,7 @@ library(skimr)
 library(DataExplorer)
 library(GGally)
 library(caret)
+library(e1071)
 
 ```
 
@@ -3647,16 +3648,70 @@ This is the number of iterations it took for the algorithm to converge, or find 
 Overall, it appears that none of the predictors are statistically significant at the 0.05 level, according to the p-values. However, the model does a better job of predicting the response than a null model, according to the deviance. You might want to consider other predictors, or perhaps there are interactions between predictors that are not being considered in this model.
 
 
+# Feature Selection
+## Recursive Feature Elimination (RFE)
+### Split data for training
+```{r}
+set.seed(2112)
+
+# Reduce initial number of features
+cdc_rfe <- cdc %>% select(-c(fips, pcp, PSP1k, CardioPhys, Cardio100k, Hosp100k, Pharm100k, pop, PopAllGenders, AIAN, ANHPI, Black, Hispanic, TwoPlus, OtherRace, White, 71:121))
+
+trainIndex_RFE <- createDataPartition(cdc_rfe$CHD, p = .7, list = FALSE, times = 1)
+
+cdcTrain_RFE <- cdc_rfe[ trainIndex_RFE,]
+cdcTest_RFE  <- cdc_rfe[-trainIndex_RFE,]
+
+### Establish control features
+ctrl_RFE <- rfeControl(functions=rfFuncs, method="cv", number=10)
+
+```
 
 
+### Perform RFE model
+```{r}
+result <- rfe(cdcTrain_RFE[, -ncol(cdcTrain_RFE)], cdcTrain_RFE$CHD, sizes=c(1:ncol(cdcTrain_RFE)-1), rfeControl=ctrl_RFE)
 
+print(result)
 
+```
+#### Recursive Feature Elimination (RFE) Explanation:
+Your output from the rfe function shows the results of recursive feature elimination (RFE) for different numbers of predictor variables, where the number of variables used in each model is shown in the Variables column.
 
+For each model, several performance metrics are calculated. Here's what each of these columns mean:
 
+Variables: This is the number of predictor variables included in the model.
 
+**RMSE:** This is the Root Mean Squared Error of the model. It's a commonly used measure of the differences between values predicted by the model and the values actually observed. Lower values of RMSE indicate better fit.
 
+**Rsquared:** This is the R-squared of the model, also known as the coefficient of determination. It's a statistical measure that represents the proportion of the variance for a dependent variable that's explained by an independent variable or variables in a regression model. It ranges from 0 to 1, and a higher value generally indicates a better fit of the model.
 
+**MAE:** This is the Mean Absolute Error of the model. It's the average of the absolute differences between the predicted and actual values. It measures the average magnitude of the errors in a set of predictions, without considering their direction. Like RMSE, lower values indicate better fit.
 
+**RMSESD:** This is the standard deviation of the RMSE over the cross-validation folds. A lower value indicates that the model's performance is more consistent across different subsets of the data.
+
+**RsquaredSD:* This is the standard deviation of the R-squared values over the cross-validation folds. A lower value indicates that the model's performance is more consistent across different subsets of the data.
+
+From these results, you can see how the model performance changes as you include more predictor variables.
+
+Looking at the output, it appears that the model performs extremely well with just one or two variables, achieving very high R-squared values and very low RMSE, MAE values. However, it's important to be cautious here, as these results might be too good to be true and could suggest overfitting. Overfitting is when the model learns the training data too well, to the point where it performs poorly on new, unseen data.
+
+Additionally, the performance seems to decrease (i.e., RMSE and MAE increase, and Rsquared decreases) as more variables are added, up to a certain point, after which it starts to increase again. This could suggest that some of the variables are not useful for prediction and might even be detrimental.
+
+However, the standard deviations (RMSESD, RsquaredSD) also increase as more variables are added, indicating that the model's performance becomes less consistent across different subsets of the data.
+
+These results can help you decide how many and which variables to include in your final model. You might choose the model with the highest R-squared, or you might choose a simpler model if it performs almost as well. The choice depends on your specific goals and constraints, such as how important interpretability is and how much computational resources you have.
+
+#### Variable results for RFE
+```{r}
+
+print(result$variables)
+
+print(result$optimum)
+
+print(names(result))
+
+```
 
 # .
 # REFERENCE INFORMATION
@@ -3689,13 +3744,13 @@ Services-CR = Cardiovascular Rehabilitation
 
 ###This was just a base test to start, but got some warnings-mostly related to including variables that are highly correlated with each other (we knew that)
 ```{r}
-# cdc_index <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
-# cdc_tr <- cdc[cdc_index, ]
-# cdc_te <- cdc[-cdc_index, ]
-# control <- trainControl(method="repeatedcv", number =5, repeats=3)
-# m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
-# print(m1$resample)
-# m1
+cdc_index <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc[cdc_index, ]
+cdc_te <- cdc[-cdc_index, ]
+control <- trainControl(method="repeatedcv", number =5, repeats=3)
+m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
+print(m1$resample)
+m1
 ```
 ###didn't work
 ```{r}
@@ -3748,12 +3803,12 @@ print(high_correlations)
 ```
 ###another try at a basic model 63%RMSE
 ```{r}
-# cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
-# cdc_tr <- cdc2[cdc_index, ]
-# cdc_te <- cdc2[-cdc_index, ]
-# control <- trainControl(method="repeatedcv", number =5, repeats=3)
-# m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
-# print(m1$resample)
-# m1
+cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc2[cdc_index, ]
+cdc_te <- cdc2[-cdc_index, ]
+control <- trainControl(method="repeatedcv", number =5, repeats=3)
+m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
+print(m1$resample)
+m1
 ```
 
