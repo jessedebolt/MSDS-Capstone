@@ -3539,6 +3539,7 @@ summary(pr_pca2)
 # Predictive Modeling
 # .
 
+## Random Forest Model
 ### Split the data into training and test sets
 ```{r}
 set.seed(2112)
@@ -3571,28 +3572,30 @@ predictions <- predict(model, test_set)
 ```
 
 
-## Predictions
-### Policy intervention to increases the number of cardiovascular providers providers by 20% in rural areas
+## Random Forest Model Predictions
+### Policy intervention to increases the number of cardiovascular providers by 20% in rural areas
 ```{r}
-data_simulation <- cdc
-data_simulation[data_simulation$UrbanRural == 'Rural', 'CardioPhys'] <- data_simulation[data_simulation$UrbanRural == 'Rural', 'CardioPhys'] * 1.20
+data_simulation_cardio <- cdc
+data_simulation_cardio[data_simulation_cardio$UrbanRural == 'Rural', 'CardioPhys'] <- data_simulation_cardio[data_simulation_cardio$UrbanRural == 'Rural', 'CardioPhys'] * 1.20
 
 ```
 
 
-### Use the model to predict outcomes with the simulated data
+#### Use the model to predict outcomes with the simulated data
 ```{r}
-predictions_simulation <- predict(model, data_simulation)
+predictions_simulation_cardio <- predict(model, data_simulation_cardio)
 
 ```
 
 
-### Compare the original predictions and the simulated predictions
+#### Compare the original predictions and the simulated predictions
 ```{r}
 summary(predictions)
-summary(predictions_simulation)
+summary(predictions_simulation_cardio)
 
 ```
+
+
 
 
 #.
@@ -3652,27 +3655,27 @@ Overall, it appears that none of the predictors are statistically significant at
 ## Recursive Feature Elimination (RFE)
 ### Split data for training
 ```{r}
-set.seed(2112)
-
-# Reduce initial number of features
-cdc_rfe <- cdc %>% select(-c(fips, pcp, PSP1k, CardioPhys, Cardio100k, Hosp100k, Pharm100k, pop, PopAllGenders, AIAN, ANHPI, Black, Hispanic, TwoPlus, OtherRace, White, 71:121))
-
-trainIndex_RFE <- createDataPartition(cdc_rfe$CHD, p = .7, list = FALSE, times = 1)
-
-cdcTrain_RFE <- cdc_rfe[ trainIndex_RFE,]
-cdcTest_RFE  <- cdc_rfe[-trainIndex_RFE,]
-
-### Establish control features
-ctrl_RFE <- rfeControl(functions=rfFuncs, method="cv", number=10)
+# set.seed(2112)
+# 
+# # Reduce initial number of features
+# cdc_rfe <- cdc %>% select(-c(fips, pcp, PSP1k, CardioPhys, Cardio100k, Hosp100k, Pharm100k, pop, PopAllGenders, AIAN, ANHPI, Black, Hispanic, TwoPlus, OtherRace, White, 71:121))
+# 
+# trainIndex_RFE <- createDataPartition(cdc_rfe$CHD, p = .7, list = FALSE, times = 1)
+# 
+# cdcTrain_RFE <- cdc_rfe[ trainIndex_RFE,]
+# cdcTest_RFE  <- cdc_rfe[-trainIndex_RFE,]
+# 
+# ### Establish control features
+# ctrl_RFE <- rfeControl(functions=rfFuncs, method="cv", number=10)
 
 ```
 
 
 ### Perform RFE model
 ```{r}
-result <- rfe(cdcTrain_RFE[, -ncol(cdcTrain_RFE)], cdcTrain_RFE$CHD, sizes=c(1:ncol(cdcTrain_RFE)-1), rfeControl=ctrl_RFE)
-
-print(result)
+# result <- rfe(cdcTrain_RFE[, -ncol(cdcTrain_RFE)], cdcTrain_RFE$CHD, sizes=c(1:ncol(cdcTrain_RFE)-1), rfeControl=ctrl_RFE)
+# 
+# print(result)
 
 ```
 #### Recursive Feature Elimination (RFE) Explanation:
@@ -3705,13 +3708,191 @@ These results can help you decide how many and which variables to include in you
 #### Variable results for RFE
 ```{r}
 
-print(result$variables)
-
-print(result$optimum)
-
-print(names(result))
+# print(result$variables)
+# 
+# print(result$optimum)
+# 
+# print(names(result))
 
 ```
+
+#.
+# JESSE NEW - BREAK
+#.
+
+## Predictions
+### Policy intervention to increases the number of primary care providers by 20% in rural areas
+```{r}
+data_simulation_pcp <- cdc
+data_simulation_pcp[data_simulation_pcp$UrbanRural == 'Rural', 'pcp'] <- data_simulation_pcp[data_simulation_pcp$UrbanRural == 'Rural', 'pcp'] * 1.20
+
+```
+
+
+#### Use the model to predict outcomes with the simulated data
+```{r}
+predictions_simulation_pcp <- predict(model, data_simulation_pcp)
+
+```
+
+
+#### Compare the original predictions and the simulated predictions
+```{r}
+summary(predictions)
+summary(predictions_simulation_cardio)
+summary(predictions_simulation_pcp)
+
+```
+
+
+### Policy intervention to increases the number of parks by 20% in rural areas
+```{r}
+data_simulation_Parks <- cdc
+data_simulation_Parks[data_simulation_Parks$UrbanRural == 'Rural', 'Parks'] <- data_simulation_Parks[data_simulation_Parks$UrbanRural == 'Rural', 'Parks'] * 2
+
+```
+
+
+#### Use the model to predict outcomes with the simulated data
+```{r}
+predictions_simulation_parks <- predict(model, data_simulation_Parks)
+
+```
+
+
+#### Compare the original predictions and the simulated predictions
+```{r}
+summary(predictions)
+summary(predictions_simulation_cardio)
+summary(predictions_simulation_pcp)
+summary(predictions_simulation_parks)
+
+```
+
+#.
+# BREAK
+#.
+
+We will subset the dataset to include only the variables of interest:
+# Subset the dataset
+```{r}
+cdc <- cdc[c("CHD", "pcp", "PhysInactivity", "Parks", "Broadband", "HealthIns")]
+
+```
+Now, let's split the data into training, testing, and holdout sets. We'll use 70% of the data for training, 15% for testing, and 15% for holdout:
+
+# Set the seed for reproducibility
+```{r}
+set.seed(2112)
+
+```
+
+
+# Create indices for the data split
+```{r}
+trainIndex <- createDataPartition(cdc$CHD, p = .7, list = FALSE, times = 1)
+```
+
+
+# Split the data
+```{r}
+train <- cdc[trainIndex, ]
+temp <- cdc[-trainIndex, ]
+
+```
+
+
+# Further split the remaining data into test and holdout sets
+```{r}
+testIndex <- createDataPartition(temp$CHD, p = .5, list = FALSE, times = 1)
+test <- temp[testIndex, ]
+holdout <- temp[-testIndex, ]
+
+```
+Now, let's create the linear regression model using the training set:
+
+
+# Create the linear regression model
+```{r}
+model <- lm(CHD ~ pcp * PhysInactivity * Parks * Broadband * HealthIns, data = train)
+
+```
+We can now use this model to make predictions on the test set:
+
+
+# Make predictions on the test set
+```{r}
+predictions <- predict(model, newdata = test)
+
+```
+To compare the model's performance before and after increasing the 'Broadband' variable by 25%, we first need to create a new dataset with the increased 'Broadband' values:
+
+
+# Create a new dataset with increased 'Broadband' values
+```{r}
+cdc_increased <- cdc
+cdc_increased$Broadband <- cdc_increased$Broadband * 1.25
+
+```
+Then, we split this new dataset into training, testing, and holdout sets, and create a new model:
+
+
+# Split the new data
+```{r}
+train_increased <- cdc_increased[trainIndex, ]
+temp_increased <- cdc_increased[-trainIndex, ]
+test_increased <- temp_increased[testIndex, ]
+holdout_increased <- temp_increased[-testIndex, ]
+
+```
+
+
+# Create the new model
+```{r}
+model_increased <- lm(CHD ~ pcp + PhysInactivity + Parks + Broadband + HealthIns, data = train_increased)
+
+```
+
+
+# Make predictions on the new test set
+```{r}
+predictions_increased <- predict(model_increased, newdata = test_increased)
+
+```
+Now, you can compare the performance of the two models using your preferred metrics (e.g., RMSE, R-squared, etc.). For example:
+
+
+# Calculate RMSE for the original model
+```{r}
+rmse_original <- sqrt(mean((test$CHD - predictions)^2))
+
+```
+
+
+# Calculate RMSE for the new model
+```{r}
+rmse_increased <- sqrt(mean((test_increased$CHD - predictions_increased)^2))
+
+```
+
+
+# Print the RMSE values
+```{r}
+print(paste("RMSE for the original model: ", rmse_original))
+print(paste("RMSE for the model with increased Broadband: ", rmse_increased))
+
+```
+Please note that this is a basic example and might need adjustments based on the specifics of your dataset and project. For example, you might need to handle missing values, outliers, or non-linear relationships between the variables. Also, linear regression assumes that the residuals are normally distributed and that there is a linear relationship between the predictors and the target variable, among other assumptions. You should check these assumptions when using linear regression.
+
+
+
+
+
+
+
+
+
+
 
 # .
 # REFERENCE INFORMATION
