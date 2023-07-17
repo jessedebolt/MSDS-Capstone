@@ -3689,13 +3689,16 @@ Services-CR = Cardiovascular Rehabilitation
 
 ###This was just a base test to start, but got some warnings-mostly related to including variables that are highly correlated with each other (we knew that)
 ```{r}
-# cdc_index <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
-# cdc_tr <- cdc[cdc_index, ]
-# cdc_te <- cdc[-cdc_index, ]
-# control <- trainControl(method="repeatedcv", number =5, repeats=3)
-# m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
-# print(m1$resample)
-# m1
+cdc_index <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc[cdc_index, ]
+cdc_te <- cdc[-cdc_index, ]
+control <- trainControl(method="repeatedcv", number =5, repeats=3)
+m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
+print(m1$resample)
+m1
+
+importance <- varImp(m1, scale=TRUE)
+plot(importance)
 ```
 ###didn't work
 ```{r}
@@ -3722,8 +3725,13 @@ print(high_correlations)
 ```
 ###Better way to see some correlations
 ```{r}
-#experimenting removing some high correlations
-cdc2 <- cdc %>% select(5,9:11,13:17,20,21,23,25:32,34,35,40)
+#experimenting removing all high correlations
+# cdc2 <- cdc %>% select(5,9:11,13:17,20,21,23,25:32,34,35,40)
+
+#see all the high >70% correlations non dummy's
+#cdc2 <- cdc %>% select(5:70)
+
+cdc2 <- cdc %>% select("UrbanRural", "CHD", "HighBP", "HighChol", "Stroke", "Diabetes", "Obesity", "PhysInactivity", "Smoker", "Age65Plus", "MedHouseIncome", "EdLessColl", "MedHomeValue", "HealthIns", "AirQuality", "Parks", "Broadband", "pcp", "CardioPhys", "Hospitals")
 
 cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
 
@@ -3746,14 +3754,349 @@ high_correlations <- high_correlations[order(-high_correlations$abs_correlation)
 print(high_correlations)
 
 ```
-###another try at a basic model 63%RMSE
+###another try at a basic model
 ```{r}
-# cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
-# cdc_tr <- cdc2[cdc_index, ]
-# cdc_te <- cdc2[-cdc_index, ]
+#this gets rmse .347
+#cdc2 <- cdc %>% select(5:70)
+
+#this gets rmse .35
+cdc2 <- cdc %>% select(4:13,19,23:29,32,35,42)
+#this is same as select(4:13,19,23:29,32,35,42) 
+cdc2 <- cdc %>% select("UrbanRural", "CHD", "HighBP", "HighChol", "Stroke", "Diabetes", "Obesity", "PhysInactivity", "Smoker", "Age65Plus", "MedHouseIncome", "EdLessColl", "MedHomeValue", "HealthIns", "AirQuality", "Parks", "Broadband", "pcp", "CardioPhys", "Hospitals", "pop")
+
+
+
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc2[cdc_index, ]
+cdc_te <- cdc2[-cdc_index, ]
+control <- trainControl(method="repeatedcv", number =5, repeats=3)
+m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
+print(m1$resample)
+m1
+
+importance <- varImp(m1, scale=TRUE)
+plot(importance)
+```
+
+```{r}
+ggplot(cdc2, aes(x=Diabetes , y=CHD, color=UrbanRural)) + geom_point()
+```
+
+```{r}
+cdc2 <- cdc %>% select(4:42,44,45)
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+# Get all column names
+all_vars <- names(cdc2)
+
+# Remove CHD and UrbanRural from your list of variables
+all_vars <- all_vars[!all_vars %in% c("CHD", "UrbanRural")]
+
+# Loop through each variable name and make a ggplot
+for (var in all_vars) {
+  # Save the plot as an object
+  p <- ggplot(cdc2, aes_string(x=var, y="CHD", color="UrbanRural")) + 
+       geom_point() +
+       geom_smooth(method="lm", se=FALSE, aes(group=UrbanRural))
+  
+  # Print the plot
+  print(p)
+}
+
+
+```
+
+```{r}
+#RMSE .35
+cdc2 <- cdc %>% select(c( "UrbanRural", "CHD",  "HighBP", "HighChol", "Stroke", "PhysInactivity", "Smoker", "Age65Plus", "MedHouseIncome", "Poverty", "Unemploy", "EdLessColl", "HealthIns", "AirQuality", "Broadband"))
+
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc2[cdc_index, ]
+cdc_te <- cdc2[-cdc_index, ]
+control <- trainControl(method="repeatedcv", number =5, repeats=3)
+m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
+print(m1$resample)
+m1
+
+importance <- varImp(m1, scale=TRUE)
+plot(importance)
+```
+```{r}
+#RMSE .368
+cdc2 <- cdc %>% select(c("CHD",  "HighBP", "HighChol", "Stroke", "Smoker", "Age65Plus"))
+
+# cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc2[cdc_index, ]
+cdc_te <- cdc2[-cdc_index, ]
+control <- trainControl(method="repeatedcv", number =5, repeats=3)
+m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
+print(m1$resample)
+m1
+
+importance <- varImp(m1, scale=TRUE)
+plot(importance)
+```
+```{r}
+cdc2 <- cdc %>% select(4:40)
+
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc2[cdc_index, ]
+cdc_te <- cdc2[-cdc_index, ]
 # control <- trainControl(method="repeatedcv", number =5, repeats=3)
 # m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
 # print(m1$resample)
 # m1
+
+
+x<-select(cdc_tr,-CHD)
+y<-cdc_tr$CHD
+
+control <- rfeControl(functions = rfFuncs, method = "cv", number=2)
+
+results <- rfe(x,y, sizes=c(1:3), rfeControl=control)
+
+print(results)
+
+predictors(results)
+
+plot(results, type=c("g", "o"))
 ```
+
+
+```{r}
+library(moderndive)
+m1 <- lm(CHD ~ Stroke, data=cdc)
+get_regression_table(m1)
+summary(m1)
+
+m2 <- lm(CHD ~ Stroke+Age65Plus, data=cdc)
+get_regression_table(m2)
+summary(m2)
+
+m3 <- lm(CHD ~ Stroke + Age65Plus + HighChol + Smoker + HighBP, data=cdc)
+get_regression_table(m3)
+summary(m3)
+
+m4 <- lm(CHD ~ Stroke + Age65Plus + HighChol + Smoker + HighBP + EdLessColl*MedHouseIncome,  data=cdc2)
+get_regression_table(m4)
+summary(m4)
+
+
+```
+```{r}
+library(randomForest)
+library(rpart)
+
+cdc2 <- cdc %>% select(2:42)
+cdc_index <- createDataPartition(cdc2$CHD, p=0.80, list=FALSE)
+train <- cdc2[cdc_index, ]
+test <- cdc2[-cdc_index, ]
+
+ctrl <- trainControl(method = "cv")
+
+fit <- train(CHD ~ .,
+             data = train,
+             method = "rpart",
+             trControl = ctrl)
+fit
+
+fit <- train(CHD ~ .,
+             data = train,
+             method = "rf",
+             trControl = ctrl)
+fit
+```
+```{r}
+fit2 <- train(CHD ~ .,
+             data = train,
+             method = "rpart",
+             trControl = ctrl,
+             tuneLength = 15,
+             )
+fit2
+
+library(rpart.plot)
+rpart.plot(fit2$finalModel, type=2)
+```
+
+```{r}
+variable_importance = varImp(fit, scale=FALSE)
+plot(variable_importance, top=15)
+```
+```{r}
+fit2$finalModel$variable.importance
+```
+###subsetting Rural - model
+```{r}
+cdc2 <- cdc %>% select(4:40)
+
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc2[cdc_index, ]
+cdc_te <- cdc2[-cdc_index, ]
+
+cdc_tr_rural <- subset(cdc_tr, UrbanRural == 0)
+cdc_tr_urban <- subset(cdc_tr, UrbanRural == 1)
+
+# Define your predictors (x) and response variable (y) for the rural data
+x_rural <- select(cdc_tr_rural, -CHD)
+y_rural <- cdc_tr_rural$CHD
+
+control <- rfeControl(functions = rfFuncs, method = "cv", number=2)
+
+# Run rfe for the rural data
+results_rural <- rfe(x_rural, y_rural, sizes=c(1:5), rfeControl=control)
+
+# Print results
+print(results_rural)
+
+# Check the important predictors
+predictors(results_rural)
+
+plot(results, type=c("g", "o"))
+```
+### Subsetting Urban - model
+```{r}
+cdc2 <- cdc %>% select(4:40)
+
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc2[cdc_index, ]
+cdc_te <- cdc2[-cdc_index, ]
+
+cdc_tr_rural <- subset(cdc_tr, UrbanRural == 0)
+cdc_tr_urban <- subset(cdc_tr, UrbanRural == 1)
+
+# Define your predictors (x) and response variable (y) for the urban data
+x_urban <- select(cdc_tr_urban, -CHD)
+y_urban <- cdc_tr_urban$CHD
+
+control <- rfeControl(functions = rfFuncs, method = "cv", number=2)
+
+# Run rfe for the urban data
+results_urban <- rfe(x_urban, y_urban, sizes=c(1:5), rfeControl=control)
+
+# Print results
+print(results_urban)
+
+# Check the important predictors
+predictors(results_urban)
+
+plot(results, type=c("g", "o"))
+
+```
+Now, to interpret these outputs:
+
+In both cases, you have trained models with 1 to 36 variables (from only one variable in the model to all 36 variables in the model). The sizes argument in the rfe() function defined this.
+
+In both models (rural and urban), the model with 36 variables was selected as the best model (marked with '*'). This was based on the lowest RMSE.
+
+When comparing the rural and urban models, it appears that the model for the urban areas performs slightly better than the model for the rural areas, as it has a lower RMSE (0.3985 vs. 0.4062) and a higher R-squared (0.9314 vs. 0.9166). However, the difference is quite small and might not be significant.
+
+Regarding the top predictors (variables that help predict CHD), it's interesting to note that for both rural and urban areas, "Stroke", "Age65Plus", "HighChol", and "Smoker" are in the top 5. This suggests that these variables are important in predicting CHD, regardless of whether the area is urban or rural. However, the importance of other variables might differ between urban and rural areas.
+
+For example, "bpmUse" (I assume this refers to the use of blood pressure medication) is in the top 5 for both rural and urban, but "HighBP" (high blood pressure) is in the top 5 for rural areas but not for urban ones. This difference might suggest that the management of high blood pressure is more critical in rural areas when it comes to CHD.
+
+When you look at the top variables in the full list of 36, you can see that some variables, like "AirQuality" and "Poverty", are more important in rural areas than in urban areas, while variables like "PhysInactivity" and "Unemploy" appear to be more significant in urban areas.
+
+###Subsetting Rural 2
+```{r}
+cdc2 <- cdc %>% select(4:40)
+
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc2[cdc_index, ]
+cdc_te <- cdc2[-cdc_index, ]
+
+cdc_tr_rural <- subset(cdc_tr, UrbanRural == 0)
+cdc_tr_urban <- subset(cdc_tr, UrbanRural == 1)
+
+# Define your predictors (x) and response variable (y) for the rural data
+x_rural <- select(cdc_tr_rural, -CHD)
+y_rural <- cdc_tr_rural$CHD
+
+control <- rfeControl(functions = rfFuncs, method = "cv", number=2)
+
+# Run rfe for the rural data
+results_rural <- rfe(x_rural, y_rural, sizes=c(1:8), rfeControl=control)
+
+# Print results
+print(results_rural)
+
+# Check the important predictors
+predictors(results_rural)
+
+plot(results, type=c("g", "o"))
+```
+
+### Subsetting Urban2 - model
+```{r}
+cdc2 <- cdc %>% select(4:40)
+
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc2[cdc_index, ]
+cdc_te <- cdc2[-cdc_index, ]
+
+cdc_tr_rural <- subset(cdc_tr, UrbanRural == 0)
+cdc_tr_urban <- subset(cdc_tr, UrbanRural == 1)
+
+# Define your predictors (x) and response variable (y) for the urban data
+x_urban <- select(cdc_tr_urban, -CHD)
+y_urban <- cdc_tr_urban$CHD
+
+control <- rfeControl(functions = rfFuncs, method = "cv", number=2)
+
+# Run rfe for the urban data
+results_urban <- rfe(x_urban, y_urban, sizes=c(1:8), rfeControl=control)
+
+# Print results
+print(results_urban)
+
+# Check the important predictors
+predictors(results_urban)
+
+plot(results, type=c("g", "o"))
+
+```
+
+
+
+
+
+
+
+
+
+
+In these new outputs, you've trained models with 1 to 7 variables and then jumped to 36 variables for comparison. Again, the model with 7 variables is selected as the best model in both rural and urban cases (as indicated by the '*') based on the lowest RMSE.
+
+Let's discuss the rural model first:
+
+The top 7 variables are "Stroke", "Age65Plus", "HighChol", "HighBP", "bpmUse", "Smoker", and "EdLessColl". The model's performance in terms of RMSE, R-squared, and MAE has improved as you add more variables until it reaches 7. The RMSE decreases from 0.6448 (for 1 variable) to 0.3991 (for 7 variables). R-squared increases from 0.7876 to 0.9218, indicating that the model with 7 variables can explain more variation in the response variable. The model's MAE decreases as well, suggesting a better fit.
+
+In the urban model:
+
+The top 7 variables are "Stroke", "Age65Plus", "HighChol", "bpmUse", "HighBP", "EdLessColl", and "Smoker". The order is slightly different from the rural model, suggesting that different factors might be more important in urban areas compared to rural areas. The model's performance in terms of RMSE, R-squared, and MAE again improves as you add more variables until it reaches 7, just like in the rural model. The RMSE decreases from 0.6079 (for 1 variable) to 0.3819 (for 7 variables), and R-squared increases from 0.8218 to 0.9342. Again, the model's MAE decreases as more variables are added.
+
+When comparing the rural and urban models, it seems that the urban model is performing slightly better, as its RMSE is lower (0.3819 vs. 0.3991), and R-squared is higher (0.9342 vs. 0.9218). However, the difference is quite small.
+
+These results show that while the model with all 36 variables does perform well, a model with only the top 7 variables can achieve almost as good performance. This finding is important because simpler models (i.e., models with fewer variables) are often preferred in practice because they are easier to interpret and can avoid overfitting. 
+
+In terms of variable importance, "Stroke", "Age65Plus", "HighChol", "HighBP", "bpmUse", "Smoker", and "EdLessColl" are the top variables in both rural and urban areas, suggesting that these variables are universally important in predicting CHD. 
+
+Remember, the interpretation of these results should be made in the context of the data and subject area. While these models indicate these variables are important predictors of CHD, further research is needed to understand why they are important and how they might interact with each other.
+
 
