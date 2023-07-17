@@ -3832,7 +3832,6 @@ m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
 print(m1$resample)
 m1
 
-
 importance <- varImp(m1, scale=TRUE)
 plot(importance)
 ```
