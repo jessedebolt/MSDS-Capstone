@@ -3776,7 +3776,7 @@ summary(predictions_simulation_parks)
 We will subset the dataset to include only the variables of interest:
 # Subset the dataset
 ```{r}
-cdc <- cdc[c("CHD", "pcp", "PhysInactivity", "Parks", "Broadband", "HealthIns")]
+cdc2 <- cdc[c("CHD", "pcp", "PhysInactivity", "Parks", "Broadband", "HealthIns")]
 
 ```
 Now, let's split the data into training, testing, and holdout sets. We'll use 70% of the data for training, 15% for testing, and 15% for holdout:
@@ -3790,14 +3790,14 @@ set.seed(2112)
 
 # Create indices for the data split
 ```{r}
-trainIndex <- createDataPartition(cdc$CHD, p = .7, list = FALSE, times = 1)
+trainIndex <- createDataPartition(cdc2$CHD, p = .7, list = FALSE, times = 1)
 ```
 
 
 # Split the data
 ```{r}
-train <- cdc[trainIndex, ]
-temp <- cdc[-trainIndex, ]
+train <- cdc2[trainIndex, ]
+temp <- cdc2[-trainIndex, ]
 
 ```
 
@@ -3830,7 +3830,7 @@ To compare the model's performance before and after increasing the 'Broadband' v
 
 # Create a new dataset with increased 'Broadband' values
 ```{r}
-cdc_increased <- cdc
+cdc_increased <- cdc2
 cdc_increased$Broadband <- cdc_increased$Broadband * 1.25
 
 ```
