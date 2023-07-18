@@ -1,11 +1,12 @@
 ---
 title: "MSDS 2023 Capstone Project"
-subtitle: "Primary Document for all code"
 author: "Jesse DeBolt & Isaac Johnson"
 date: "`r Sys.Date()`"
 output:
-  word_document: default
+  pdf_document: default
   html_document: default
+  word_document: default
+subtitle: Primary Document for all code
 ---
 
 #.
@@ -3991,6 +3992,32 @@ high_correlations <- high_correlations[order(-high_correlations$abs_correlation)
 print(high_correlations)
 
 ```
+### Better Way continued
+```{r}
+unique_rows <- high_correlations %>%
+  distinct(value, .keep_all = TRUE)
+
+print(unique_rows)
+
+```
+###Middle Correlations
+```{r}
+# Keep only correlations between certain thresholds (0.5 to 0.7 in this case), avoiding self-correlation
+middle_correlations <- subset(correlation_df, abs_correlation >= 0.5 & abs_correlation <= 0.7)
+
+# Order your data frame by descending correlation
+middle_correlations <- middle_correlations[order(-middle_correlations$abs_correlation), ]
+
+# Print the sorted data frame
+print(middle_correlations)
+
+unique_rows <- middle_correlations %>%
+  distinct(value, .keep_all = TRUE)
+
+print(unique_rows)
+```
+
+
 ###another try at a basic model
 ```{r}
 #this gets rmse .347
@@ -4044,6 +4071,51 @@ for (var in all_vars) {
 
 
 ```
+### High Chol scatter plots
+```{r}
+cdc2 <- cdc %>% select(4:42,44,45)
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+# Get all column names
+all_vars <- names(cdc2)
+
+# Remove CHD and UrbanRural from your list of variables
+all_vars <- all_vars[!all_vars %in% c("HighChol", "UrbanRural")]
+
+# Loop through each variable name and make a ggplot
+for (var in all_vars) {
+  # Save the plot as an object
+  p <- ggplot(cdc2, aes_string(x=var, y="HighChol", color="UrbanRural")) + 
+       geom_point() +
+       geom_smooth(method="lm", se=FALSE, aes(group=UrbanRural))
+  
+  # Print the plot
+  print(p)
+}
+```
+### HighBP
+```{r}
+cdc2 <- cdc %>% select(4:42,44,45)
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+# Get all column names
+all_vars <- names(cdc2)
+
+# Remove CHD and UrbanRural from your list of variables
+all_vars <- all_vars[!all_vars %in% c("HighBP", "UrbanRural")]
+
+# Loop through each variable name and make a ggplot
+for (var in all_vars) {
+  # Save the plot as an object
+  p <- ggplot(cdc2, aes_string(x=var, y="HighBP", color="UrbanRural")) + 
+       geom_point() +
+       geom_smooth(method="lm", se=FALSE, aes(group=UrbanRural))
+  
+  # Print the plot
+  print(p)
+}
+```
+
 
 ```{r}
 #RMSE .35
@@ -4336,5 +4408,28 @@ These results show that while the model with all 36 variables does perform well,
 In terms of variable importance, "Stroke", "Age65Plus", "HighChol", "HighBP", "bpmUse", "Smoker", and "EdLessColl" are the top variables in both rural and urban areas, suggesting that these variables are universally important in predicting CHD. 
 
 Remember, the interpretation of these results should be made in the context of the data and subject area. While these models indicate these variables are important predictors of CHD, further research is needed to understand why they are important and how they might interact with each other.
+#from 4026
+```{r}
+#this gets rmse .347
+#cdc2 <- cdc %>% select(5:70)
+
+#this gets rmse .35
+cdc2 <- cdc %>% select(4:13,19,23:29,32,35,42)
+#this is same as select(4:13,19,23:29,32,35,42) 
+cdc2 <- cdc %>% select("UrbanRural", "CHD", "HighBP", "HighChol", "Diabetes", "Obesity", "PhysInactivity", "Smoker", "Age65Plus", "MedHouseIncome", "EdLessColl", "MedHomeValue", "HealthIns", "AirQuality", "Parks", "Broadband", "pcp", "CardioPhys", "Hospitals", "pop")
 
 
+
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
+
+cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
+cdc_tr <- cdc2[cdc_index, ]
+cdc_te <- cdc2[-cdc_index, ]
+control <- trainControl(method="repeatedcv", number =5, repeats=3)
+m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
+print(m1$resample)
+m1
+
+importance <- varImp(m1, scale=TRUE)
+plot(importance)
+```
