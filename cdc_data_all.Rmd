@@ -3528,11 +3528,52 @@ summary(pr_pca2)
 ```
 
 
-#### View the loadings of the first four priciple components which make up 66.77%
+#### View the loadings of the first five priciple components which make up 66.77%
 ```{r}
 pr_pca2$rotation[, 1:5]
 
 ```
+
+#### Sort the loadings of the first priciple component
+```{r}
+loadings <- pr_pca2$rotation
+
+sorted_PC1 <- sort(loadings[,"PC1"], decreasing = TRUE)
+print(sorted_PC1)
+```
+
+#### Sort the loadings of the second priciple component
+```{r}
+loadings <- pr_pca2$rotation
+
+sorted_PC1 <- sort(loadings[,"PC2"], decreasing = TRUE)
+print(sorted_PC1)
+```
+
+#### Sort the loadings of the third priciple component
+```{r}
+loadings <- pr_pca2$rotation
+
+sorted_PC1 <- sort(loadings[,"PC3"], decreasing = TRUE)
+print(sorted_PC1)
+```
+
+#### Sort the loadings of the fourth priciple component
+```{r}
+loadings <- pr_pca2$rotation
+
+sorted_PC1 <- sort(loadings[,"PC4"], decreasing = TRUE)
+print(sorted_PC1)
+```
+
+#### Sort the loadings of the fifth priciple component
+```{r}
+loadings <- pr_pca2$rotation
+
+sorted_PC1 <- sort(loadings[,"PC5"], decreasing = TRUE)
+print(sorted_PC1)
+```
+
 
 
 ## Recursive Feature Elimination (RFE)
@@ -3920,30 +3961,8 @@ importance <- varImp(m1, scale=TRUE)
 plot(importance)
 
 ```
-###didn't work
-```{r}
-#cdc %>% select(5:66,) %>% names()
 
-# First, calculate the correlation matrix:
-#correlation_matrix <- cor(cdc)
-correlation_matrix <- cdc %>% select(5:66,) %>% cor()
-
-# Next, convert the matrix into a dataframe and only keep the upper triangle to avoid duplicate pairs:
-correlation_df <- as.data.frame(as.table(correlation_matrix))
-correlation_df <- subset(correlation_df, Var1 < Var2)
-
-# Add an absolute value of correlation to the dataframe
-correlation_df$abs_value = abs(correlation_df$Freq)
-
-# Now, you can filter for high correlations and sort them:
-high_correlations <- subset(correlation_df, abs_value > 0.75)
-high_correlations <- high_correlations[order(-high_correlations$abs_value), ]
-
-# Finally, view the high correlations, sorted in descending order:
-print(high_correlations)
-
-```
-###Better way to see some correlations
+###Another way to see some correlations sorted
 ```{r}
 #experimenting removing all high correlations
 # cdc2 <- cdc %>% select(5,9:11,13:17,20,21,23,25:32,34,35,40)
@@ -3974,7 +3993,7 @@ high_correlations <- high_correlations[order(-high_correlations$abs_correlation)
 print(high_correlations)
 
 ```
-### Better Way continued
+### See highest correlations sorted desc (Removed duplicate correlations)
 ```{r}
 unique_rows <- high_correlations %>%
   distinct(value, .keep_all = TRUE)
@@ -3982,7 +4001,7 @@ unique_rows <- high_correlations %>%
 print(unique_rows)
 
 ```
-###Middle Correlations
+### Mid Correlations
 ```{r}
 # Keep only correlations between certain thresholds (0.5 to 0.7 in this case), avoiding self-correlation
 middle_correlations <- subset(correlation_df, abs_correlation >= 0.5 & abs_correlation <= 0.7)
@@ -4026,10 +4045,7 @@ importance <- varImp(m1, scale=TRUE)
 plot(importance)
 ```
 
-```{r}
-ggplot(cdc2, aes(x=Diabetes , y=CHD, color=UrbanRural)) + geom_point()
-```
-
+### CHD scatterplots for most variables
 ```{r}
 cdc2 <- cdc %>% select(4:42,44,45)
 cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
@@ -4040,19 +4056,24 @@ all_vars <- names(cdc2)
 # Remove CHD and UrbanRural from your list of variables
 all_vars <- all_vars[!all_vars %in% c("CHD", "UrbanRural")]
 
+# Convert UrbanRural to a factor
+cdc2$UrbanRural <- factor(cdc2$UrbanRural, labels = c("Rural", "Urban"))
+
 # Loop through each variable name and make a ggplot
 for (var in all_vars) {
   # Save the plot as an object
   p <- ggplot(cdc2, aes_string(x=var, y="CHD", color="UrbanRural")) + 
-       geom_point() +
-       geom_smooth(method="lm", se=FALSE, aes(group=UrbanRural))
+       geom_point(alpha = 0.3) +
+       geom_smooth(method="lm", se=FALSE, aes(group=UrbanRural)) +
+       scale_color_manual(values = c("Rural" = "green", "Urban" = "blue"))
   
   # Print the plot
   print(p)
 }
 
-
 ```
+
+
 ### High Chol scatter plots
 ```{r}
 cdc2 <- cdc %>% select(4:42,44,45)
@@ -4064,18 +4085,22 @@ all_vars <- names(cdc2)
 # Remove CHD and UrbanRural from your list of variables
 all_vars <- all_vars[!all_vars %in% c("HighChol", "UrbanRural")]
 
+# Convert UrbanRural to a factor
+cdc2$UrbanRural <- factor(cdc2$UrbanRural, labels = c("Rural", "Urban"))
+
 # Loop through each variable name and make a ggplot
 for (var in all_vars) {
   # Save the plot as an object
   p <- ggplot(cdc2, aes_string(x=var, y="HighChol", color="UrbanRural")) + 
-       geom_point() +
-       geom_smooth(method="lm", se=FALSE, aes(group=UrbanRural))
+       geom_point(alpha = 0.3) +
+       geom_smooth(method="lm", se=FALSE, aes(group=UrbanRural)) +
+       scale_color_manual(values = c("Rural" = "green", "Urban" = "blue")) 
   
   # Print the plot
   print(p)
 }
 ```
-### HighBP
+### HighBP Scatterplots
 ```{r}
 cdc2 <- cdc %>% select(4:42,44,45)
 cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
@@ -4086,12 +4111,16 @@ all_vars <- names(cdc2)
 # Remove CHD and UrbanRural from your list of variables
 all_vars <- all_vars[!all_vars %in% c("HighBP", "UrbanRural")]
 
+# Convert UrbanRural to a factor
+cdc2$UrbanRural <- factor(cdc2$UrbanRural, labels = c("Rural", "Urban"))
+
 # Loop through each variable name and make a ggplot
 for (var in all_vars) {
   # Save the plot as an object
   p <- ggplot(cdc2, aes_string(x=var, y="HighBP", color="UrbanRural")) + 
-       geom_point() +
-       geom_smooth(method="lm", se=FALSE, aes(group=UrbanRural))
+       geom_point(alpha = 0.3) +
+       geom_smooth(method="lm", se=FALSE, aes(group=UrbanRural)) +
+       scale_color_manual(values = c("Rural" = "green", "Urban" = "blue")) 
   
   # Print the plot
   print(p)
@@ -4200,11 +4229,11 @@ fit <- train(CHD ~ .,
              trControl = ctrl)
 fit
 
-fit <- train(CHD ~ .,
-             data = train,
-             method = "rf",
-             trControl = ctrl)
-fit
+# fit <- train(CHD ~ .,
+#              data = train,
+#              method = "rf",
+#              trControl = ctrl)
+# fit
 ```
 ```{r}
 fit2 <- train(CHD ~ .,
