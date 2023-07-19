@@ -3414,63 +3414,54 @@ summary(model)
 ```
 
 
-## Decision Trees
-#### Decision tree with all numeric values and State
+## Logistic Regression
+### Logistic Regression on state and urban/rural
 ```{r}
-library(rpart)
+# Create new data frame to work with
+cdc_logReg <- cdc %>% select(c(CHD, county, state, UrbanRural))
 
-cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
+# Convert categorical variables to factors
+cdc_logReg$state <- as.factor(cdc_logReg$state)
+cdc_logReg$UrbanRural <- as.factor(cdc_logReg$UrbanRural)
 
-cdc_test <- cdc_test %>% select(-c(Stroke, HighChol))
+# Convert CHD to binary
+cdc_logReg$CHD_bi <- ifelse(cdc_logReg$CHD > 10.0, 1, 0)
 
-tree_model <- rpart(CHD ~ ., data=cdc_test)
+# Perform logistic regression
+model_logReg <- glm(CHD_bi ~ state + UrbanRural, data = cdc_logReg, family = binomial())
 
-library(rpart.plot)
-rpart.plot(tree_model)
+# Print the summary of the model
+summary(model_logReg)
 
-tree_model$variable.importance
 ```
+#### Logistical regression model with CHD vs state and urban/rural features Explanation:
 
+The glm function is used for generalized linear models, with the family parameter set to "binomial()" indicating that we are fitting a logistic regression. The response variable is CHD_bi (binary Coronary Heart Disease), and the predictors are state and UrbanRural.
 
-#### Decision trees with variable importance
-```{r}
-library(rpart)
-library(rpart.plot)
+**Coefficients**
+This section gives the results of the model fitting.
 
-cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
+The "Estimate" column gives the estimated coefficients for the model. For example, the coefficient for stateAL is 1.850e+01. This coefficient is in log-odds units, so to interpret it, we need to exponentiate it. The exponentiated coefficient represents the odds ratio for a one-unit increase in the corresponding predictor variable, holding all other predictors constant.
 
-cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
+The "Std. Error" column gives the standard error of the estimates. The larger the standard error, the less certain we are about our estimate of the coefficient.
 
-tree_model <- rpart(CHD ~ ., data=cdc_test)
+The "z value" is the estimate divided by the standard error. This is a test statistic that follows a standard normal distribution under the null hypothesis.
 
-rpart.plot(tree_model)
-tree_model$variable.importance
+The "Pr(>|z|)" column is the two-sided p-value associated with the observed value of the z-statistic. It's calculated under the null hypothesis of no effect (i.e., a coefficient of 0). If the p-value is small (usually ≤ 0.05), you can reject the null hypothesis and conclude that the predictor is having an effect on the response. However, in this case, all of the p-values are quite high, indicating that none of the predictors are statistically significant at the 0.05 level.
 
-cdc_test <- cdc %>% select (5:66, ) #(5:66) All numeric excluding hot coded
+**Deviance Residuals**
+The null deviance shows how well the response variable is predicted by a model that includes only the intercept. Lower numbers indicate a better fit. The residual deviance shows how well the response variable is predicted by the model when the predictors are included. Again, lower numbers are better.
 
-cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
+In this case, the residual deviance is significantly lower than the null deviance, which suggests that the model with the predictors is a better fit than the null model.
 
-tree_model <- rpart(CHD ~ ., data=cdc_test)
+**AIC**
+The Akaike Information Criterion (AIC) is a measure of the relative quality of a statistical model, for a given set of data. As a method of model selection, AIC balances the complexity of a model against how well the model fits the data. The preferred model is the one with the minimum AIC. In this case, the AIC is 1725.1.
 
-rpart.plot(tree_model)
-tree_model$variable.importance
-```
+**Number of Fisher Scoring iterations**
+This is the number of iterations it took for the algorithm to converge, or find the maximum likelihood estimates of the coefficients.
 
+Overall, it appears that none of the predictors are statistically significant at the 0.05 level, according to the p-values. However, the model does a better job of predicting the response than a null model, according to the deviance. You might want to consider other predictors, or perhaps there are interactions between predictors that are not being considered in this model.
 
-#### Decision trees with interactions
-```{r}
-cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
-
-cdc_test <- cdc_test %>% select(-c(bpmUse, Age65Plus, Stroke, HighChol, Smoker, HighBP))
-
-tree_model <- rpart(CHD ~ ., data=cdc_test)
-
-rpart.plot(tree_model)
-tree_model$variable.importance
-
-modeltest <- lm(CHD ~ MedHouseIncome*EdLessColl*Broadband + bpmUse + Age65Plus + Stroke + HighChol + Smoker + HighBP, data=cdc)
-summary(modeltest)
-```
 
 # .
 # ????Saving for possible use later?????
@@ -3536,123 +3527,7 @@ summary(pr_pca2)
 
 ```
 
-# .
-# Predictive Modeling
-# .
 
-## Random Forest Model
-### Split the data into training and test sets
-```{r}
-set.seed(2112)
-train_index <- sample(1:nrow(cdc), 0.7 * nrow(cdc))
-train_set <- cdc[train_index, ]
-test_set <- cdc[-train_index, ]
-
-table(cdc$UrbanRural)
-
-```
-
-
-### Build a random forest model
-```{r}
-library(randomForest)
-
-set.seed(2112)
-
-model <- randomForest(CHD ~ Hospitals + Broadband + UrbanRural, data=train_set, ntree=100)
-
-print(model)
-
-```
-
-
-### Predict on the test set
-```{r}
-predictions <- predict(model, test_set)
-
-```
-
-
-## Random Forest Model Predictions
-### Policy intervention to increases the number of cardiovascular providers by 20% in rural areas
-```{r}
-data_simulation_cardio <- cdc
-data_simulation_cardio[data_simulation_cardio$UrbanRural == 'Rural', 'CardioPhys'] <- data_simulation_cardio[data_simulation_cardio$UrbanRural == 'Rural', 'CardioPhys'] * 1.20
-
-```
-
-
-#### Use the model to predict outcomes with the simulated data
-```{r}
-predictions_simulation_cardio <- predict(model, data_simulation_cardio)
-
-```
-
-
-#### Compare the original predictions and the simulated predictions
-```{r}
-summary(predictions)
-summary(predictions_simulation_cardio)
-
-```
-
-
-
-
-#.
-# ↓↓↓↓↓ NEW (Jesse) ↓↓↓↓↓
-#.
-
-## Logistic Regression
-### Logistic Regression on state and urban/rural
-```{r}
-# Create new data frame to work with
-cdc_logReg <- cdc %>% select(c(CHD, county, state, UrbanRural))
-
-# Convert categorical variables to factors
-cdc_logReg$state <- as.factor(cdc_logReg$state)
-cdc_logReg$UrbanRural <- as.factor(cdc_logReg$UrbanRural)
-
-# Convert CHD to binary
-cdc_logReg$CHD_bi <- ifelse(cdc_logReg$CHD > 10.0, 1, 0)
-
-# Perform logistic regression
-model_logReg <- glm(CHD_bi ~ state + UrbanRural, data = cdc_logReg, family = binomial())
-
-# Print the summary of the model
-summary(model_logReg)
-
-```
-#### Logistical regression model with CHD vs state and urban/rural features Explanation:
-
-The glm function is used for generalized linear models, with the family parameter set to "binomial()" indicating that we are fitting a logistic regression. The response variable is CHD_bi (binary Coronary Heart Disease), and the predictors are state and UrbanRural.
-
-**Coefficients**
-This section gives the results of the model fitting.
-
-The "Estimate" column gives the estimated coefficients for the model. For example, the coefficient for stateAL is 1.850e+01. This coefficient is in log-odds units, so to interpret it, we need to exponentiate it. The exponentiated coefficient represents the odds ratio for a one-unit increase in the corresponding predictor variable, holding all other predictors constant.
-
-The "Std. Error" column gives the standard error of the estimates. The larger the standard error, the less certain we are about our estimate of the coefficient.
-
-The "z value" is the estimate divided by the standard error. This is a test statistic that follows a standard normal distribution under the null hypothesis.
-
-The "Pr(>|z|)" column is the two-sided p-value associated with the observed value of the z-statistic. It's calculated under the null hypothesis of no effect (i.e., a coefficient of 0). If the p-value is small (usually ≤ 0.05), you can reject the null hypothesis and conclude that the predictor is having an effect on the response. However, in this case, all of the p-values are quite high, indicating that none of the predictors are statistically significant at the 0.05 level.
-
-**Deviance Residuals**
-The null deviance shows how well the response variable is predicted by a model that includes only the intercept. Lower numbers indicate a better fit. The residual deviance shows how well the response variable is predicted by the model when the predictors are included. Again, lower numbers are better.
-
-In this case, the residual deviance is significantly lower than the null deviance, which suggests that the model with the predictors is a better fit than the null model.
-
-**AIC**
-The Akaike Information Criterion (AIC) is a measure of the relative quality of a statistical model, for a given set of data. As a method of model selection, AIC balances the complexity of a model against how well the model fits the data. The preferred model is the one with the minimum AIC. In this case, the AIC is 1725.1.
-
-**Number of Fisher Scoring iterations**
-This is the number of iterations it took for the algorithm to converge, or find the maximum likelihood estimates of the coefficients.
-
-Overall, it appears that none of the predictors are statistically significant at the 0.05 level, according to the p-values. However, the model does a better job of predicting the response than a null model, according to the deviance. You might want to consider other predictors, or perhaps there are interactions between predictors that are not being considered in this model.
-
-
-# Feature Selection
 ## Recursive Feature Elimination (RFE)
 ### Split data for training
 ```{r}
@@ -3717,11 +3592,127 @@ These results can help you decide how many and which variables to include in you
 
 ```
 
-#.
-# JESSE NEW - BREAK
-#.
 
-## Predictions
+## Decision Trees
+#### Decision tree with all numeric values and State
+```{r}
+library(rpart)
+
+cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
+
+cdc_test <- cdc_test %>% select(-c(Stroke, HighChol))
+
+tree_model <- rpart(CHD ~ ., data=cdc_test)
+
+library(rpart.plot)
+rpart.plot(tree_model)
+
+tree_model$variable.importance
+```
+
+
+#### Decision trees with variable importance
+```{r}
+library(rpart)
+library(rpart.plot)
+
+cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
+
+cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
+
+tree_model <- rpart(CHD ~ ., data=cdc_test)
+
+rpart.plot(tree_model)
+tree_model$variable.importance
+
+cdc_test <- cdc %>% select (5:66, ) #(5:66) All numeric excluding hot coded
+
+cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
+
+tree_model <- rpart(CHD ~ ., data=cdc_test)
+
+rpart.plot(tree_model)
+tree_model$variable.importance
+```
+
+
+#### Decision trees with interactions
+```{r}
+cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
+
+cdc_test <- cdc_test %>% select(-c(bpmUse, Age65Plus, Stroke, HighChol, Smoker, HighBP))
+
+tree_model <- rpart(CHD ~ ., data=cdc_test)
+
+rpart.plot(tree_model)
+tree_model$variable.importance
+
+modeltest <- lm(CHD ~ MedHouseIncome*EdLessColl*Broadband + bpmUse + Age65Plus + Stroke + HighChol + Smoker + HighBP, data=cdc)
+summary(modeltest)
+```
+
+# .
+# Predictive Modeling
+# .
+
+## Random Forest Model
+### Split the data into training and test sets
+```{r}
+set.seed(2112)
+train_index <- sample(1:nrow(cdc), 0.7 * nrow(cdc))
+train_set <- cdc[train_index, ]
+test_set <- cdc[-train_index, ]
+
+table(cdc$UrbanRural)
+
+```
+
+
+### Build a random forest model
+```{r}
+library(randomForest)
+
+set.seed(2112)
+
+model <- randomForest(CHD ~ Hospitals + Broadband + UrbanRural, data=train_set, ntree=100)
+
+print(model)
+
+```
+
+
+### Predict on the test set
+```{r}
+predictions <- predict(model, test_set)
+
+```
+
+
+## Random Forest Model Predictions
+### Policy intervention to increases the number of cardiovascular providers by 20% in rural areas
+```{r}
+data_simulation_cardio <- cdc
+data_simulation_cardio[data_simulation_cardio$UrbanRural == 'Rural', 'CardioPhys'] <- data_simulation_cardio[data_simulation_cardio$UrbanRural == 'Rural', 'CardioPhys'] * 1.20
+
+```
+
+
+#### Use the model to predict outcomes with the simulated data
+```{r}
+predictions_simulation_cardio <- predict(model, data_simulation_cardio)
+
+```
+
+
+#### Compare the original predictions and the simulated predictions
+```{r}
+summary(predictions)
+summary(predictions_simulation_cardio)
+
+```
+
+
+## Linear Regression Models
 ### Policy intervention to increases the number of primary care providers by 20% in rural areas
 ```{r}
 data_simulation_pcp <- cdc
@@ -3746,7 +3737,7 @@ summary(predictions_simulation_pcp)
 ```
 
 
-### Policy intervention to increases the number of parks by 20% in rural areas
+### Policy intervention to increases the number of parks by 100% in rural areas
 ```{r}
 data_simulation_Parks <- cdc
 data_simulation_Parks[data_simulation_Parks$UrbanRural == 'Rural', 'Parks'] <- data_simulation_Parks[data_simulation_Parks$UrbanRural == 'Rural', 'Parks'] * 2
@@ -3770,75 +3761,62 @@ summary(predictions_simulation_parks)
 
 ```
 
-#.
-# BREAK
-#.
 
-We will subset the dataset to include only the variables of interest:
-# Subset the dataset
+### Policy intervention to increase/decrease various variables using linear regression models
+#### Subset the dataset to include only the variables of interest
 ```{r}
 cdc2 <- cdc[c("CHD", "pcp", "PhysInactivity", "Parks", "Broadband", "HealthIns")]
 
 ```
-Now, let's split the data into training, testing, and holdout sets. We'll use 70% of the data for training, 15% for testing, and 15% for holdout:
 
-# Set the seed for reproducibility
+
+#### Split the data into training, testing, and holdout sets. We'll use 70% of the data for training, 15% for testing, and 15% for holdout
 ```{r}
+# Set the seed for reproducibility
 set.seed(2112)
 
-```
-
-
 # Create indices for the data split
-```{r}
 trainIndex <- createDataPartition(cdc2$CHD, p = .7, list = FALSE, times = 1)
-```
-
 
 # Split the data
-```{r}
 train <- cdc2[trainIndex, ]
 temp <- cdc2[-trainIndex, ]
 
 ```
 
 
-# Further split the remaining data into test and holdout sets
+#### Further split the remaining data into test and holdout sets
 ```{r}
 testIndex <- createDataPartition(temp$CHD, p = .5, list = FALSE, times = 1)
 test <- temp[testIndex, ]
 holdout <- temp[-testIndex, ]
 
 ```
-Now, let's create the linear regression model using the training set:
 
 
-# Create the linear regression model
+### Create the linear regression model using the training set
 ```{r}
 model <- lm(CHD ~ pcp * PhysInactivity * Parks * Broadband * HealthIns, data = train)
 
 ```
-We can now use this model to make predictions on the test set:
 
 
-# Make predictions on the test set
+### Use this model to make predictions on the test set
 ```{r}
 predictions <- predict(model, newdata = test)
 
 ```
-To compare the model's performance before and after increasing the 'Broadband' variable by 25%, we first need to create a new dataset with the increased 'Broadband' values:
 
 
-# Create a new dataset with increased 'Broadband' values
+### Compare the model's performance before and after decreasing the 'Broadband' variable by 50%, we first need to create a new dataset with the increased 'Broadband' values
 ```{r}
 cdc_increased <- cdc2
-cdc_increased$Broadband <- cdc_increased$Broadband * 1.25
+cdc_increased$Broadband <- cdc_increased$Broadband * 0.5
 
 ```
-Then, we split this new dataset into training, testing, and holdout sets, and create a new model:
 
 
-# Split the new data
+#### Split this new dataset into training, testing, and holdout sets, and create a new model
 ```{r}
 train_increased <- cdc_increased[trainIndex, ]
 temp_increased <- cdc_increased[-trainIndex, ]
@@ -3848,36 +3826,36 @@ holdout_increased <- temp_increased[-testIndex, ]
 ```
 
 
-# Create the new model
+#### Create the new model
 ```{r}
 model_increased <- lm(CHD ~ pcp + PhysInactivity + Parks + Broadband + HealthIns, data = train_increased)
 
 ```
 
 
-# Make predictions on the new test set
+#### Make predictions on the new test set
 ```{r}
 predictions_increased <- predict(model_increased, newdata = test_increased)
 
 ```
-Now, you can compare the performance of the two models using your preferred metrics (e.g., RMSE, R-squared, etc.). For example:
 
 
-# Calculate RMSE for the original model
+### Compare the performance of the two models using your preferred metrics (e.g., RMSE, R-squared, etc.). For example:
+#### Calculate RMSE for the original model
 ```{r}
 rmse_original <- sqrt(mean((test$CHD - predictions)^2))
 
 ```
 
 
-# Calculate RMSE for the new model
+#### Calculate RMSE for the new model
 ```{r}
 rmse_increased <- sqrt(mean((test_increased$CHD - predictions_increased)^2))
 
 ```
 
 
-# Print the RMSE values
+#### Print the RMSE values
 ```{r}
 print(paste("RMSE for the original model: ", rmse_original))
 print(paste("RMSE for the model with increased Broadband: ", rmse_increased))
@@ -3885,12 +3863,9 @@ print(paste("RMSE for the model with increased Broadband: ", rmse_increased))
 ```
 Please note that this is a basic example and might need adjustments based on the specifics of your dataset and project. For example, you might need to handle missing values, outliers, or non-linear relationships between the variables. Also, linear regression assumes that the residuals are normally distributed and that there is a linear relationship between the predictors and the target variable, among other assumptions. You should check these assumptions when using linear regression.
 
-
-
-
-
-
-
+#.
+# ↓↓↓↓↓ NEW (Jesse) ↓↓↓↓↓
+#.
 
 
 
