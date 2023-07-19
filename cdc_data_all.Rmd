@@ -3491,8 +3491,8 @@ Overall, it appears that none of the predictors are statistically significant at
 # Feature Selection
 # .
 
-### PCA
-#### Prepare data for principle component analysis
+## PCA
+### Prepare data for principle component analysis
 ```{r}
 # Remove non-numeric variables
 cdc_pca <- cdc %>% 
@@ -3507,7 +3507,7 @@ all(sapply(cdc_pca, is.finite))
 ```
 
 
-#### Run PCA on the dataset
+### Run PCA on the dataset
 ```{r results='hide'}
 pr_cdc <- prcomp(x = cdc_pca, scale = T, center = T)
 
@@ -3516,7 +3516,7 @@ summary(pr_cdc)
 ```
 
 
-#### Run PCA on the dataset without hot coded states
+### Run PCA on the dataset without hot coded states
 ```{r}
 #Drop non numeric variables (note, rural/urban has been hot coded)
 cdc_pca2 <- cdc %>%
@@ -3527,6 +3527,12 @@ summary(pr_pca2)
 
 ```
 
+
+#### View PCA loadings
+```{r}
+pr_pca2$rotation[, 1:5]
+
+```
 
 ## Recursive Feature Elimination (RFE)
 ### Split data for training
