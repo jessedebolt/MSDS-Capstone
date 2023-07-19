@@ -3528,11 +3528,12 @@ summary(pr_pca2)
 ```
 
 
-#### View PCA loadings
+#### View the loadings of the first four priciple components which make up 66.77%
 ```{r}
 pr_pca2$rotation[, 1:5]
 
 ```
+
 
 ## Recursive Feature Elimination (RFE)
 ### Split data for training
