@@ -27,6 +27,7 @@ library(DataExplorer)
 library(GGally)
 library(caret)
 library(e1071)
+library(dplyr)
 
 ```
 
@@ -1172,13 +1173,13 @@ for (var in selected_vars) {
 
 ### Auto EDA report (from DataExplorer)
 ```{r}
-cdc %>%
-    select(c(5:66)) %>% #(5:66) All excluding state and rural/urban hot coded
-    create_report(
-        output_file = paste ("Auto EDA Report"),
-        report_title = "EDA Report - CHD Dataset",
-        y = "CHD"
-    )
+# cdc %>%
+#     select(c(5:66)) %>% #(5:66) All excluding state and rural/urban hot coded
+#     create_report(
+#         output_file = paste ("Auto EDA Report"),
+#         report_title = "EDA Report - CHD Dataset",
+#         y = "CHD"
+#     )
 
 ```
 
@@ -4136,7 +4137,7 @@ for (var in all_vars) {
 }
 ```
 
-
+### Another model try
 ```{r}
 #RMSE .35
 cdc2 <- cdc %>% select(c( "UrbanRural", "CHD",  "HighBP", "HighChol", "Stroke", "PhysInactivity", "Smoker", "Age65Plus", "MedHouseIncome", "Poverty", "Unemploy", "EdLessColl", "HealthIns", "AirQuality", "Broadband"))
@@ -4154,6 +4155,7 @@ m1
 importance <- varImp(m1, scale=TRUE)
 plot(importance)
 ```
+### And another model try
 ```{r}
 #RMSE .368
 cdc2 <- cdc %>% select(c("CHD",  "HighBP", "HighChol", "Stroke", "Smoker", "Age65Plus"))
@@ -4171,6 +4173,7 @@ m1
 importance <- varImp(m1, scale=TRUE)
 plot(importance)
 ```
+### RFfuncs model
 ```{r}
 cdc2 <- cdc %>% select(4:40)
 
@@ -4200,7 +4203,7 @@ plot(results, type=c("g", "o"))
 
 ```
 
-
+### Multiple models (m4 is a good model! though not split train test sets)
 ```{r}
 library(moderndive)
 m1 <- lm(CHD ~ Stroke, data=cdc)
@@ -4215,12 +4218,15 @@ m3 <- lm(CHD ~ Stroke + Age65Plus + HighChol + Smoker + HighBP, data=cdc)
 get_regression_table(m3)
 summary(m3)
 
-m4 <- lm(CHD ~ Stroke + Age65Plus + HighChol + Smoker + HighBP + EdLessColl*MedHouseIncome,  data=cdc2)
+#94% Rsquared
+m4 <- lm(CHD ~ Stroke + Age65Plus + HighChol + Smoker + HighBP + EdLessColl + MedHouseIncome + EdLessColl*MedHouseIncome,  data=cdc)
 get_regression_table(m4)
 summary(m4)
 
 
 ```
+
+### Rpart model (fit) and Random Forest model (fit_rf)
 ```{r}
 library(randomForest)
 library(rpart)
@@ -4232,18 +4238,22 @@ test <- cdc2[-cdc_index, ]
 
 ctrl <- trainControl(method = "cv")
 
+#Rsquared 76%
 fit <- train(CHD ~ .,
              data = train,
              method = "rpart",
              trControl = ctrl)
 fit
 
-# fit <- train(CHD ~ .,
+# fit_rf <- train(CHD ~ .,
 #              data = train,
 #              method = "rf",
 #              trControl = ctrl)
-# fit
+# fit_rf
+#
+# importance(fit_rf)
 ```
+### Rpart model Rsquared 87%
 ```{r}
 fit2 <- train(CHD ~ .,
              data = train,
@@ -4256,11 +4266,12 @@ fit2
 library(rpart.plot)
 rpart.plot(fit2$finalModel, type=2)
 ```
-
+### variable importance for fit model
 ```{r}
 variable_importance = varImp(fit, scale=FALSE)
 plot(variable_importance, top=15)
 ```
+### Variable of importance for rpart model
 ```{r}
 fit2$finalModel$variable.importance
 ```
@@ -4428,7 +4439,8 @@ These results show that while the model with all 36 variables does perform well,
 In terms of variable importance, "Stroke", "Age65Plus", "HighChol", "HighBP", "bpmUse", "Smoker", and "EdLessColl" are the top variables in both rural and urban areas, suggesting that these variables are universally important in predicting CHD. 
 
 Remember, the interpretation of these results should be made in the context of the data and subject area. While these models indicate these variables are important predictors of CHD, further research is needed to understand why they are important and how they might interact with each other.
-#from 4026
+
+#from 4026 just trying another model, can probably delete
 ```{r}
 #this gets rmse .347
 #cdc2 <- cdc %>% select(5:70)
@@ -4442,6 +4454,8 @@ cdc2 <- cdc %>% select("UrbanRural", "CHD", "HighBP", "HighChol", "Diabetes", "O
 
 cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
 
+
+#91% Rsquared
 cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
 cdc_tr <- cdc2[cdc_index, ]
 cdc_te <- cdc2[-cdc_index, ]
@@ -4453,3 +4467,57 @@ m1
 importance <- varImp(m1, scale=TRUE)
 plot(importance)
 ```
+### Full model without states
+```{r}
+#create dataset for model
+cdc_step <- cdc %>% dplyr::select(4:70)
+
+cdc_step$UrbanRural <- factor(ifelse(cdc_step$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_step <- createDataPartition(cdc_step$CHD, p = 0.8, list = FALSE)
+cdc_tr_step <- cdc_step[cdc_index_step, ]
+cdc_te_step <- cdc_step[-cdc_index_step, ]
+
+#Rsquared 95%
+control_step <- trainControl(method="repeatedcv", number =5, repeats=3)
+model_step <- train(CHD ~ ., data=cdc_tr_step, method="lm", trControl = control_step)
+print(model_step$resample)
+model_step
+
+importance_step <- varImp(model_step, scale=TRUE)
+plot(importance_step)
+
+```
+
+### setting up model for Stepwise Feature Selection
+```{r}
+library(MASS)
+
+# Create the full model
+full.model <- lm(CHD ~ ., data = cdc_step)
+```
+
+### Forward stepwise selection
+```{r}
+# Forward stepwise selection
+forward <- stepAIC(full.model, direction = "forward")
+
+forward
+
+summary(forward)
+```
+
+### Backward Stepwise selection
+```{r}
+# Backward stepwise selection
+backward <- stepAIC(full.model, direction = "backward")
+
+backward
+
+summary(backward)
+```
+
+
+
+
