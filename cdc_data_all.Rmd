@@ -4218,11 +4218,11 @@ fit <- train(CHD ~ .,
              trControl = ctrl)
 fit
 
-fit <- train(CHD ~ .,
-             data = train,
-             method = "rf",
-             trControl = ctrl)
-fit
+# fit <- train(CHD ~ .,
+#              data = train,
+#              method = "rf",
+#              trControl = ctrl)
+# fit
 ```
 ```{r}
 fit2 <- train(CHD ~ .,
