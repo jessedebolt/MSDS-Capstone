@@ -3534,13 +3534,16 @@ pr_pca2$rotation[, 1:5]
 
 ```
 
+
 #### Sort the loadings of the first priciple component
 ```{r}
 loadings <- pr_pca2$rotation
 
 sorted_PC1 <- sort(loadings[,"PC1"], decreasing = TRUE)
 print(sorted_PC1)
+
 ```
+
 
 #### Sort the loadings of the second priciple component
 ```{r}
@@ -3548,7 +3551,9 @@ loadings <- pr_pca2$rotation
 
 sorted_PC1 <- sort(loadings[,"PC2"], decreasing = TRUE)
 print(sorted_PC1)
+
 ```
+
 
 #### Sort the loadings of the third priciple component
 ```{r}
@@ -3556,7 +3561,9 @@ loadings <- pr_pca2$rotation
 
 sorted_PC1 <- sort(loadings[,"PC3"], decreasing = TRUE)
 print(sorted_PC1)
+
 ```
+
 
 #### Sort the loadings of the fourth priciple component
 ```{r}
@@ -3564,7 +3571,9 @@ loadings <- pr_pca2$rotation
 
 sorted_PC1 <- sort(loadings[,"PC4"], decreasing = TRUE)
 print(sorted_PC1)
+
 ```
+
 
 #### Sort the loadings of the fifth priciple component
 ```{r}
@@ -3572,8 +3581,8 @@ loadings <- pr_pca2$rotation
 
 sorted_PC1 <- sort(loadings[,"PC5"], decreasing = TRUE)
 print(sorted_PC1)
-```
 
+```
 
 
 ## Recursive Feature Elimination (RFE)
