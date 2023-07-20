@@ -4518,6 +4518,30 @@ backward
 summary(backward)
 ```
 
+### creating lists & datasets of variable names
+```{r}
+#create list of variable names ALL without states
+cdc_names_wostates <- cdc %>% dplyr::select(4:66) %>% names()
 
+#create data set ALL w/o states
+cdc_wostates <- cdc %>% dplyr::select(4:66) #%>% names()
 
+cdc_wostates$UrbanRural <- factor(ifelse(cdc_wostates$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+```
+
+###Model with cdcAll w/o states
+```{r}
+#95% Rsquared
+set.seed(123)
+cdcAll_index <- createDataPartition(cdc_wostates$CHD, p = 0.8, list = FALSE)
+cdcAll_tr <- cdc_wostates[cdcAll_index, ]
+cdcAll_te <- cdc_wostates[-cdcAll_index, ]
+control <- trainControl(method="repeatedcv", number =5, repeats=3)
+mAll <- train(CHD ~ ., data=cdcAll_tr, method="lm", trControl = control)
+print(mAll$resample)
+mAll
+
+importanceAll <- varImp(mAll, scale=TRUE)
+plot(importanceAll)
+```
 
