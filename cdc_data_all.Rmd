@@ -3910,16 +3910,17 @@ Services-CR = Cardiovascular Rehabilitation
 
 ###This was just a base test to start, but got some warnings-mostly related to including variables that are highly correlated with each other (we knew that)
 ```{r}
-cdc_index <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
-cdc_tr <- cdc[cdc_index, ]
-cdc_te <- cdc[-cdc_index, ]
-control <- trainControl(method="repeatedcv", number =5, repeats=3)
-m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
-print(m1$resample)
-m1
-
-importance <- varImp(m1, scale=TRUE)
-plot(importance)
+# Jesse commented out due to length to run and limited output
+# cdc_index <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
+# cdc_tr <- cdc[cdc_index, ]
+# cdc_te <- cdc[-cdc_index, ]
+# control <- trainControl(method="repeatedcv", number =5, repeats=3)
+# m1 <- train(CHD ~ ., data=cdc_tr, method="lm", trControl = control)
+# print(m1$resample)
+# m1
+# 
+# importance <- varImp(m1, scale=TRUE)
+# plot(importance)
 
 ```
 
