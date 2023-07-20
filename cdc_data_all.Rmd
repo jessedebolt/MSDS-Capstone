@@ -4545,3 +4545,235 @@ importanceAll <- varImp(mAll, scale=TRUE)
 plot(importanceAll)
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+#.
+# ↓↓↓↓↓ NEW(Isaac) 7/20 ↓↓↓↓↓
+#.
+Look at up above full model without states for full model chd ~ .
+then these:
+
+###Basic Model just "CHD", "HighBP", "HighChol", "Stroke" 90% R2
+```{r}
+set.seed(123)
+
+#create dataset for model (4:70)
+cdc_basic <- cdc %>% dplyr::select(4:8)
+
+cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic <- createDataPartition(cdc_basic$CHD, p = 0.8, list = FALSE)
+cdc_tr_basic <- cdc_basic[cdc_index_basic, ]
+cdc_te_basic <- cdc_basic[-cdc_index_basic, ]
+
+
+control_basic <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared xx%
+model_basic <- train(CHD ~ .,
+                    data=cdc_tr_basic,
+                    method="lm",
+                    trControl = control_basic)
+print(model_basic$resample)
+
+model_basic
+
+importance_basic <- varImp(model_basic, scale=TRUE)
+plot(importance_basic)
+
+```
+
+
+###Basic Model 2 now added "Smoker", "Age65Plus" 94% R2
+```{r}
+set.seed(123)
+
+#create dataset for model (4:70)
+cdc_basic <- cdc %>% dplyr::select("CHD", "HighBP", "HighChol", "Stroke", "Smoker", "Age65Plus")
+
+# cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic <- createDataPartition(cdc_basic$CHD, p = 0.8, list = FALSE)
+cdc_tr_basic <- cdc_basic[cdc_index_basic, ]
+cdc_te_basic <- cdc_basic[-cdc_index_basic, ]
+
+
+control_basic <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared xx%
+model_basic <- train(CHD ~ .,
+                    data=cdc_tr_basic,
+                    method="lm",
+                    trControl = control_basic)
+print(model_basic$resample)
+
+model_basic
+
+importance_basic <- varImp(model_basic, scale=TRUE)
+plot(importance_basic)
+
+```
+
+
+###Basic Model 3 now added "CholMedElegible", "HealthIns" 94.6% R2
+```{r}
+set.seed(123)
+
+#create dataset for model (4:70)
+cdc_basic <- cdc %>% dplyr::select("CHD", "HighBP", "HighChol", "Stroke", "Smoker", "Age65Plus", "CholMedElegible", "HealthIns")
+
+# cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic <- createDataPartition(cdc_basic$CHD, p = 0.8, list = FALSE)
+cdc_tr_basic <- cdc_basic[cdc_index_basic, ]
+cdc_te_basic <- cdc_basic[-cdc_index_basic, ]
+
+
+control_basic <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared xx%
+model_basic <- train(CHD ~ .,
+                    data=cdc_tr_basic,
+                    method="lm",
+                    trControl = control_basic)
+print(model_basic$resample)
+
+model_basic
+
+importance_basic <- varImp(model_basic, scale=TRUE)
+plot(importance_basic)
+
+```
+
+###Basic Model 4 now removed  "HighBP", "HighChol", "Stroke" 88.8% R2
+```{r}
+set.seed(123)
+
+#create dataset for model (4:70)
+cdc_basic <- cdc %>% dplyr::select("CHD", "Age65Plus", "Smoker", "HealthIns", "Parks", "Cardio100k", "Obesity", "MedHouseIncome", "Diabetes", "CholScreen", "UrbanRural", "SNAPrecipients", "Broadband", "AirQuality", "Pharmacies", "Hosp100k", "Pharm100k", "EdLessColl", "PhysInactivity", "Hospitals", "Poverty", "TotalCardio", "pcp", "TotalPCP")
+
+cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic <- createDataPartition(cdc_basic$CHD, p = 0.8, list = FALSE)
+cdc_tr_basic <- cdc_basic[cdc_index_basic, ]
+cdc_te_basic <- cdc_basic[-cdc_index_basic, ]
+
+
+control_basic <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared xx%
+model_basic <- train(CHD ~ .,
+                    data=cdc_tr_basic,
+                    method="lm",
+                    trControl = control_basic)
+print(model_basic$resample)
+
+model_basic
+
+importance_basic <- varImp(model_basic, scale=TRUE)
+plot(importance_basic)
+
+```
+
+
+need whole model first for HIGH BP then stepwise feature selection
+###Basic Model 5 now predicting High BP  R2
+```{r}
+set.seed(123)
+
+#create dataset for model (4:70)
+cdc_basic <- cdc %>% dplyr::select("HighBP", "Age65Plus", "Smoker", "HealthIns", "Parks", "Cardio100k", "Obesity", "MedHouseIncome", "Diabetes", "CholScreen", "UrbanRural", "SNAPrecipients", "Broadband", "AirQuality", "Pharmacies", "Hosp100k", "Pharm100k", "EdLessColl", "PhysInactivity", "Hospitals", "Poverty", "TotalCardio", "pcp", "TotalPCP")
+
+cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic <- createDataPartition(cdc_basic$HighBP, p = 0.8, list = FALSE)
+cdc_tr_basic <- cdc_basic[cdc_index_basic, ]
+cdc_te_basic <- cdc_basic[-cdc_index_basic, ]
+
+
+control_basic <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared xx%
+model_basic <- train(HighBP ~ .,
+                    data=cdc_tr_basic,
+                    method="lm",
+                    trControl = control_basic)
+print(model_basic$resample)
+
+model_basic
+
+importance_basic <- varImp(model_basic, scale=TRUE)
+plot(importance_basic)
+
+```
+
+
+## Recursive Feature Elimination (RFE)
+### Split data for training
+```{r}
+# set.seed(123)
+# 
+# # Reduce initial number of features
+# cdc_rfe2 <- cdc_step %>% dplyr::select("CHD", "HighBP", "HighChol", "Stroke", "Diabetes", "Obesity", "PhysInactivity", "Smoker", "Age65Plus", "bpmUse", "MedHouseIncome", "Poverty", "SNAPrecipients", "EdLessColl", "MedHomeValue", "HealthIns", "AirQuality", "Parks", "Broadband", "pcp", "TotalPCP", "PSP1k", "CardioPhys", "TotalCardio", "Cardio100k", "Hospitals", "Hosp100k", "HospED", "Pharmacies")
+# 
+# trainIndex_RFE2 <- createDataPartition(cdc_rfe2$CHD, p = .7, list = FALSE, times = 1)
+# 
+# cdcTrain_RFE2 <- cdc_rfe2[ trainIndex_RFE2,]
+# cdcTest_RFE2  <- cdc_rfe2[-trainIndex_RFE2,]
+# 
+# x <- dplyr::select(cdcTrain_RFE2,-CHD)
+# y <- cdcTrain_RFE2$CHD
+# 
+# ### Establish control features
+# ctrl_RFE2 <- rfeControl(functions=rfFuncs, method="cv", number=10)
+
+```
+
+
+### Perform RFE model
+```{r}
+# result2 <- rfe(cdcTrain_RFE2[, -ncol(cdcTrain_RFE2)], cdcTrain_RFE2$CHD, sizes=c(1:ncol(cdcTrain_RFE2)-1), rfeControl=ctrl_RFE2)
+# 
+# print(result2)
+# print(result2, type=c("g", "o"))
+
+```
+
+#### Variable results for RFE
+```{r}
+# 
+# print(result2$variables)
+# 
+# print(result2$optimum)
+# 
+# print(names(result2))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
