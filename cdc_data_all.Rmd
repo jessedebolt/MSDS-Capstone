@@ -4446,16 +4446,16 @@ Remember, the interpretation of these results should be made in the context of t
 #cdc2 <- cdc %>% select(5:70)
 
 #this gets rmse .35
-cdc2 <- cdc %>% select(4:13,19,23:29,32,35,42)
+#cdc2 <- cdc %>% select(4:13,19,23:29,32,35,42)
 #this is same as select(4:13,19,23:29,32,35,42) 
-cdc2 <- cdc %>% select("UrbanRural", "CHD", "HighBP", "HighChol", "Diabetes", "Obesity", "PhysInactivity", "Smoker", "Age65Plus", "MedHouseIncome", "EdLessColl", "MedHomeValue", "HealthIns", "AirQuality", "Parks", "Broadband", "pcp", "CardioPhys", "Hospitals", "pop")
+cdc2 <- cdc %>% dplyr::select("UrbanRural", "CHD", "HighBP", "HighChol", "Stroke", "Diabetes", "Obesity", "PhysInactivity", "Smoker", "Age65Plus", "MedHouseIncome", "EdLessColl", "MedHomeValue", "HealthIns", "AirQuality", "Parks", "Broadband", "pcp", "CardioPhys", "Hospitals", "pop")
 
-
+cdc2 <- cdc %>% dplyr::select("UrbanRural", "CHD", "HighBP", "HighChol", "Stroke", "Diabetes", "Obesity", "PhysInactivity", "Smoker", "Age65Plus", "MedHouseIncome", "EdLessColl", "MedHomeValue", "HealthIns", "AirQuality", "Parks", "Broadband", "pcp", "CardioPhys", "Hospitals", "pop")
 
 cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0)
 
-
-#91% Rsquared
+#95% Rsquared as is
+#91.8% Rsquared w/o stroke
 cdc_index <- createDataPartition(cdc2$CHD, p = 0.8, list = FALSE)
 cdc_tr <- cdc2[cdc_index, ]
 cdc_te <- cdc2[-cdc_index, ]
