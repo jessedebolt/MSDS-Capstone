@@ -27,6 +27,13 @@ library(DataExplorer)
 library(GGally)
 library(caret)
 library(e1071)
+library(randomForest)
+library(rpart)
+library(rpart.plot)
+library(corrplot)
+library(reshape2)
+library(mice)
+library(moderndive)
 library(dplyr)
 
 ```
@@ -74,31 +81,31 @@ filenames <- c("SEED-UR-Urban-Rural.csv",
                "HCDI-Cholesterol_Screening.csv",
                "HCDI-BPM-Medication_Use.csv",
                "Demo-Total_Population.csv",
-               "Demo-Age65Plus.csv",
-               "Demo-AIAN.csv",
-               "Demo-AIANmen.csv",
-               "Demo-AIANwomen.csv",
-               "Demo-ANHPI.csv",
-               "Demo-ANHPImen.csv",
-               "Demo-ANHPIwomen.csv",
-               "Demo-Black.csv",
-               "Demo-BlackMen.csv",
-               "Demo-BlackWomen.csv",
-               "Demo-Hispanic.csv",
-               "Demo-HispanicMen.csv",
-               "Demo-HispanicWomen.csv",
-               "Demo-OtherRace.csv",
-               "Demo-OtherRaceMen.csv",
-               "Demo-OtherRaceWomen.csv",
-               "Demo-PopAllGenders.csv",
-               "Demo-PopMen.csv",
-               "Demo-PopWomen.csv",
-               "Demo-TwoPlus.csv",
-               "Demo-TwoPlusMen.csv",
-               "Demo-TwoPlusWomen.csv",
-               "Demo-White.csv",
-               "Demo-WhiteMen.csv",
-               "Demo-WhiteWomen.csv"
+               "Demo-Age65Plus.csv"#,
+               # "Demo-AIAN.csv",
+               # "Demo-AIANmen.csv",
+               # "Demo-AIANwomen.csv",
+               # "Demo-ANHPI.csv",
+               # "Demo-ANHPImen.csv",
+               # "Demo-ANHPIwomen.csv",
+               # "Demo-Black.csv",
+               # "Demo-BlackMen.csv",
+               # "Demo-BlackWomen.csv",
+               # "Demo-Hispanic.csv",
+               # "Demo-HispanicMen.csv",
+               # "Demo-HispanicWomen.csv",
+               # "Demo-OtherRace.csv",
+               # "Demo-OtherRaceMen.csv",
+               # "Demo-OtherRaceWomen.csv",
+               # "Demo-PopAllGenders.csv",
+               # "Demo-PopMen.csv",
+               # "Demo-PopWomen.csv",
+               # "Demo-TwoPlus.csv",
+               # "Demo-TwoPlusMen.csv",
+               # "Demo-TwoPlusWomen.csv",
+               # "Demo-White.csv",
+               # "Demo-WhiteMen.csv",
+               # "Demo-WhiteWomen.csv"
                )
 
 ```
@@ -226,31 +233,31 @@ name_mapping <- c("cnty_fips" = "fips",
                  "HCDI-Cholesterol_Screening" = "CholScreen",
                  "HCDI-BPM-Medication_Use" = "bpmUse",
                  "Demo-Total_Population" = "pop",
-                 "Demo-Age65Plus" = "Age65Plus",
-                 "Demo-AIAN" = "AIAN",
-                 "Demo-AIANmen" = "AIANmen",
-                 "Demo-AIANwomen" = "AIANwomen",
-                 "Demo-ANHPI" = "ANHPI",
-                 "Demo-ANHPImen" = "ANHPImen",
-                 "Demo-ANHPIwomen" = "ANHPIwomen",
-                 "Demo-Black" = "Black",
-                 "Demo-BlackMen" = "BlackMen",
-                 "Demo-BlackWomen" = "BlackWomen",
-                 "Demo-Hispanic" = "Hispanic",
-                 "Demo-HispanicMen" = "HispanicMen",
-                 "Demo-HispanicWomen" = "HispanicWomen",
-                 "Demo-OtherRace" = "OtherRace",
-                 "Demo-OtherRaceMen" = "OtherRaceMen",
-                 "Demo-OtherRaceWomen" = "OtherRaceWomen",
-                 "Demo-PopAllGenders" = "PopAllGenders",
-                 "Demo-PopMen" = "PopMen",
-                 "Demo-PopWomen" = "PopWomen",
-                 "Demo-TwoPlus" = "TwoPlus",
-                 "Demo-TwoPlusMen" = "TwoPlusMen",
-                 "Demo-TwoPlusWomen" = "TwoPlusWomen",
-                 "Demo-White" = "White",
-                 "Demo-WhiteMen" = "WhiteMen",
-                 "Demo-WhiteWomen" = "WhiteWomen"
+                 "Demo-Age65Plus" = "Age65Plus"#,
+                 # "Demo-AIAN" = "AIAN",
+                 # "Demo-AIANmen" = "AIANmen",
+                 # "Demo-AIANwomen" = "AIANwomen",
+                 # "Demo-ANHPI" = "ANHPI",
+                 # "Demo-ANHPImen" = "ANHPImen",
+                 # "Demo-ANHPIwomen" = "ANHPIwomen",
+                 # "Demo-Black" = "Black",
+                 # "Demo-BlackMen" = "BlackMen",
+                 # "Demo-BlackWomen" = "BlackWomen",
+                 # "Demo-Hispanic" = "Hispanic",
+                 # "Demo-HispanicMen" = "HispanicMen",
+                 # "Demo-HispanicWomen" = "HispanicWomen",
+                 # "Demo-OtherRace" = "OtherRace",
+                 # "Demo-OtherRaceMen" = "OtherRaceMen",
+                 # "Demo-OtherRaceWomen" = "OtherRaceWomen",
+                 # "Demo-PopAllGenders" = "PopAllGenders",
+                 # "Demo-PopMen" = "PopMen",
+                 # "Demo-PopWomen" = "PopWomen",
+                 # "Demo-TwoPlus" = "TwoPlus",
+                 # "Demo-TwoPlusMen" = "TwoPlusMen",
+                 # "Demo-TwoPlusWomen" = "TwoPlusWomen",
+                 # "Demo-White" = "White",
+                 # "Demo-WhiteMen" = "WhiteMen",
+                 # "Demo-WhiteWomen" = "WhiteWomen"
                   )
 
 # Get the column names of the data frame
@@ -530,7 +537,6 @@ cdc <- cdc %>% select(-PrimaryCarePhys, -cardio)
 ### Test (automated) imputing of data that is still missing
 ```{r}
 # Handling missing values (assuming you want to impute them)
-library(mice)
 imputed_data <- mice(cdc, m = 5)  # Impute missing values (replace 'data' with your dataset)
 
 # Encoding categorical variables (assuming 'urban_rural' is a categorical variable)
@@ -665,13 +671,14 @@ order = c("fips", "county", "state", "UrbanRural", "CHD",
 "HealthIns", "AirQuality", "Parks", "Broadband","pcp",
 "TotalPCP", "PSP1k", "CardioPhys", "TotalCardio",
 "Cardio100k", "Hospitals", "Hosp100k", "HospCR", 
-"HospCIC", "HospED", "Pharmacies", "Pharm100k", "pop",
-"PopAllGenders", "PopMen", "PopWomen", "AIAN","AIANmen",
-"AIANwomen", "ANHPI", "ANHPImen", "ANHPIwomen", "Black",
-"BlackMen", "BlackWomen", "Hispanic", "HispanicMen",
-"HispanicWomen", "TwoPlusWomen", "TwoPlus", "TwoPlusMen",
-"OtherRace", "OtherRaceMen", "OtherRaceWomen", "White",
-"WhiteMen", "WhiteWomen")	
+"HospCIC", "HospED", "Pharmacies", "Pharm100k", "pop"#,
+# "PopAllGenders", "PopMen", "PopWomen", "AIAN","AIANmen",
+# "AIANwomen", "ANHPI", "ANHPImen", "ANHPIwomen", "Black",
+# "BlackMen", "BlackWomen", "Hispanic", "HispanicMen",
+# "HispanicWomen", "TwoPlusWomen", "TwoPlus", "TwoPlusMen",
+# "OtherRace", "OtherRaceMen", "OtherRaceWomen", "White",
+# "WhiteMen", "WhiteWomen"
+)	
 
 # Invoke column reorganization
 cdc <- cdc[, order]		
@@ -689,7 +696,7 @@ cdc$UrbanRural <- as.factor(cdc$UrbanRural)
 cdc <- fastDummies::dummy_cols(cdc, select_columns = 'UrbanRural')
 
 # Use fastDummies for the 'state' column
-cdc <- fastDummies::dummy_cols(cdc, select_columns = 'state')
+#cdc <- fastDummies::dummy_cols(cdc, select_columns = 'state')
 
 ```
 
@@ -912,9 +919,6 @@ plot_correlation(cdc)
 #tried this but needed to remove non numerical first
 correlation_matrix <- cdc %>% select(-c(fips, county, state, "UrbanRural")) %>% cor()
 
-#install.packages("reshape2")
-library(reshape2)
-
 melted_cor <- melt(correlation_matrix)
 
 ggplot(data = melted_cor, aes(x = Var1, y = Var2, fill = value)) +
@@ -1126,7 +1130,7 @@ ggplot(merged_stats, aes(x = group, y = CHD_mean, fill = group)) +
 ```{r}
 # Create the subset
 cdc_subset <- cdc %>%
-  select(c(5:66))  #(5:66) All excluding state and rural/urban hot coded
+  select(c(5:46))  #(5:46) All excluding state and rural/urban hot coded
 
 # Box plots for each variable in the subset
 for (i in 1:ncol(cdc_subset)) {
@@ -1174,7 +1178,7 @@ for (var in selected_vars) {
 ### Auto EDA report (from DataExplorer)
 ```{r}
 # cdc %>%
-#     select(c(5:66)) %>% #(5:66) All excluding state and rural/urban hot coded
+#     select(c(5:46)) %>% #(5:46) All excluding state and rural/urban hot coded
 #     create_report(
 #         output_file = paste ("Auto EDA Report"),
 #         report_title = "EDA Report - CHD Dataset",
@@ -1386,11 +1390,20 @@ ggplot(cdc, aes(x=Age65Plus)) + geom_histogram(binwidth=10) + facet_grid(~ Urban
 ## Hospital Specific EDA
 ### Histograms for numerical variables
 ```{r}
-for (col in c(5:66)) {  #(5:70) All numeric excluding state and rural/urban hot coded
+# for (col in c(5:46)) {  #(5:70) All numeric excluding state and rural/urban hot coded
+#   if (is.numeric(cdc[[col]])) {
+#     hist(cdc[[col]], main = names(cdc)[col])
+#   } else {
+#     message(paste("Skipping column", names(cdc)[col], "as it is not numeric."))
+#   }
+# }
+
+excluded_cols <- c("fips", "county", "state", "UrbanRural", "UrbanRural_MediumSmall_Urban", "UrbanRural_Rural", "UrbanRural_Large_Urban", "UrbanRural_LargeFringe_Urban" )
+included_cols <- setdiff(names(cdc), excluded_cols)
+
+for (col in included_cols) {
   if (is.numeric(cdc[[col]])) {
-    hist(cdc[[col]], main = names(cdc)[col])
-  } else {
-    message(paste("Skipping column", names(cdc)[col], "as it is not numeric."))
+    hist(cdc[[col]], main = col)
   }
 }
 
@@ -1526,19 +1539,14 @@ cdc %>%
 
 #### Density plot for Diabetes UrbanRural
 ```{r}
-
 ggplot(cdc, aes(x = Diabetes, fill = UrbanRural)) +
   geom_density(alpha = 0.5) +
   labs(x = "Diabetes", y = "Density") +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("Diabetes", "CHD")])
 corrplot(correlation_matrix, method = "number")
-
-
 
 # Create a plot for each UrbanRural category
 for(category in unique(cdc$UrbanRural)) {
@@ -1648,19 +1656,14 @@ lowest_10
 
 ### Density plot for Obesity UrbanRural
 ```{r}
-
 ggplot(cdc, aes(x = Obesity, fill = UrbanRural)) +
   geom_density(alpha = 0.5) +
   labs(x = "Obesity", y = "Density") +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("Obesity", "CHD")])
 corrplot(correlation_matrix, method = "number")
-
-
 
 # Create a plot for each UrbanRural category
 for(category in unique(cdc$UrbanRural)) {
@@ -1772,12 +1775,8 @@ ggplot(cdc, aes(x = PhysInactivity, fill = UrbanRural)) +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("PhysInactivity", "CHD")])
 corrplot(correlation_matrix, method = "number")
-
-
 
 # Create a plot for each UrbanRural category
 for(category in unique(cdc$UrbanRural)) {
@@ -1888,12 +1887,8 @@ ggplot(cdc, aes(x = CholMedNonAdhear, fill = UrbanRural)) +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("CholMedNonAdhear", "CHD")])
 corrplot(correlation_matrix, method = "number")
-
-
 
 # Create a plot for each UrbanRural category
 for(category in unique(cdc$UrbanRural)) {
@@ -2004,12 +1999,8 @@ ggplot(cdc, aes(x = HealthIns, fill = UrbanRural)) +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("HealthIns", "CHD")])
 corrplot(correlation_matrix, method = "number")
-
-
 
 # Create a plot for each UrbanRural category
 for(category in unique(cdc$UrbanRural)) {
@@ -2120,12 +2111,8 @@ ggplot(cdc, aes(x = MedHomeValue, fill = UrbanRural)) +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("MedHomeValue", "CHD")])
 corrplot(correlation_matrix, method = "number")
-
-
 
 # Create a plot for each UrbanRural category
 for(category in unique(cdc$UrbanRural)) {
@@ -2236,12 +2223,8 @@ ggplot(cdc, aes(x = MedHouseIncome, fill = UrbanRural)) +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("MedHouseIncome", "CHD")])
 corrplot(correlation_matrix, method = "number")
-
-
 
 # Create a plot for each UrbanRural category
 for(category in unique(cdc$UrbanRural)) {
@@ -2352,12 +2335,8 @@ ggplot(cdc, aes(x = Poverty, fill = UrbanRural)) +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("Poverty", "CHD")])
 corrplot(correlation_matrix, method = "number")
-
-
 
 # Create a plot for each UrbanRural category
 for(category in unique(cdc$UrbanRural)) {
@@ -2420,7 +2399,7 @@ cdc %>%
 #### General Correlation Matrix
 ```{r}
 cor_matrix <- cdc %>%
-  select(c(5:66)) %>% cor() #(5:66) All excluding state and rural/urban hot coded
+  select(c(5:46)) %>% cor() #(5:46) All excluding state and rural/urban hot coded
 cor_matrix
 #Interesting way to see this
 #cor_matrix[abs(cor_matrix)<0.5]=""
@@ -2588,12 +2567,8 @@ ggplot(cdc, aes(x = Broadband, fill = UrbanRural)) +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("EdLessColl", "CHD")])
 corrplot(correlation_matrix, method = "number")
-
-
 
 # Create a plot for each UrbanRural category
 for(category in unique(cdc$UrbanRural)) {
@@ -2754,8 +2729,6 @@ ggplot(cdc, aes(x = pop, fill = UrbanRural)) +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("pop", "CHD")])
 corrplot(correlation_matrix, method = "number")
 
@@ -2787,8 +2760,6 @@ ggplot(cdc, aes(x = AirQuality, fill = UrbanRural)) +
   labs(x = "Air Quality", y = "Density") +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
-
-library(corrplot)
 
 correlation_matrix <- cor(cdc[, c("AirQuality", "CHD")])
 corrplot(correlation_matrix, method = "number")
@@ -2822,8 +2793,6 @@ ggplot(cdc, aes(x = Parks, fill = UrbanRural)) +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("Parks", "CHD")])
 corrplot(correlation_matrix, method = "number")
 
@@ -2855,8 +2824,6 @@ ggplot(cdc, aes(x = Broadband, fill = UrbanRural)) +
   labs(x = "Broadband", y = "Density") +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
-
-library(corrplot)
 
 correlation_matrix <- cor(cdc[, c("Broadband", "CHD")])
 corrplot(correlation_matrix, method = "number")
@@ -2890,8 +2857,6 @@ ggplot(cdc, aes(x = EdLessColl, fill = UrbanRural)) +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
-library(corrplot)
-
 correlation_matrix <- cor(cdc[, c("EdLessColl", "CHD")])
 corrplot(correlation_matrix, method = "number")
 
@@ -2923,8 +2888,6 @@ ggplot(cdc, aes(x = Age65Plus, fill = UrbanRural)) +
   labs(x = "Age65Plus", y = "Density") +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
-
-library(corrplot)
 
 correlation_matrix <- cor(cdc[, c("Age65Plus", "CHD")])
 corrplot(correlation_matrix, method = "number")
@@ -3404,7 +3367,7 @@ Overall, this model provides a nuanced view of the factors influencing CHD. Howe
 
 ### Linear model with all features versus CHD
 ```{r}
-cdc_lm <- cdc %>% select (5:66,) #(5:66) All numeric excluding hot coded
+cdc_lm <- cdc %>% select (5:46,) #(5:46) All numeric excluding hot coded
 #NOTE: Above changed from cdc_copy to cdc by Jesse after adding additional cols
 
 model <- lm(CHD ~ ., data = cdc_lm)
@@ -3469,7 +3432,6 @@ Overall, it appears that none of the predictors are statistically significant at
 # .
 ```{r}
 # Splitting the data into training and testing sets
-#library(caret)
 #set.seed(123)  # For reproducibility
 #train_indices <- createDataPartition(cdc$target_variable, p = 0.7, list = FALSE)
 #train_data <- data[train_indices, ]
@@ -3479,7 +3441,6 @@ Overall, it appears that none of the predictors are statistically significant at
 
 ```{r}
 # Example of building a linear regression model using caret
-#library(caret)
 #set.seed(123)  # For reproducibility
 #model <- train(target_variable ~ ., data = train_data, method = "lm")  # Replace 'target_variable' with #your target variable/column name
 
@@ -3521,7 +3482,7 @@ summary(pr_cdc)
 ```{r}
 #Drop non numeric variables (note, rural/urban has been hot coded)
 cdc_pca2 <- cdc %>%
-  select(c(5:70)) #(5:70) All excluding state and rural/urban hot coded
+  select(c(5:42)) #(5:42) All excluding state and rural/urban hot coded
 pr_pca2 <- prcomp(x = cdc_pca2, scale = T, center = T)
 
 summary(pr_pca2)
@@ -3654,16 +3615,11 @@ These results can help you decide how many and which variables to include in you
 ## Decision Trees
 #### Decision tree with all numeric values and State
 ```{r}
-library(rpart)
-
-cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
+cdc_test <- cdc %>% select (3, 5:46, ) #(3, 5:46, ) state, all numeric excl.hot code
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol))
 
 tree_model <- rpart(CHD ~ ., data=cdc_test)
-
-library(rpart.plot)
-rpart.plot(tree_model)
 
 tree_model$variable.importance
 ```
@@ -3671,10 +3627,7 @@ tree_model$variable.importance
 
 #### Decision trees with variable importance
 ```{r}
-library(rpart)
-library(rpart.plot)
-
-cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
+cdc_test <- cdc %>% select (3, 5:46, ) #(3, 5:46, ) state, all numeric excl.hot code
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
 
@@ -3683,7 +3636,7 @@ tree_model <- rpart(CHD ~ ., data=cdc_test)
 rpart.plot(tree_model)
 tree_model$variable.importance
 
-cdc_test <- cdc %>% select (5:66, ) #(5:66) All numeric excluding hot coded
+cdc_test <- cdc %>% select (5:46, ) #(5:46) All numeric excluding hot coded
 
 cdc_test <- cdc_test %>% select(-c(Stroke, HighChol, Smoker, HighBP))
 
@@ -3696,7 +3649,7 @@ tree_model$variable.importance
 
 #### Decision trees with interactions
 ```{r}
-cdc_test <- cdc %>% select (3, 5:66, ) #(3, 5:66, ) state, all numeric excl.hot code
+cdc_test <- cdc %>% select (3, 5:46, ) #(3, 5:46, ) state, all numeric excl.hot code
 
 cdc_test <- cdc_test %>% select(-c(bpmUse, Age65Plus, Stroke, HighChol, Smoker, HighBP))
 
@@ -3728,8 +3681,6 @@ table(cdc$UrbanRural)
 
 ### Build a random forest model
 ```{r}
-library(randomForest)
-
 set.seed(2112)
 
 model <- randomForest(CHD ~ Hospitals + Broadband + UrbanRural, data=train_set, ntree=100)
@@ -4205,7 +4156,6 @@ plot(results, type=c("g", "o"))
 
 ### Multiple models (m4 is a good model! though not split train test sets)
 ```{r}
-library(moderndive)
 m1 <- lm(CHD ~ Stroke, data=cdc)
 get_regression_table(m1)
 summary(m1)
@@ -4228,9 +4178,6 @@ summary(m4)
 
 ### Rpart model (fit) and Random Forest model (fit_rf)
 ```{r}
-library(randomForest)
-library(rpart)
-
 cdc2 <- cdc %>% select(2:42)
 cdc_index <- createDataPartition(cdc2$CHD, p=0.80, list=FALSE)
 train <- cdc2[cdc_index, ]
@@ -4263,7 +4210,6 @@ fit2 <- train(CHD ~ .,
              )
 fit2
 
-library(rpart.plot)
 rpart.plot(fit2$finalModel, type=2)
 ```
 ### variable importance for fit model
@@ -4470,7 +4416,7 @@ plot(importance)
 ### Full model without states
 ```{r}
 #create dataset for model
-cdc_step <- cdc %>% dplyr::select(4:70)
+cdc_step <- cdc %>% dplyr::select(4:42)
 
 cdc_step$UrbanRural <- factor(ifelse(cdc_step$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
 
@@ -4521,10 +4467,10 @@ summary(backward)
 ### creating lists & datasets of variable names
 ```{r}
 #create list of variable names ALL without states
-cdc_names_wostates <- cdc %>% dplyr::select(4:66) %>% names()
+cdc_names_wostates <- cdc %>% dplyr::select(4:46) %>% names()
 
 #create data set ALL w/o states
-cdc_wostates <- cdc %>% dplyr::select(4:66) #%>% names()
+cdc_wostates <- cdc %>% dplyr::select(4:46) #%>% names()
 
 cdc_wostates$UrbanRural <- factor(ifelse(cdc_wostates$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
 ```
