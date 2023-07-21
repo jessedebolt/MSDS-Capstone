@@ -4439,7 +4439,7 @@ plot(importance_step)
 
 ### setting up model for Stepwise Feature Selection
 ```{r}
-library(MASS)
+#library(MASS)
 
 # Create the full model
 full.model <- lm(CHD ~ ., data = cdc_step)
@@ -4538,7 +4538,7 @@ model_basic
 
 importance_basic <- varImp(model_basic, scale=TRUE)
 plot(importance_basic)
-
+coef(model_basic$finalModel)
 ```
 
 
@@ -4569,7 +4569,7 @@ model_basic
 
 importance_basic <- varImp(model_basic, scale=TRUE)
 plot(importance_basic)
-
+coef(model_basic$finalModel)
 ```
 
 
@@ -4600,7 +4600,7 @@ model_basic
 
 importance_basic <- varImp(model_basic, scale=TRUE)
 plot(importance_basic)
-
+coef(model_basic$finalModel)
 ```
 
 ###Basic Model 4 now removed  "HighBP", "HighChol", "Stroke" 88.8% R2
@@ -4630,40 +4630,164 @@ model_basic
 
 importance_basic <- varImp(model_basic, scale=TRUE)
 plot(importance_basic)
-
+coef(model_basic$finalModel)
 ```
 
 
 need whole model first for HIGH BP then stepwise feature selection
-###Basic Model 5 now predicting High BP  R2
+###Full Model 5 now predicting High BP  87% R2
 ```{r}
 set.seed(123)
 
-#create dataset for model (4:70)
-cdc_basic <- cdc %>% dplyr::select("HighBP", "Age65Plus", "Smoker", "HealthIns", "Parks", "Cardio100k", "Obesity", "MedHouseIncome", "Diabetes", "CholScreen", "UrbanRural", "SNAPrecipients", "Broadband", "AirQuality", "Pharmacies", "Hosp100k", "Pharm100k", "EdLessColl", "PhysInactivity", "Hospitals", "Poverty", "TotalCardio", "pcp", "TotalPCP")
+#create dataset for model (5:46)
+cdc_basic_bp <- cdc %>% dplyr::select("CHD", "HighBP", "HighChol", "Stroke", "Diabetes", "Obesity", "PhysInactivity", "Smoker", "Age65Plus", "CholScreen", "CholMedNonAdhear", "CholMedElegible", "cruParticipate", "bpmUse", "MedHouseIncome", "Poverty", "Unemploy", "SNAPrecipients", "EdLessColl", "MedHomeValue", "HealthIns", "AirQuality", "Parks", "Broadband", "pcp", "TotalPCP", "PSP1k", "CardioPhys", "TotalCardio", "Cardio100k", "Hospitals", "Hosp100k", "HospCR", "HospCIC", "HospED", "Pharmacies", "Pharm100k", "pop", "UrbanRural_Large_Urban", "UrbanRural_LargeFringe_Urban", "UrbanRural_MediumSmall_Urban", "UrbanRural_Rural") %>% dplyr::select(-c("CHD", "HighChol", "Stroke"))
 
-cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+#cdc_basic_bp$UrbanRural <- factor(ifelse(cdc_basic_bp$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
 
 #train test split
-cdc_index_basic <- createDataPartition(cdc_basic$HighBP, p = 0.8, list = FALSE)
-cdc_tr_basic <- cdc_basic[cdc_index_basic, ]
-cdc_te_basic <- cdc_basic[-cdc_index_basic, ]
+cdc_index_basic_bp <- createDataPartition(cdc_basic_bp$HighBP, p = 0.8, list = FALSE)
+cdc_tr_basic_bp <- cdc_basic_bp[cdc_index_basic_bp, ]
+cdc_te_basic_bp <- cdc_basic_bp[-cdc_index_basic_bp, ]
 
 
-control_basic <- trainControl(method="repeatedcv", number =5, repeats=3)
-#Rsquared xx%
-model_basic <- train(HighBP ~ .,
-                    data=cdc_tr_basic,
+control_basic_bp <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared 87%
+model_basic_bp <- train(HighBP ~ .,
+                    data=cdc_tr_basic_bp,
                     method="lm",
-                    trControl = control_basic)
-print(model_basic$resample)
+                    trControl = control_basic_bp)
+print(model_basic_bp$resample)
 
-model_basic
+model_basic_bp
 
-importance_basic <- varImp(model_basic, scale=TRUE)
-plot(importance_basic)
+importance_basic_bp <- varImp(model_basic_bp, scale=TRUE)
+plot(importance_basic_bp)
+coef(model_basic_bp$finalModel)
+```
+
+
+###Full Model 6 predicting High BP  87% R2 URBAN OR RURAL ONLY
+```{r}
+set.seed(123)
+
+#create dataset for model (4:42)
+cdc_basic_bp <- cdc %>% dplyr::select("UrbanRural", "CHD", "HighBP", "HighChol", "Stroke", "Diabetes", "Obesity", "PhysInactivity", "Smoker", "Age65Plus", "CholScreen", "CholMedNonAdhear", "CholMedElegible", "cruParticipate", "bpmUse", "MedHouseIncome", "Poverty", "Unemploy", "SNAPrecipients", "EdLessColl", "MedHomeValue", "HealthIns", "AirQuality", "Parks", "Broadband", "pcp", "TotalPCP", "PSP1k", "CardioPhys", "TotalCardio", "Cardio100k", "Hospitals", "Hosp100k", "HospCR", "HospCIC", "HospED", "Pharmacies", "Pharm100k", "pop", "UrbanRural_Large_Urban", "UrbanRural_LargeFringe_Urban", "UrbanRural_MediumSmall_Urban", "UrbanRural_Rural") %>% dplyr::select(-c("CHD", "HighChol", "Stroke", "UrbanRural_Large_Urban", "UrbanRural_LargeFringe_Urban", "UrbanRural_MediumSmall_Urban", "UrbanRural_Rural"))
+
+cdc_basic_bp$UrbanRural <- factor(ifelse(cdc_basic_bp$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic_bp <- createDataPartition(cdc_basic_bp$HighBP, p = 0.8, list = FALSE)
+cdc_tr_basic_bp <- cdc_basic_bp[cdc_index_basic_bp, ]
+cdc_te_basic_bp <- cdc_basic_bp[-cdc_index_basic_bp, ]
+
+
+control_basic_bp <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared 87%
+model_basic_bp <- train(HighBP ~ .,
+                    data=cdc_tr_basic_bp,
+                    method="lm",
+                    trControl = control_basic_bp)
+print(model_basic_bp$resample)
+
+model_basic_bp
+
+importance_basic_bp <- varImp(model_basic_bp, scale=TRUE)
+plot(importance_basic_bp)
+coef(model_basic_bp$finalModel)
+```
+
+
+###Basic Model 7 predicting High BP  63.9% R2 Diabetes CholScreen bpmUse (** bpmUse proxy for HighBP?)
+```{r}
+set.seed(123)
+
+#create dataset for model (5:46)
+cdc_basic_bp <- cdc %>% dplyr::select("HighBP", "Diabetes", "CholScreen", "bpmUse")
+
+#cdc_basic_bp$UrbanRural <- factor(ifelse(cdc_basic_bp$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic_bp <- createDataPartition(cdc_basic_bp$HighBP, p = 0.8, list = FALSE)
+cdc_tr_basic_bp <- cdc_basic_bp[cdc_index_basic_bp, ]
+cdc_te_basic_bp <- cdc_basic_bp[-cdc_index_basic_bp, ]
+
+
+control_basic_bp <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared 63.9%
+model_basic_bp <- train(HighBP ~ .,
+                    data=cdc_tr_basic_bp,
+                    method="lm",
+                    trControl = control_basic_bp)
+print(model_basic_bp$resample)
+
+model_basic_bp
+
+importance_basic_bp <- varImp(model_basic_bp, scale=TRUE)
+plot(importance_basic_bp)
+coef(model_basic_bp$finalModel)
 
 ```
+
+###Basic Model 8 predicting High BP  82% R2 Added CholMedNonAdhear Smoker
+```{r}
+set.seed(123)
+
+#create dataset for model (5:46)
+cdc_basic_bp <- cdc %>% dplyr::select("HighBP", "Diabetes", "CholScreen", "bpmUse", "CholMedNonAdhear", "Smoker")
+
+#cdc_basic_bp$UrbanRural <- factor(ifelse(cdc_basic_bp$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic_bp <- createDataPartition(cdc_basic_bp$HighBP, p = 0.8, list = FALSE)
+cdc_tr_basic_bp <- cdc_basic_bp[cdc_index_basic_bp, ]
+cdc_te_basic_bp <- cdc_basic_bp[-cdc_index_basic_bp, ]
+
+
+control_basic_bp <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared 63.9%
+model_basic_bp <- train(HighBP ~ .,
+                    data=cdc_tr_basic_bp,
+                    method="lm",
+                    trControl = control_basic_bp)
+print(model_basic_bp$resample)
+
+model_basic_bp
+
+importance_basic_bp <- varImp(model_basic_bp, scale=TRUE)
+plot(importance_basic_bp)
+coef(model_basic_bp$finalModel)
+```
+(diabetes only adds 1%)
+###Basic Model 9 predicting High BP  85.5% R2 Added Poverty EdLessColl removed smoker
+```{r}
+set.seed(123)
+
+#create dataset for model (5:46)
+cdc_basic_bp <- cdc %>% dplyr::select("HighBP", "Diabetes", "CholScreen", "bpmUse", "CholMedNonAdhear", "Poverty", "EdLessColl")
+
+#cdc_basic_bp$UrbanRural <- factor(ifelse(cdc_basic_bp$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic_bp <- createDataPartition(cdc_basic_bp$HighBP, p = 0.8, list = FALSE)
+cdc_tr_basic_bp <- cdc_basic_bp[cdc_index_basic_bp, ]
+cdc_te_basic_bp <- cdc_basic_bp[-cdc_index_basic_bp, ]
+
+
+control_basic_bp <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared 63.9%
+model_basic_bp <- train(HighBP ~ .,
+                    data=cdc_tr_basic_bp,
+                    method="lm",
+                    trControl = control_basic_bp)
+print(model_basic_bp$resample)
+
+model_basic_bp
+
+importance_basic_bp <- varImp(model_basic_bp, scale=TRUE)
+plot(importance_basic_bp)
+coef(model_basic_bp$finalModel)
+```
+
 
 
 ## Recursive Feature Elimination (RFE)
