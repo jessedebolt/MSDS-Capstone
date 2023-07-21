@@ -572,23 +572,24 @@ keep(cdc, TableDesc, sure = TRUE)
 set.seed(2112)
 
 #create dataset for model
-cdc_HighChol_full <- cdc %>% select(-c(county, state,))
+cdc_CHD_full <- cdc %>% select(-c(county, state,))
 
-cdc_HighChol_full$UrbanRural <- factor(ifelse(cdc_HighChol_full$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+cdc_CHD_full$UrbanRural <- factor(ifelse(cdc_CHD_full$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
 
 #train test split
-cdc_index_HighChol_full <- createDataPartition(cdc_HighChol_full$CHD, p = 0.8, list = FALSE)
-cdc_tr_HighChol_full <- cdc_HighChol_full[cdc_index_HighChol_full, ]
-cdc_te_HighChol_full <- cdc_HighChol_full[-cdc_index_HighChol_full, ]
+cdc_index_CHD_full <- createDataPartition(cdc_CHD_full$CHD, p = 0.8, list = FALSE)
+cdc_tr_CHD_full <- cdc_CHD_full[cdc_index_CHD_full, ]
+cdc_te_CHD_full <- cdc_CHD_full[-cdc_index_CHD_full, ]
 
 #Rsquared 95%
-control_HighChol_full <- trainControl(method="repeatedcv", number =5, repeats=3)
-model_HighChol_full <- train(CHD ~ ., data=cdc_tr_HighChol_full, method="lm", trControl = control_HighChol_full)
-print(model_HighChol_full$resample)
-model_HighChol_full
+control_CHD_full <- trainControl(method="repeatedcv", number =5, repeats=3)
+model_CHD_full <- train(CHD ~ ., data=cdc_tr_CHD_full, method="lm", trControl = control_CHD_full)
+print(model_CHD_full$resample)
+model_CHD_full
 
-importance_HighChol_full <- varImp(model_HighChol_full, scale=TRUE)
-plot(importance_HighChol_full)
+importance_CHD_full <- varImp(model_CHD_full, scale=TRUE)
+importance_CHD_full
+plot(importance_CHD_full)
 
 ```
 
@@ -599,24 +600,24 @@ plot(importance_HighChol_full)
 set.seed(2112)
 
 #create dataset for model
-cdc_step <- cdc %>% select(-c(county, state,))
+cdc_CHD_full <- cdc %>% select(-c(county, state,))
 
-cdc_step$UrbanRural <- factor(ifelse(cdc_step$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+cdc_CHD_full$UrbanRural <- factor(ifelse(cdc_CHD_full$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
 
 #train test split
-cdc_index_step <- createDataPartition(cdc_step$CHD, p = 0.8, list = FALSE)
-cdc_tr_step <- cdc_step[cdc_index_step, ]
-cdc_te_step <- cdc_step[-cdc_index_step, ]
+cdc_index_CHD_full <- createDataPartition(cdc_CHD_full$CHD, p = 0.8, list = FALSE)
+cdc_tr_CHD_full <- cdc_CHD_full[cdc_index_CHD_full, ]
+cdc_te_CHD_full <- cdc_CHD_full[-cdc_index_CHD_full, ]
 
 #Rsquared 95%
-control_step <- trainControl(method="repeatedcv", number =5, repeats=3)
-model_step <- train(CHD ~ ., data=cdc_tr_step, method="glm", trControl = control_step)
-print(model_step$resample)
-model_step
+control_CHD_full <- trainControl(method="repeatedcv", number =5, repeats=3)
+model_CHD_full <- train(CHD ~ ., data=cdc_tr_CHD_full, method="glm", trControl = control_CHD_full)
+print(model_CHD_full$resample)
+model_CHD_full
 
-importance_step <- varImp(model_step, scale=TRUE)
-plot(importance_step)
-
+importance_CHD_full <- varImp(model_CHD_full, scale=TRUE)
+importance_CHD_full
+plot(importance_CHD_full)
 ```
 
 
@@ -626,42 +627,44 @@ plot(importance_step)
 set.seed(2112)
 
 #create dataset for model
-cdc_step <- cdc %>% select(-c(county, state,))
+cdc_CHD_full <- cdc %>% select(-c(county, state,))
 
-cdc_step$UrbanRural <- factor(ifelse(cdc_step$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+cdc_CHD_full$UrbanRural <- factor(ifelse(cdc_CHD_full$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
 
 #train test split
-cdc_index_step <- createDataPartition(cdc_step$CHD, p = 0.8, list = FALSE)
-cdc_tr_step <- cdc_step[cdc_index_step, ]
-cdc_te_step <- cdc_step[-cdc_index_step, ]
+cdc_index_CHD_full <- createDataPartition(cdc_CHD_full$CHD, p = 0.8, list = FALSE)
+cdc_tr_CHD_full <- cdc_CHD_full[cdc_index_CHD_full, ]
+cdc_te_CHD_full <- cdc_CHD_full[-cdc_index_CHD_full, ]
 
 #Rsquared 95%
-control_step <- trainControl(method="repeatedcv", number =5, repeats=3)
-model_step <- train(CHD ~ ., data=cdc_tr_step, method="glm", trControl = control_step, family = "poisson")
-print(model_step$resample)
-model_step
+control_CHD_full <- trainControl(method="repeatedcv", number =5, repeats=3)
+model_CHD_full <- train(CHD ~ ., data=cdc_tr_CHD_full, method="glm", trControl = control_CHD_full, family="poisson")
+print(model_CHD_full$resample)
+model_CHD_full
 
-importance_step <- varImp(model_step, scale=TRUE)
-plot(importance_step)
+importance_CHD_full <- varImp(model_CHD_full, scale=TRUE)
+importance_CHD_full
+plot(importance_CHD_full)
 
 ```
 
 
 #### View coefficients full CHD
 ```{r}
-coef(model_step$finalModel)
+coef(model_CHD_full$finalModel)
 
 ```
 
-
+still shows urbanrural?! I've deselected it twice!
 ### Basic Model 1 just "CHD", "HighBP", "HighChol", "Stroke" 90% R2
 ```{r}
 set.seed(2112)
 
 #create dataset for model
-cdc_basic <- cdc %>% select(CHD, HighBP, HighChol, Stroke)
+cdc_basic <- cdc %>% select(CHD, HighBP, HighChol, Stroke, -UrbanRural)
+cdc_basic <- cdc_basic %>% select(-UrbanRural)
 
-cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+#cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
 
 #train test split
 cdc_index_basic <- createDataPartition(cdc_basic$CHD, p = 0.8, list = FALSE)
@@ -680,6 +683,7 @@ print(model_basic$resample)
 model_basic
 
 importance_basic <- varImp(model_basic, scale=TRUE)
+importance_basic
 plot(importance_basic)
 
 ```
@@ -692,7 +696,7 @@ set.seed(2112)
 #create dataset for model
 cdc_basic <- cdc %>% select(CHD, HighBP, HighChol, Stroke)
 
-cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+#cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
 
 #train test split
 cdc_index_basic <- createDataPartition(cdc_basic$CHD, p = 0.8, list = FALSE)
@@ -711,6 +715,7 @@ print(model_basic$resample)
 model_basic
 
 importance_basic <- varImp(model_basic, scale=TRUE)
+importance_basic
 plot(importance_basic)
 
 ```
@@ -723,7 +728,7 @@ set.seed(2112)
 #create dataset for model
 cdc_basic <- cdc %>% select(CHD, HighBP, HighChol, Stroke)
 
-cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+#cdc_basic$UrbanRural <- factor(ifelse(cdc_basic$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
 
 #train test split
 cdc_index_basic <- createDataPartition(cdc_basic$CHD, p = 0.8, list = FALSE)
@@ -743,6 +748,7 @@ print(model_basic$resample)
 model_basic
 
 importance_basic <- varImp(model_basic, scale=TRUE)
+importance_basic
 plot(importance_basic)
 
 ```
@@ -774,6 +780,7 @@ print(model_basic$resample)
 model_basic
 
 importance_basic <- varImp(model_basic, scale=TRUE)
+importance_basic
 plot(importance_basic)
 
 ```
@@ -812,6 +819,7 @@ print(model_basic$resample)
 model_basic
 
 importance_basic <- varImp(model_basic, scale=TRUE)
+importance_basic
 plot(importance_basic)
 
 ```
@@ -850,6 +858,7 @@ print(model_basic$resample)
 model_basic
 
 importance_basic <- varImp(model_basic, scale=TRUE)
+importance_basic
 plot(importance_basic)
 
 ```
@@ -890,6 +899,7 @@ print(model_basic_bp$resample)
 model_basic_bp
 
 importance_basic_bp <- varImp(model_basic_bp, scale=TRUE)
+importance_basic_bp
 plot(importance_basic_bp)
 coef(model_basic_bp$finalModel)
 ```
@@ -921,8 +931,40 @@ print(model_basic_bp$resample)
 model_basic_bp
 
 importance_basic_bp <- varImp(model_basic_bp, scale=TRUE)
+importance_basic_bp
 plot(importance_basic_bp)
 coef(model_basic_bp$finalModel)
+```
+
+### Full Model 6.5 predicting High BP  87% R2 all variables except state county chd stroke high chol        
+```{r}
+set.seed(123)
+
+#create dataset for model 
+cdc_full_bp <- cdc %>% select(-c("CHD", "HighChol", "Stroke", "state", "county"))
+
+cdc_full_bp$UrbanRural <- factor(ifelse(cdc_full_bp$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_full_bp <- createDataPartition(cdc_full_bp$HighBP, p = 0.8, list = FALSE)
+cdc_tr_full_bp <- cdc_full_bp[cdc_index_full_bp, ]
+cdc_te_full_bp <- cdc_full_bp[-cdc_index_full_bp, ]
+
+
+control_full_bp <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared 87%
+model_full_bp <- train(HighBP ~ .,
+                    data=cdc_tr_full_bp,
+                    method="lm",
+                    trControl = control_full_bp)
+print(model_full_bp$resample)
+
+model_full_bp
+
+importance_full_bp <- varImp(model_full_bp, scale=TRUE)
+importance_full_bp
+plot(importance_full_bp)
+coef(model_full_bp$finalModel)
 ```
 
 
@@ -952,6 +994,7 @@ print(model_basic_bp$resample)
 model_basic_bp
 
 importance_basic_bp <- varImp(model_basic_bp, scale=TRUE)
+importance_basic_bp
 plot(importance_basic_bp)
 coef(model_basic_bp$finalModel)
 
@@ -983,6 +1026,7 @@ print(model_basic_bp$resample)
 model_basic_bp
 
 importance_basic_bp <- varImp(model_basic_bp, scale=TRUE)
+importance_basic_bp
 plot(importance_basic_bp)
 coef(model_basic_bp$finalModel)
 ```
@@ -1013,9 +1057,127 @@ print(model_basic_bp$resample)
 model_basic_bp
 
 importance_basic_bp <- varImp(model_basic_bp, scale=TRUE)
+control_basic_bp
 plot(importance_basic_bp)
 coef(model_basic_bp$finalModel)
 ```
+
+## Comparing Coefficients
+```{r}
+# Extracting coefficients from model_CHD_full
+coef_model_CHD_full <- coef(model_CHD_full$finalModel)
+diabetes_coef_model_CHD_full <- coef_model_CHD_full["Diabetes"]
+
+# Suppose you have another model, model2
+# model2 <- train(YourFormula, data=YourData, method="glm", trControl = YourControl, family="poisson")
+coef_model_full_bp <- coef(model_full_bp$finalModel)
+diabetes_coef_model_full_bp <- coef_model_full_bp["Diabetes"]
+
+# Compare the coefficients
+print(paste0("Diabetes coefficient in model_CHD_full: ", diabetes_coef_model_CHD_full))
+print(paste0("Diabetes coefficient in model_full_bp: ", diabetes_coef_model_full_bp))
+
+# For a direct comparison
+difference <- diabetes_coef_model_CHD_full - diabetes_coef_model_full_bp
+print(paste0("Difference between coefficients: ", difference))
+
+```
+
+
+## Comparing Coefficients from multiple models, (have to be same size) doesn't work yet
+```{r}
+# # Extract coefficients from multiple models
+# coef_model1 <- coef(model_CHD_full$finalModel)
+# coef_model2 <- coef(model_basic$finalModel)
+# 
+# # Add more if you have more models...
+# 
+# # Create a data frame of coefficients
+# coef_df <- data.frame(
+#   model1 = coef_model1,
+#   model2 = coef_model2
+#   # Add more if you have more models...
+# )
+# 
+# # Print the data frame
+# print(coef_df)
+
+```
+### STill playing with comparing coefficients
+```{r}
+# Extract coefficients from multiple models
+coef_model1 <- coef(model_CHD_full$finalModel)
+coef_model2 <- coef(model_basic$finalModel)
+
+CHD_fullCF <- sort(abs(coef_model1), decreasing = TRUE)
+CHD_fullBP <- sort(abs(coef_model2), decreasing = TRUE)
+
+CHD_fullCF
+CHD_fullBP
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## HiChol Models
