@@ -1103,7 +1103,7 @@ print(paste0("Difference between coefficients: ", difference))
 # print(coef_df)
 
 ```
-### STill playing with comparing coefficients
+### Still playing with comparing coefficients
 ```{r}
 # Extract coefficients from multiple models
 coef_model1 <- coef(model_CHD_full$finalModel)
@@ -1116,8 +1116,61 @@ CHD_fullCF
 CHD_fullBP
 ```
 
+## Predictions
+```{r}
+# Make predictions on the test set
+predictions <- predict(model_CHD_full, newdata = cdc_te_CHD_full)
 
+# Print the predictions
+print(predictions)
 
+```
+
+```{r}
+# Compute the residuals
+residuals <- predictions - cdc_te_CHD_full$CHD
+
+# Compute the RMSE
+rmse <- sqrt(mean(residuals^2))
+print(rmse)
+
+```
+
+### Other measurements for GLM Poisson
+```{r}
+#Mean Absolute Error (MAE)
+# Calculate residuals
+residuals <- predictions - cdc_te_CHD_full$CHD
+
+# Calculate MAE
+mae <- mean(abs(residuals))
+print(mae)
+
+#Log-Likelihood, AIC, and BIC:
+# Extract log-Likelihood
+logLik_value <- logLik(model_CHD_full$finalModel)
+print(logLik_value)
+
+# Calculate AIC and BIC
+aic_value <- AIC(model_CHD_full$finalModel)
+bic_value <- BIC(model_CHD_full$finalModel)
+
+print(aic_value)
+print(bic_value)
+
+#Residual plots and QQ plots:
+# Generate residual plot
+plot(predictions, residuals, 
+     xlab="Predicted Values", ylab="Residuals", 
+     main="Residual Plot")
+abline(h=0, lty=2) # Add a horizontal line at y = 0
+
+# Generate QQ plot
+qqnorm(residuals)
+qqline(residuals) # Add a line to help assess the normality
+
+   
+```
 
 
 
