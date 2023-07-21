@@ -532,11 +532,10 @@ colSums(is.na(cdc))
 # Linear Models
 #.
 
-### Remove unnedded/duplicated columns
+### Remove unneeded/duplicated columns
 ```{r}
 # Select and rearrange columns
-cdc <- cdc %>% select(c("county", "state", "UrbanRural", "CHD",
-"HighBP", "HighChol", "Stroke", "Diabetes", "Obesity",
+cdc <- cdc %>% select(c("county", "state", "UrbanRural", "CHD", "HighBP", "HighChol", "Stroke", "Diabetes", "Obesity",
 "PhysInactivity", "Smoker", "Age65Plus","CholScreen",
 "CholMedNonAdhear", "CholMedElegible", "cruParticipate",
 "bpmUse", "MedHouseIncome", "Poverty", "Unemploy",
@@ -639,14 +638,9 @@ plot(importance_step)
 
 ```
 
-
-
-#.
 #.
 # BREAK
 #.
-#.
-
 
 ###Basic Model just "CHD", "HighBP", "HighChol", "Stroke" 90% R2
 ```{r}
