@@ -565,6 +565,10 @@ keep(cdc, TableDesc, sure = TRUE)
 # Linear Models
 #.
 
+#.
+# CHD as target
+#.
+
 ## CHD Models
 ### Full model CHD as target method=lm
 ```{r}
@@ -870,6 +874,71 @@ coef(model_basic$finalModel)
 
 ```
 
+
+## CHD Models with interactions
+### Full model CHD as target with Urban/Rural and state interaction
+```{r}
+# Set the seed
+set.seed(2112)
+
+#create dataset for model
+cdc_CHD_X_full <- cdc %>% select(CHD, state, UrbanRural)
+
+cdc_CHD_X_full$UrbanRural <- factor(ifelse(cdc_CHD_X_full$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_CHD_X_full <- createDataPartition(cdc_CHD_X_full$CHD, p = 0.8, list = FALSE)
+cdc_tr_CHD_X_full <- cdc_CHD_X_full[cdc_index_CHD_X_full, ]
+cdc_te_CHD_X_full <- cdc_CHD_X_full[-cdc_index_CHD_X_full, ]
+
+#Rsquared 95%
+control_CHD_X_full <- trainControl(method="repeatedcv", number =5, repeats=3)
+model_CHD_X_full <- train(CHD ~ UrbanRural*state, data=cdc_tr_CHD_X_full, method="lm", trControl = control_CHD_X_full)
+print(model_CHD_X_full$resample)
+model_CHD_X_full
+
+importance_CHD_X_full <- varImp(model_CHD_X_full, scale=TRUE)
+importance_CHD_X_full
+plot(importance_CHD_X_full)
+
+```
+
+
+## CHD Models with interactions
+### Full model CHD as target with Urban/Rural interactions
+```{r}
+# Set the seed
+set.seed(2112)
+
+#create dataset for model
+cdc_CHD_X_full <- cdc
+
+cdc_CHD_X_full$UrbanRural <- factor(ifelse(cdc_CHD_X_full$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_CHD_X_full <- createDataPartition(cdc_CHD_X_full$CHD, p = 0.8, list = FALSE)
+cdc_tr_CHD_X_full <- cdc_CHD_X_full[cdc_index_CHD_X_full, ]
+cdc_te_CHD_X_full <- cdc_CHD_X_full[-cdc_index_CHD_X_full, ]
+
+#Rsquared 95%
+control_CHD_X_full <- trainControl(method="repeatedcv", number =5, repeats=3)
+model_CHD_X_full <- train(CHD ~ UrbanRural*Smoker + UrbanRural*PhysInactivity + UrbanRural*Broadband + UrbanRural*Hospitals + UrbanRural*Age65Plus, data=cdc_tr_CHD_X_full, method="lm", trControl = control_CHD_X_full)
+print(model_CHD_X_full$resample)
+model_CHD_X_full
+
+importance_CHD_X_full <- varImp(model_CHD_X_full, scale=TRUE)
+importance_CHD_X_full
+plot(importance_CHD_X_full)
+
+summary(model_CHD_X_full)
+```
+
+
+
+
+#.
+# HighBP as target
+#.
 
 ## HighBP Models
 ### Full Model 5 now predicting High BP  87% R2 (no urban/rural)
@@ -1229,9 +1298,9 @@ qqline(residuals) # Add a line to help assess the normality
 
 
 
-
-
-
+#.
+# HiChol as target
+#.
 
 ## HiChol Models
 ### Full model HighChol as target
@@ -1420,6 +1489,10 @@ coef(model_basic4_HighChol$finalModel)
 ```
 
 
+#.
+# Stroke as target
+#.
+
 ## Stroke Models
 ### Full model Stroke as target
 ```{r}
@@ -1432,13 +1505,13 @@ cdc__full_Stroke <- cdc %>% select(-c(county, state,))
 cdc__full_Stroke$UrbanRural <- factor(ifelse(cdc__full_Stroke$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
 
 #train test split
-cdc_index__full_Stroke <- createDataPartition(cdc__full_Stroke$HighChol, p = 0.8, list = FALSE)
+cdc_index__full_Stroke <- createDataPartition(cdc__full_Stroke$Stroke, p = 0.8, list = FALSE)
 cdc_tr__full_Stroke <- cdc__full_Stroke[cdc_index__full_Stroke, ]
 cdc_te__full_Stroke <- cdc__full_Stroke[-cdc_index__full_Stroke, ]
 
 #Rsquared 95%
 control__full_Stroke <- trainControl(method="repeatedcv", number =5, repeats=3)
-model__full_Stroke <- train(HighChol ~ ., data=cdc_tr__full_Stroke, method="lm", trControl = control__full_Stroke)
+model__full_Stroke <- train(Stroke ~ ., data=cdc_tr__full_Stroke, method="lm", trControl = control__full_Stroke)
 print(model__full_Stroke$resample)
 model__full_Stroke
 
@@ -1605,3 +1678,194 @@ plot(importance_basic4_Stroke)
 coef(model_basic4_Stroke$finalModel)
 
 ```
+
+#.
+# Diabetes as target
+#.
+
+## Diabetes Models
+### Full model Diabetes as target
+```{r}
+# Set the seed
+set.seed(2112)
+
+#create dataset for model
+cdc__full_Diabetes <- cdc %>% select(-c(county, state,))
+
+cdc__full_Diabetes$UrbanRural <- factor(ifelse(cdc__full_Diabetes$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index__full_Diabetes <- createDataPartition(cdc__full_Diabetes$Diabetes, p = 0.8, list = FALSE)
+cdc_tr__full_Diabetes <- cdc__full_Diabetes[cdc_index__full_Diabetes, ]
+cdc_te__full_Diabetes <- cdc__full_Diabetes[-cdc_index__full_Diabetes, ]
+
+#Rsquared 95%
+control__full_Diabetes <- trainControl(method="repeatedcv", number =5, repeats=3)
+model__full_Diabetes <- train(Diabetes ~ ., data=cdc_tr__full_Diabetes, method="lm", trControl = control__full_Diabetes)
+print(model__full_Diabetes$resample)
+model__full_Diabetes
+
+importance__full_Diabetes <- varImp(model__full_Diabetes, scale=TRUE)
+plot(importance__full_Diabetes)
+
+```
+
+
+#### View coefficients full Stroke
+```{r}
+coef(model__full_Diabetes$finalModel)
+
+```
+
+
+### Basic Model 1(Diabetes) just "CHD", "HighBP", "HighChol", "Stroke" 90% R2
+```{r}
+set.seed(2112)
+
+#create dataset for model
+cdc_basic1_Diabetes <- cdc %>% select(CHD, HighBP, HighChol, Stroke, Diabetes)
+
+cdc_basic1_Diabetes$UrbanRural <- factor(ifelse(cdc_basic1_Diabetes$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic1_Diabetes <- createDataPartition(cdc_basic1_Diabetes$Diabetes, p = 0.8, list = FALSE)
+cdc_tr_basic1_Diabetes <- cdc_basic1_Diabetes[cdc_index_basic1_Diabetes, ]
+cdc_te_basic1_Diabetes <- cdc_basic1_Diabetes[-cdc_index_basic1_Diabetes, ]
+
+
+control_basic1_Diabetes <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared xx%
+model_basic1_Diabetes <- train(Diabetes ~ .,
+                    data=cdc_tr_basic1_Diabetes,
+                    method="lm",
+                    trControl = control_basic1_Diabetes)
+print(model_basic1_Diabetes$resample)
+
+model_basic1_Diabetes
+
+importance_basic1_Diabetes <- varImp(model_basic1_Diabetes, scale=TRUE)
+plot(importance_basic1_Diabetes)
+
+```
+
+
+#### View coefficients basic model 1
+```{r}
+coef(model_basic1_Diabetes$finalModel)
+
+```
+
+
+### Basic Model 2(Diabetes) now added "Smoker", "Age65Plus" 94% R2
+```{r}
+set.seed(123)
+
+#create dataset for model
+cdc_basic2_Diabetes <- cdc %>% select("Diabetes", "CHD", "HighBP", "HighChol", "Stroke", "Smoker", "Age65Plus")
+
+# cdc_basic2_Diabetes$UrbanRural <- factor(ifelse(cdc_basic2_Diabetes$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic2_Diabetes <- createDataPartition(cdc_basic2_Diabetes$Diabetes, p = 0.8, list = FALSE)
+cdc_tr_basic2_Diabetes <- cdc_basic2_Diabetes[cdc_index_basic2_Diabetes, ]
+cdc_te_basic2_Diabetes <- cdc_basic2_Diabetes[-cdc_index_basic2_Diabetes, ]
+
+
+control_basic2_Diabetes <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared xx%
+model_basic2_Diabetes <- train(Diabetes ~ . -UrbanRural,
+                    data=cdc_tr_basic2_Diabetes,
+                    method="lm",
+                    trControl = control_basic2_Diabetes)
+print(model_basic2_Diabetes$resample)
+
+model_basic2_Diabetes
+
+importance_basic2_Diabetes <- varImp(model_basic2_Diabetes, scale=TRUE)
+plot(importance_basic2_Diabetes)
+
+```
+
+
+#### View coefficients basic model 2
+```{r}
+coef(model_basic2_Diabetes$finalModel)
+
+```
+
+
+### Basic Model 3(Diabetes) now added "CholMedElegible", "HealthIns" 94.9% R2
+```{r}
+set.seed(123)
+
+#create dataset for model
+cdc_basic3_Diabetes <- cdc %>% select("Diabetes", "CHD", "HighBP", "HighChol", "Stroke", "Smoker", "Age65Plus", "CholMedElegible", "HealthIns")
+
+# cdc_basic3_Diabetes$UrbanRural <- factor(ifelse(cdc_basic3_Diabetes$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic3_Diabetes <- createDataPartition(cdc_basic3_Diabetes$Diabetes, p = 0.8, list = FALSE)
+cdc_tr_basic3_Diabetes <- cdc_basic3_Diabetes[cdc_index_basic3_Diabetes, ]
+cdc_te_basic3_Diabetes <- cdc_basic3_Diabetes[-cdc_index_basic3_Diabetes, ]
+
+
+control_basic3_Diabetes <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared xx%
+model_basic3_Diabetes <- train(Diabetes ~ . -UrbanRural,
+                    data=cdc_tr_basic3_Diabetes,
+                    method="lm",
+                    trControl = control_basic3_Diabetes)
+print(model_basic3_Diabetes$resample)
+
+model_basic3_Diabetes
+
+importance_basic3_Diabetes <- varImp(model_basic3_Diabetes, scale=TRUE)
+plot(importance_basic3_Diabetes)
+
+```
+
+
+#### View coefficients basic model 3
+```{r}
+coef(model_basic3_Diabetes$finalModel)
+
+```
+
+
+### Basic Model 4(Diabetes) now removed  "HighBP", "HighChol", "Stroke" 90.1% R2
+```{r}
+set.seed(123)
+
+#create dataset for model
+cdc_basic4_Diabetes <- cdc %>% select("Diabetes", "Stroke", "Age65Plus", "Smoker", "HealthIns", "Parks", "Obesity", "MedHouseIncome", "Diabetes", "CholScreen", "UrbanRural", "SNAPrecipients", "Broadband", "AirQuality", "Pharmacies", "EdLessColl", "PhysInactivity", "Hospitals", "Poverty", "pcp", )
+
+cdc_basic4_Diabetes$UrbanRural <- factor(ifelse(cdc_basic4_Diabetes$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), 1, 0))
+
+#train test split
+cdc_index_basic4_Diabetes <- createDataPartition(cdc_basic4_Diabetes$Diabetes, p = 0.8, list = FALSE)
+cdc_tr_basic4_Diabetes <- cdc_basic4_Diabetes[cdc_index_basic4_Diabetes, ]
+cdc_te_basic4_Diabetes <- cdc_basic4_Diabetes[-cdc_index_basic4_Diabetes, ]
+
+
+control_basic4_Diabetes <- trainControl(method="repeatedcv", number =5, repeats=3)
+#Rsquared xx%
+model_basic4_Diabetes <- train(Diabetes ~ .,
+                    data=cdc_tr_basic4_Diabetes,
+                    method="lm",
+                    trControl = control_basic4_Diabetes)
+print(model_basic4_Diabetes$resample)
+
+model_basic4_Diabetes
+
+importance_basic4_Diabetes <- varImp(model_basic4_Diabetes, scale=TRUE)
+plot(importance_basic4_Diabetes)
+
+```
+
+
+#### View coefficients basic model 4
+```{r}
+coef(model_basic4_Diabetes$finalModel)
+
+```
+
