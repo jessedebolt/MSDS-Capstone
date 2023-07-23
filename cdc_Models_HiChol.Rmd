@@ -75,7 +75,6 @@ model_full <- train(HighChol ~ . -county -state,
                     method="lm", 
                     trControl = control_full)
 
-
 print(model_full$resample)
 model_full
 
@@ -109,7 +108,6 @@ model_main <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke ,
                     method="lm", 
                     trControl = control_main)
 
-
 print(model_main$resample)
 model_main
 
@@ -141,7 +139,6 @@ model_top20 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -
                     method="lm", 
                     trControl = control_top20)
 
-
 print(model_top20$resample)
 model_top20
 
@@ -172,7 +169,6 @@ model_top15 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -
                     data=cdc_tr_top15, 
                     method="lm", 
                     trControl = control_top15)
-
 
 print(model_top15$resample)
 model_top15
@@ -297,7 +293,6 @@ y_var_list <- c("UrbanRural", "Diabetes", "Obesity",
 # Initialize an empty data frame to store results
 cycle_results <- data.frame()
 
-
 # Loop through each y variable
 for (y_var in y_var_list){
   # Fit the model
@@ -373,26 +368,25 @@ control_multiX <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # List of y variables
-y_var_list_multiX <- c("UrbanRural:Smoker",
-                "UrbanRural:Age65Plus",
-                "UrbanRural:CholScreen",
-                "UrbanRural:CholMedNonAdhear",
-                "UrbanRural:CholMedElegible",
-                "UrbanRural:MedHouseIncome",
-                "UrbanRural:MedHomeValue",
-                "UrbanRural:HealthIns",
-                "UrbanRural:AirQuality",
-                "UrbanRural:Broadband",
-                "UrbanRural:pcp",
-                "UrbanRural:CardioPhys",
-                "UrbanRural:Hospitals",
-                "UrbanRural:Pharmacies",
-                "UrbanRural:pop"
+y_var_list_multiX <- c("UrbanRural*Smoker",
+                "UrbanRural*Age65Plus",
+                "UrbanRural*CholScreen",
+                "UrbanRural*CholMedNonAdhear",
+                "UrbanRural*CholMedElegible",
+                "UrbanRural*MedHouseIncome",
+                "UrbanRural*MedHomeValue",
+                "UrbanRural*HealthIns",
+                "UrbanRural*AirQuality",
+                "UrbanRural*Broadband",
+                "UrbanRural*pcp",
+                "UrbanRural*CardioPhys",
+                "UrbanRural*Hospitals",
+                "UrbanRural*Pharmacies",
+                "UrbanRural*pop"
                 )
 
 # Initialize an empty data frame to store results
 multiX_results <- data.frame()
-
 
 # Loop through each y variable
 for (y_var in y_var_list_multiX){
@@ -429,7 +423,6 @@ all_results <- rbind(sorted_cycle_results, sorted_multiX_results)
 
 # Sort results by RMSE values
 all_results <- all_results[order(-all_results$R_Squared),]
-
 
 print(all_results)
 ```
