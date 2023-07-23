@@ -3,7 +3,7 @@ title: "MSDS 2023 Capstone Project"
 author: "Jesse DeBolt & Isaac Johnson"
 date: "`r Sys.Date()`"
 format: html
-subtitle: Tertiary document for specific (HiChol) target models
+subtitle: Tertiary document for specific (CHD) target models
 ---
 
 #.
@@ -60,7 +60,7 @@ cdc$UrbanRural <- factor(ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFring
 set.seed(2112)
 
 # Train test split
-cdc_index_full <- createDataPartition(cdc$HighChol, p = 0.8, list = FALSE)
+cdc_index_full <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
 cdc_tr_full <- cdc[cdc_index_full, ]
 cdc_te_full <- cdc[-cdc_index_full, ]
 
@@ -70,7 +70,7 @@ control_full <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_full <- train(HighChol ~ . -county -state, 
+model_full <- train(CHD ~ . -county -state, 
                     data=cdc_tr_full, 
                     method="lm", 
                     trControl = control_full)
@@ -91,7 +91,7 @@ plot(importance_full)
 set.seed(2112)
 
 # Train test split
-cdc_index_main <- createDataPartition(cdc$HighChol, p = 0.8, list = FALSE)
+cdc_index_main <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
 cdc_tr_main <- cdc[cdc_index_main, ]
 cdc_te_main <- cdc[-cdc_index_main, ]
 
@@ -101,7 +101,7 @@ control_main <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_main <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke , 
+model_main <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP , 
                     data=cdc_tr_main, 
                     method="lm", 
                     trControl = control_main)
@@ -122,7 +122,7 @@ plot(importance_main)
 set.seed(2112)
 
 # Train test split
-cdc_index_top20 <- createDataPartition(cdc$HighChol, p = 0.8, list = FALSE)
+cdc_index_top20 <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
 cdc_tr_top20 <- cdc[cdc_index_top20, ]
 cdc_te_top20 <- cdc[-cdc_index_top20, ]
 
@@ -132,7 +132,7 @@ control_top20 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top20 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -UrbanRural -Parks -CardioPhys -MedHouseIncome -Hospitals, 
+model_top20 <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -Diabetes -CholScreen -CholMedNonAdhear -CardioPhys -AirQuality -Hospitals, 
                     data=cdc_tr_top20, 
                     method="lm", 
                     trControl = control_top20)
@@ -153,7 +153,7 @@ plot(importance_top20)
 set.seed(2112)
 
 # Train test split
-cdc_index_top15 <- createDataPartition(cdc$HighChol, p = 0.8, list = FALSE)
+cdc_index_top15 <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
 cdc_tr_top15 <- cdc[cdc_index_top15, ]
 cdc_te_top15 <- cdc[-cdc_index_top15, ]
 
@@ -163,7 +163,7 @@ control_top15 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top15 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -UrbanRural -Parks -CardioPhys -MedHouseIncome -Hospitals -pop -Broadband -SNAPrecipients -Unemploy -cruParticipate,  
+model_top15 <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -Pharmacies -Obesity -Unemploy -MedHouseIncome -pop -Diabetes -CholScreen -CholMedNonAdhear -CardioPhys -AirQuality -Hospitals,  
                     data=cdc_tr_top15, 
                     method="lm", 
                     trControl = control_top15)
@@ -184,7 +184,7 @@ plot(importance_top15)
 set.seed(2112)
 
 # Train test split
-cdc_index_top10 <- createDataPartition(cdc$HighChol, p = 0.8, list = FALSE)
+cdc_index_top10 <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
 cdc_tr_top10 <- cdc[cdc_index_top10, ]
 cdc_te_top10 <- cdc[-cdc_index_top10, ]
 
@@ -194,7 +194,7 @@ control_top10 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top10 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -UrbanRural -Parks -CardioPhys -MedHouseIncome -Hospitals -pop -Broadband -SNAPrecipients -Unemploy -cruParticipate -MedHomeValue -Poverty -Diabetes -pcp -CholMedNonAdhear,  
+model_top10 <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -Pharmacies -Obesity -Unemploy -MedHouseIncome -pop -Diabetes -CholScreen -CholMedNonAdhear -CardioPhys -AirQuality -Hospitals -cruParticipate -PhysInactivity -MedHomeValue -Broadband -CholMedElegible,  
                     data=cdc_tr_top10, 
                     method="lm", 
                     trControl = control_top10)
@@ -216,7 +216,7 @@ plot(importance_top10)
 set.seed(2112)
 
 # Train test split
-cdc_index_top5 <- createDataPartition(cdc$HighChol, p = 0.8, list = FALSE)
+cdc_index_top5 <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
 cdc_tr_top5 <- cdc[cdc_index_top5, ]
 cdc_te_top5 <- cdc[-cdc_index_top5, ]
 
@@ -226,7 +226,7 @@ control_top5 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top5 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -UrbanRural -Parks -CardioPhys -MedHouseIncome -Hospitals -pop -Broadband -SNAPrecipients -Unemploy -cruParticipate -MedHomeValue -Poverty -Diabetes -pcp -CholMedNonAdhear -Pharmacies -PhysInactivity -CholMedElegible -EdLessColl -AirQuality,  
+model_top5 <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -Pharmacies -Obesity -Unemploy -MedHouseIncome -pop -Diabetes -CholScreen -CholMedNonAdhear -CardioPhys -AirQuality -Hospitals -cruParticipate -PhysInactivity -MedHomeValue -Broadband -CholMedElegible -UrbanRural -SNAPrecipients -pcp -Poverty -Parks,  
                     data=cdc_tr_top5, 
                     method="lm", 
                     trControl = control_top5)
@@ -268,7 +268,7 @@ print(paste("Top5 model R-squared =", sprintf("%.5f", top5_rsquared)))
 set.seed(2112)
 
 # Train test split
-cdc_index_cycle <- createDataPartition(cdc$HighChol, p = 0.8, list = FALSE)
+cdc_index_cycle <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
 cdc_tr_cycle <- cdc[cdc_index_cycle, ]
 cdc_te_cycle <- cdc[-cdc_index_cycle, ]
 
@@ -294,7 +294,7 @@ cycle_results <- data.frame()
 # Loop through each y variable
 for (y_var in y_var_list){
   # Fit the model
-  model_cycle <- train(reformulate(y_var, "HighChol"),
+  model_cycle <- train(reformulate(y_var, "CHD"),
                        data=cdc_tr_cycle, 
                        method="lm", 
                        trControl = control_cycle)
@@ -356,7 +356,7 @@ print(sorted_cycle_results)
 set.seed(2112)
 
 # Train test split
-cdc_index_multiX <- createDataPartition(cdc$HighChol, p = 0.8, list = FALSE)
+cdc_index_multiX <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
 cdc_tr_multiX <- cdc[cdc_index_multiX, ]
 cdc_te_multiX <- cdc[-cdc_index_multiX, ]
 
@@ -389,7 +389,7 @@ multiX_results <- data.frame()
 # Loop through each y variable
 for (y_var in y_var_list_multiX){
   # Fit the model
-  model_multiX <- train(reformulate(y_var, "HighChol"),
+  model_multiX <- train(reformulate(y_var, "CHD"),
                        data=cdc_tr_multiX, 
                        method="lm", 
                        trControl = control_multiX)
