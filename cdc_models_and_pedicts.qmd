@@ -1126,7 +1126,7 @@ print(model_basic_bp$resample)
 model_basic_bp
 
 importance_basic_bp <- varImp(model_basic_bp, scale=TRUE)
-control_basic_bp
+importance_basic_bp
 plot(importance_basic_bp)
 coef(model_basic_bp$finalModel)
 ```

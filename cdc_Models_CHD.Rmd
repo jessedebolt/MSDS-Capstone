@@ -101,7 +101,7 @@ control_main <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_main <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP , 
+model_main <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -bpmUse, 
                     data=cdc_tr_main, 
                     method="lm", 
                     trControl = control_main)
@@ -132,7 +132,7 @@ control_top20 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top20 <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -Diabetes -CholScreen -CholMedNonAdhear -CardioPhys -AirQuality -Hospitals, 
+model_top20 <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -bpmUse -Unemploy -MedHomeValue -Diabetes -CholMedNonAdhear -PhysInactivity, 
                     data=cdc_tr_top20, 
                     method="lm", 
                     trControl = control_top20)
@@ -163,7 +163,7 @@ control_top15 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top15 <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -Pharmacies -Obesity -Unemploy -MedHouseIncome -pop -Diabetes -CholScreen -CholMedNonAdhear -CardioPhys -AirQuality -Hospitals,  
+model_top15 <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -bpmUse -Unemploy -MedHomeValue -Diabetes -CholMedNonAdhear -PhysInactivity -cruParticipate -AirQuality -Pharmacies -CardioPhys -Hospitals,  
                     data=cdc_tr_top15, 
                     method="lm", 
                     trControl = control_top15)
@@ -194,7 +194,7 @@ control_top10 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top10 <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -Pharmacies -Obesity -Unemploy -MedHouseIncome -pop -Diabetes -CholScreen -CholMedNonAdhear -CardioPhys -AirQuality -Hospitals -cruParticipate -PhysInactivity -MedHomeValue -Broadband -CholMedElegible,  
+model_top10 <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -bpmUse -Unemploy -MedHomeValue -Diabetes -CholMedNonAdhear -PhysInactivity -cruParticipate -AirQuality -Pharmacies -CardioPhys -Hospitals -Obesity -pop -Parks -MedHouseIncome -Poverty,
                     data=cdc_tr_top10, 
                     method="lm", 
                     trControl = control_top10)
@@ -212,6 +212,9 @@ plot(importance_top10)
 ## Top5 Model
 ### Full model less other targets and include top 5 features from variable importance shown in (main)
 ```{r}
+# Remove 'county' and 'state' columns before splitting
+cdc <- cdc[, !(names(cdc) %in% c('county', 'state'))]
+
 # Set the seed
 set.seed(2112)
 
@@ -226,7 +229,7 @@ control_top5 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top5 <- train(CHD ~ . -county -state -Stroke -HighChol -HighBP -Pharmacies -Obesity -Unemploy -MedHouseIncome -pop -Diabetes -CholScreen -CholMedNonAdhear -CardioPhys -AirQuality -Hospitals -cruParticipate -PhysInactivity -MedHomeValue -Broadband -CholMedElegible -UrbanRural -SNAPrecipients -pcp -Poverty -Parks,  
+model_top5 <- train(CHD ~ . -Stroke -HighChol -HighBP -bpmUse -Unemploy -MedHomeValue -Diabetes -CholMedNonAdhear -PhysInactivity -cruParticipate -AirQuality -Pharmacies -CardioPhys -Hospitals -Obesity -pop -Parks -MedHouseIncome -Poverty -pcp -CholMedElegible -UrbanRural -EdLessColl -CholScreen, 
                     data=cdc_tr_top5, 
                     method="lm", 
                     trControl = control_top5)
@@ -282,7 +285,7 @@ y_var_list <- c("UrbanRural", "Diabetes", "Obesity",
                 "PhysInactivity", "Smoker", "Age65Plus",
                 "CholScreen", "CholMedNonAdhear",
                 "CholMedElegible", "cruParticipate",
-                "bpmUse", "MedHouseIncome", "Poverty",
+                "MedHouseIncome", "Poverty",
                 "Unemploy", "SNAPrecipients", "EdLessColl",
                 "MedHomeValue", "HealthIns", "AirQuality",
                 "Parks", "Broadband", "pcp", "CardioPhys",
@@ -367,14 +370,22 @@ control_multiX <- trainControl(method="repeatedcv",
 
 # List of y variables
 y_var_list_multiX <- c("UrbanRural*Smoker",
+                "UrbanRural*Diabetes",
+                "UrbanRural*Obesity",
+                "UrbanRural*PhysInactivity",
                 "UrbanRural*Age65Plus",
                 "UrbanRural*CholScreen",
                 "UrbanRural*CholMedNonAdhear",
                 "UrbanRural*CholMedElegible",
+                "UrbanRural*cruParticipate",
                 "UrbanRural*MedHouseIncome",
+                "UrbanRural*Poverty",
+                "UrbanRural*Unemploy",
+                "UrbanRural*SNAPrecipients",
                 "UrbanRural*MedHomeValue",
                 "UrbanRural*HealthIns",
                 "UrbanRural*AirQuality",
+                "UrbanRural*Parks",
                 "UrbanRural*Broadband",
                 "UrbanRural*pcp",
                 "UrbanRural*CardioPhys",
@@ -427,3 +438,104 @@ print(all_results)
 
 
 
+## Predictions on test data of Model top5
+```{r}
+# Make predictions on the test set
+predictions <- predict(model_top5, newdata = cdc_te_top5)
+
+# Print the predictions
+head(predictions)
+
+```
+
+
+## Validate the Predictions on test data of Model top5
+```{r}
+# Calculate the mean squared error of the predictions
+mse <- mean((cdc_te_top5$CHD - predictions)^2)
+print(paste("Mean Squared Error:", mse))
+
+# Calculate the root mean squared error of the predictions
+rmse <- sqrt(mse)
+print(paste("Root Mean Squared Error:", rmse))
+
+```
+
+
+
+## top 5 model as glm?? not using full model but kkeeping code for deviance and aic, maybe
+```{r}
+# Fit the model
+model_glm_poisson <- glm(CHD ~ . -Stroke -HighChol -HighBP -bpmUse -Unemploy -MedHomeValue -Diabetes -CholMedNonAdhear -PhysInactivity -cruParticipate -AirQuality -Pharmacies -CardioPhys -Hospitals -Obesity -pop -Parks -MedHouseIncome -Poverty -pcp -CholMedElegible -UrbanRural -EdLessColl -CholScreen, 
+                         family = poisson, data = cdc_tr_top5)
+
+# Get summary
+summary(model_glm_poisson)
+
+# Get deviance
+deviance_glm <- deviance(model_glm_poisson)
+print(paste("Deviance:", deviance_glm))
+
+# Get AIC
+aic_glm <- AIC(model_glm_poisson)
+print(paste("AIC:", aic_glm))
+
+```
+
+
+
+```{r}
+# Libraries
+library(caret)
+library(ggplot2)
+
+# Add a small constant to avoid taking log of zero
+cdc$CHD_logit <- log(cdc$CHD/100 + 1e-8) 
+
+# Train test split
+cdc_index_top5 <- createDataPartition(cdc$CHD_logit, p = 0.8, list = FALSE)
+cdc_tr_top5 <- cdc[cdc_index_top5, ]
+cdc_te_top5 <- cdc[-cdc_index_top5, ]
+
+# Set control requirements
+control_top5 <- trainControl(method="repeatedcv", 
+                             number =5,
+                             repeats=3)
+
+# Fit the model
+model_top5 <- train(CHD_logit ~ . -Stroke -HighChol -HighBP -bpmUse -Unemploy
+                    -MedHomeValue -Diabetes -CholMedNonAdhear -PhysInactivity
+                    -cruParticipate -AirQuality -Pharmacies -CardioPhys
+                    -Hospitals -Obesity -pop -Parks -MedHouseIncome -Poverty
+                    -pcp -CholMedElegible -UrbanRural -EdLessColl -CholScreen, 
+                    data=cdc_tr_top5, 
+                    method="lm", 
+                    trControl = control_top5)
+
+# Print the model summary
+print(model_top5)
+
+# Make predictions on the test set
+predictions_logit <- predict(model_top5, newdata = cdc_te_top5)
+
+# Transform predictions back to the original scale
+predictions <- 100 / (1 + exp(-predictions_logit))
+
+# Print the predictions
+head(predictions)
+
+
+
+```
+
+## Validate the Predictions on test data of Model top5 (results seem worse than just lm w/o logit)
+```{r}
+# Calculate the mean squared error of the predictions
+mse <- mean((cdc_te_top5$CHD - predictions)^2)
+print(paste("Mean Squared Error:", mse))
+
+# Calculate the root mean squared error of the predictions
+rmse <- sqrt(mse)
+print(paste("Root Mean Squared Error:", rmse))
+
+```
