@@ -414,7 +414,7 @@ print(sorted_multiX_results)
 # Results
 #.
 
-## Combined results
+## Combined results RMSE and R^2
 ```{r}
 # Add lists together into new table
 all_results <- rbind(sorted_cycle_results, sorted_multiX_results)
@@ -425,5 +425,58 @@ all_results <- all_results[order(-all_results$R_Squared),]
 print(all_results)
 ```
 
+
+## Combined results: Coefficients
+```{r}
+# List of models
+models <- list(full = model_full, 
+               main = model_main, 
+               top20 = model_top20, 
+               top15 = model_top15,
+               top10 = model_top10,
+               top5 = model_top5)
+
+# Create an empty list to store coefficients
+coeffs_list <- list()
+
+# Loop over each model
+for (model_name in names(models)) {
+  # Extract the coefficients of the model
+  coeffs <- coef(models[[model_name]]$finalModel)
+  
+  # Convert to data frame and set column names
+  coeffs_df <- data.frame(Variable = names(coeffs), Coefficients = coeffs, stringsAsFactors = FALSE)
+  
+  # Add a column with the name of the model
+  coeffs_df$model <- model_name
+  
+  # Add the data frame to the list
+  coeffs_list[[model_name]] <- coeffs_df
+}
+
+# Bind all data frames in the list into a single data frame
+df <- bind_rows(coeffs_list)
+
+# Convert to wide format
+Stroke_Coef <- pivot_wider(df, names_from = model, values_from = Coefficients)
+
+# Round the coefficients to 4 decimal places
+Stroke_Coef[-1] <- round(Stroke_Coef[-1], 3)
+
+# View the data frame
+print(Stroke_Coef)
+
+```
+
+
+### Add label to each variable for this model set
+```{r}
+# Add "_HighBP" to each variable name
+Stroke_Coef$Variable <- paste(Stroke_Coef$Variable, "_Stroke", sep = "")
+
+# View the data frame
+print(Stroke_Coef)
+
+```
 
 
