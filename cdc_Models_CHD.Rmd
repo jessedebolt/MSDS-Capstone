@@ -17,6 +17,8 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(readr)
 library(caret)
 library(dplyr)
+library(tidyverse)
+
 
 ```
 
@@ -494,14 +496,14 @@ print(CHD_Coef)
 ### Combine all four (CHD, HighBP, HighChol, Stroke) coefficient tables
 NOTE: run other cdc_Models_xyz files first, keep results in global environment, then run this final version, which pulls from all others.
 ```{r}
-# Stack the dataframes
-All_Coef <- bind_rows(CHD_Coef, HighBP_Coef, HighChol_Coef, Stroke_Coef)
-
-# Sort the dataframe by the 'Variable' column
-All_Coef <- All_Coef %>% arrange(Variable)
-
-# View the stacked and sorted dataframe
-print(All_Coef)
+# # Stack the dataframes
+# All_Coef <- bind_rows(CHD_Coef, HighBP_Coef, HighChol_Coef, Stroke_Coef)
+# 
+# # Sort the dataframe by the 'Variable' column
+# All_Coef <- All_Coef %>% arrange(Variable)
+# 
+# # View the stacked and sorted dataframe
+# print(All_Coef)
 
 ```
 
