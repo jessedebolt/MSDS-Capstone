@@ -511,18 +511,18 @@ NOTE: run other cdc_Models_xyz files first, keep results in global environment, 
 # Predictions
 #.
 
-## Predictions on test data of Model top5
+# Predictions on test data of Model top5
 ```{r}
 # Make predictions on the test set
 predictions <- predict(model_top5, newdata = cdc_te_top5)
 
-# Print the predictions
+# Look at the first few predictions
 head(predictions)
 
 ```
 
 
-## Validate the Predictions on test data of Model top5
+## Validate the Predictions on test data of Model top5 (88% R2 on test data)
 ```{r}
 # Calculate the mean squared error of the predictions
 mse <- mean((cdc_te_top5$CHD - predictions)^2)
@@ -532,11 +532,22 @@ print(paste("Mean Squared Error:", mse))
 rmse <- sqrt(mse)
 print(paste("Root Mean Squared Error:", rmse))
 
+#Easier way to get RMSE
+RMSE(predictions, cdc_te_top5$CHD)
+
+#R2
+R2(predictions, cdc_te_top5$CHD)
+
+#RMSE R2 MAE summary
+postResample(pred = predictions, obs = cdc_te_top5$CHD)
+
+#The prediction error RMSE is .55, representing an error rate of .55/mean(cdc_te_top5$CHD) = 6.6%, which is good.
+.55/mean(cdc_te_top5$CHD)
 ```
 
 
 
-## top 5 model as glm?? not using full model but kkeeping code for deviance and aic, maybe
+## top 5 model as glm?? not using full model but keeping code for deviance and aic, maybe
 ```{r}
 # Fit the model
 model_glm_poisson <- glm(CHD ~ . -Stroke -HighChol -HighBP -bpmUse -Unemploy -MedHomeValue -Diabetes -CholMedNonAdhear -PhysInactivity -cruParticipate -AirQuality -Pharmacies -CardioPhys -Hospitals -Obesity -pop -Parks -MedHouseIncome -Poverty -pcp -CholMedElegible -UrbanRural -EdLessColl -CholScreen, 
@@ -556,55 +567,57 @@ print(paste("AIC:", aic_glm))
 ```
 
 
-
+## Log CHD and top 5 model R2 89.4%
 ```{r}
 # Libraries
 library(caret)
 library(ggplot2)
 
+cdc_logit <- cdc
+
 # Add a small constant to avoid taking log of zero
-cdc$CHD_logit <- log(cdc$CHD/100 + 1e-8) 
+cdc_logit$CHD_logit <- log(cdc_logit$CHD/100 + 1e-8) 
 
 # Train test split
-cdc_index_top5 <- createDataPartition(cdc$CHD_logit, p = 0.8, list = FALSE)
-cdc_tr_top5 <- cdc[cdc_index_top5, ]
-cdc_te_top5 <- cdc[-cdc_index_top5, ]
+cdc_index_top5_logit <- createDataPartition(cdc_logit$CHD_logit, p = 0.8, list = FALSE)
+cdc_tr_top5_logit <- cdc_logit[cdc_index_top5_logit, ]
+cdc_te_top5_logit <- cdc_logit[-cdc_index_top5_logit, ]
 
 # Set control requirements
-control_top5 <- trainControl(method="repeatedcv", 
+control_top5_logit <- trainControl(method="repeatedcv", 
                              number =5,
                              repeats=3)
 
 # Fit the model
-model_top5 <- train(CHD_logit ~ . -CHD -Stroke -HighChol -HighBP -bpmUse -Unemploy
+model_top5_logit <- train(CHD_logit ~ . -CHD -Stroke -HighChol -HighBP -bpmUse -Unemploy
                     -MedHomeValue -Diabetes -CholMedNonAdhear -PhysInactivity
                     -cruParticipate -AirQuality -Pharmacies -CardioPhys
                     -Hospitals -Obesity -pop -Parks -MedHouseIncome -Poverty
                     -pcp -CholMedElegible -UrbanRural -EdLessColl -CholScreen, 
-                    data=cdc_tr_top5, 
+                    data=cdc_tr_top5_logit, 
                     method="lm", 
-                    trControl = control_top5)
+                    trControl = control_top5_logit)
 
 # Print the model summary
-print(model_top5)
+print(model_top5_logit)
 
 # Make predictions on the test set
-predictions_logit <- predict(model_top5, newdata = cdc_te_top5)
+predictions_logit <- predict(model_top5_logit, newdata = cdc_te_top5_logit)
 
 # Transform predictions back to the original scale
-predictions <- 100 / (1 + exp(-predictions_logit))
+predictionsL <- 100 / (1 + exp(-predictions_logit))
 
 # Print the predictions
-head(predictions)
+head(predictionsL)
 
 
 
 ```
 
-## Validate the Predictions on test data of Model top5 (results seem worse than just lm w/o logit)
+## Validate the Predictions on test data of Model top5 Log (results seem worse? than just lm w/o logit)
 ```{r}
 # Calculate the mean squared error of the predictions
-mse <- mean((cdc_te_top5$CHD - predictions)^2)
+mse <- mean((cdc_te_top5_logit$CHD - predictionsL)^2)
 print(paste("Mean Squared Error:", mse))
 
 # Calculate the root mean squared error of the predictions
@@ -614,38 +627,38 @@ print(paste("Root Mean Squared Error:", rmse))
 ```
 
 
-## testing model with interaction, gets 98% R2 oops that was with CHD logit. w/o it's actually 90%
+## testing model with interaction, gets 90% R2 (no better with Smoker*Diabetes)
 ```{r}
 # Remove 'county', 'state', and other unnecessary columns before splitting 
-cdc <- cdc[, !(names(cdc) %in% c('county', 'state', 'Stroke', 'HighChol', 'HighBP', 'bpmUse', 'Unemploy', 'MedHomeValue', 'CholMedNonAdhear', 'PhysInactivity', 'cruParticipate', 'AirQuality', 'Pharmacies', 'CardioPhys', 'Hospitals', 'Obesity', 'pop', 'Parks', 'MedHouseIncome', 'Poverty', 'pcp', 'CholMedElegible', 'UrbanRural', 'EdLessColl', 'CholScreen'))]
+cdc_SD <- cdc[, !(names(cdc) %in% c('county', 'state', 'Stroke', 'HighChol', 'HighBP', 'bpmUse', 'Unemploy', 'MedHomeValue', 'CholMedNonAdhear', 'PhysInactivity', 'cruParticipate', 'AirQuality', 'Pharmacies', 'CardioPhys', 'Hospitals', 'Obesity', 'pop', 'Parks', 'MedHouseIncome', 'Poverty', 'pcp', 'CholMedElegible', 'UrbanRural', 'EdLessColl', 'CholScreen'))]
 
 # Create the interaction term
-cdc$Smoker_Diabetes <- cdc$Smoker * cdc$Diabetes
+cdc_SD$Smoker_Diabetes <- cdc_SD$Smoker * cdc_SD$Diabetes
 
 # Set the seed
 set.seed(2112)
 
 # Train test split
-cdc_index_top5 <- createDataPartition(cdc$CHD, p = 0.8, list = FALSE)
-cdc_tr_top5 <- cdc[cdc_index_top5, ]
-cdc_te_top5 <- cdc[-cdc_index_top5, ]
+cdc_index_top5SD <- createDataPartition(cdc_SD$CHD, p = 0.8, list = FALSE)
+cdc_tr_top5SD <- cdc_SD[cdc_index_top5SD, ]
+cdc_te_top5SD <- cdc_SD[-cdc_index_top5SD, ]
 
 # Set control requirements
-control_top5 <- trainControl(method="repeatedcv", 
+control_top5SD <- trainControl(method="repeatedcv", 
                              number =5,
                              repeats=3)
 
 # Fit the model
-model_top5 <- train(CHD ~ ., 
-                    data=cdc_tr_top5, 
+model_top5SD <- train(CHD ~ ., 
+                    data=cdc_tr_top5SD, 
                     method="lm", 
-                    trControl = control_top5)
+                    trControl = control_top5SD)
 
-print(model_top5$resample)
-model_top5
+print(model_top5SD$resample)
+model_top5SD
 
-importance_top5 <- varImp(model_top5, scale=TRUE)
-plot(importance_top5)
+importance_top5SD <- varImp(model_top5SD, scale=TRUE)
+plot(importance_top5SD)
 
 
 ```
