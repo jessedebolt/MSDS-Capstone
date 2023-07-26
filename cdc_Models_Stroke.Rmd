@@ -227,7 +227,7 @@ control_top5 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top5 <- train(Stroke ~ . -county -state -CHD -HighChol -HighBP -Unemploy -pop -MedHouseIncome -AirQuality -Hospitals -CardioPhys -pcp -PhysInactivity -Obesity -Pharmacies -cruParticipate -CholScreen -Parks -Diabetes -CholMedNonAdhear -UrbanRural -CholMedElegible -EdLessColl -MedHomeValue -Broadband -HealthIns,  
+model_top5 <- train(Stroke ~ . -county -state -CHD -HighChol -HighBP -Unemploy -pop -MedHouseIncome -AirQuality -Hospitals -CardioPhys -pcp -PhysInactivity -Obesity -Pharmacies -cruParticipate -CholScreen -Parks -Diabetes -CholMedNonAdhear -CholMedElegible -EdLessColl -MedHomeValue -Broadband -HealthIns -UrbanRural,  
                     data=cdc_tr_top5, 
                     method="lm", 
                     trControl = control_top5)
@@ -481,3 +481,41 @@ print(Stroke_Coef)
 ```
 
 
+
+
+
+
+
+
+
+
+## Top5 Model WITH interactions (rename modelname, etc?) (all except UrbanRural1:SNAPrecipients are significant) R2 85.8
+### Full model less other targets and include top 5 features from variable importance shown in (main)
+```{r}
+# Set the seed
+set.seed(2112)
+
+# Train test split
+cdc_index_top5 <- createDataPartition(cdc$Stroke, p = 0.8, list = FALSE)
+cdc_tr_top5 <- cdc[cdc_index_top5, ]
+cdc_te_top5 <- cdc[-cdc_index_top5, ]
+
+# Set control requirements
+control_top5 <- trainControl(method="repeatedcv", 
+                             number =5,
+                             repeats=3)
+
+# Fit the model
+model_top5 <- train(Stroke ~ . -county -state -CHD -HighChol -HighBP -Unemploy -pop -MedHouseIncome -AirQuality -Hospitals -CardioPhys -pcp -PhysInactivity -Obesity -Pharmacies -cruParticipate -CholScreen -Parks -Diabetes -CholMedNonAdhear -CholMedElegible -EdLessColl -MedHomeValue -Broadband -HealthIns + Age65Plus*UrbanRural + Poverty*UrbanRural + Smoker*UrbanRural + bpmUse*UrbanRural + SNAPrecipients*UrbanRural,  
+                    data=cdc_tr_top5, 
+                    method="lm", 
+                    trControl = control_top5)
+
+print(model_top5$resample)
+model_top5
+
+importance_top5 <- varImp(model_top5, scale=TRUE)
+plot(importance_top5)
+
+summary(model_top5)
+```
