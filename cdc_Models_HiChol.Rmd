@@ -164,7 +164,7 @@ control_top15 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top15 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -UrbanRural -Parks -CardioPhys -MedHouseIncome -Hospitals -pop -Broadband -SNAPrecipients -Unemploy -cruParticipate,  
+model_top15 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -UrbanRural -Parks -CardioPhys -MedHouseIncome -Hospitals -pop -Broadband -MedHomeValue -cruParticipate -Unemploy,  
                     data=cdc_tr_top15, 
                     method="lm", 
                     trControl = control_top15)
@@ -195,7 +195,7 @@ control_top10 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top10 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -UrbanRural -Parks -CardioPhys -MedHouseIncome -Hospitals -pop -Broadband -SNAPrecipients -Unemploy -cruParticipate -MedHomeValue -Poverty -Diabetes -pcp -CholMedNonAdhear,  
+model_top10 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -UrbanRural -Parks -CardioPhys -MedHouseIncome -Hospitals -pop -Broadband -MedHomeValue -cruParticipate -Unemploy -SNAPrecipients -Poverty -pcp -Diabetes -Pharmacies,  
                     data=cdc_tr_top10, 
                     method="lm", 
                     trControl = control_top10)
@@ -227,7 +227,7 @@ control_top5 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top5 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -UrbanRural -Parks -CardioPhys -MedHouseIncome -Hospitals -pop -Broadband -SNAPrecipients -Unemploy -cruParticipate -MedHomeValue -Poverty -Diabetes -pcp -CholMedNonAdhear -Pharmacies -PhysInactivity -CholMedElegible -EdLessColl -AirQuality,  
+model_top5 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Obesity -UrbanRural -Parks -CardioPhys -MedHouseIncome -Hospitals -pop -Broadband -MedHomeValue -cruParticipate -Unemploy -SNAPrecipients -Poverty -pcp -Diabetes -Pharmacies -PhysInactivity -CholMedNonAdhear -CholMedElegible -Smoker -AirQuality,  
                     data=cdc_tr_top5, 
                     method="lm", 
                     trControl = control_top5)
@@ -480,4 +480,44 @@ print(HighChol_Coef)
 
 ```
 
+
+
+
+
+
+
+
+
+## Top5 Model with interactions UrbanRural and Poverty (R2 75% goes up to 78%)
+### UrbanRural interactions w/EdLessColl HealthIns CholScreen significant
+### POverty interactions w/EdLessColl bpmUse HealthIns CholScreen
+### Full model less other targets and include top 5 features from variable importance shown in (main)
+```{r}
+# Set the seed
+set.seed(2112)
+
+# Train test split
+cdc_index_top5 <- createDataPartition(cdc$HighChol, p = 0.8, list = FALSE)
+cdc_tr_top5 <- cdc[cdc_index_top5, ]
+cdc_te_top5 <- cdc[-cdc_index_top5, ]
+
+# Set control requirements
+control_top5 <- trainControl(method="repeatedcv", 
+                             number =5,
+                             repeats=3)
+
+# Fit the model
+model_top5 <- train(HighChol ~ . -county -state -CHD -HighBP -Stroke -Parks -CardioPhys -MedHouseIncome -Hospitals -pop -Broadband -MedHomeValue -cruParticipate -Unemploy -SNAPrecipients -pcp -Diabetes -Pharmacies -PhysInactivity -CholMedNonAdhear -CholMedElegible -Smoker -AirQuality + UrbanRural*EdLessColl + UrbanRural*bpmUse + UrbanRural*HealthIns + UrbanRural*CholScreen + UrbanRural*Age65Plus + Poverty*EdLessColl + Poverty*bpmUse + Poverty*HealthIns + Poverty*CholScreen + Poverty*Age65Plus,  
+                    data=cdc_tr_top5, 
+                    method="lm", 
+                    trControl = control_top5)
+
+print(model_top5$resample)
+model_top5
+
+importance_top5 <- varImp(model_top5, scale=TRUE)
+plot(importance_top5)
+
+summary(model_top5)
+```
 
