@@ -489,7 +489,8 @@ print(Stroke_Coef)
 
 
 
-## Top5 Model WITH interactions (rename modelname, etc?) (all except UrbanRural1:SNAPrecipients are significant) R2 85.8
+## Top5 Model WITH interactions UrbanRural (rename modelname, etc?) (all except UrbanRural1:SNAPrecipients are significant) R2 85.8
+### added poverty interactions 86.9 (age65Plus bpmUse SNAPrecipients significant)
 ### Full model less other targets and include top 5 features from variable importance shown in (main)
 ```{r}
 # Set the seed
@@ -506,7 +507,7 @@ control_top5 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top5 <- train(Stroke ~ . -county -state -CHD -HighChol -HighBP -Unemploy -pop -MedHouseIncome -AirQuality -Hospitals -CardioPhys -pcp -PhysInactivity -Obesity -Pharmacies -cruParticipate -CholScreen -Parks -Diabetes -CholMedNonAdhear -CholMedElegible -EdLessColl -MedHomeValue -Broadband -HealthIns + Age65Plus*UrbanRural + Poverty*UrbanRural + Smoker*UrbanRural + bpmUse*UrbanRural + SNAPrecipients*UrbanRural,  
+model_top5 <- train(Stroke ~ . -county -state -CHD -HighChol -HighBP -Unemploy -pop -MedHouseIncome -AirQuality -Hospitals -CardioPhys -pcp -PhysInactivity -Obesity -Pharmacies -cruParticipate -CholScreen -Parks -Diabetes -CholMedNonAdhear -CholMedElegible -EdLessColl -MedHomeValue -Broadband -HealthIns + Age65Plus*UrbanRural + Poverty*UrbanRural + Smoker*UrbanRural + bpmUse*UrbanRural + SNAPrecipients*UrbanRural + Age65Plus*Poverty + Poverty*UrbanRural + Smoker*Poverty + bpmUse*Poverty + SNAPrecipients*Poverty,  
                     data=cdc_tr_top5, 
                     method="lm", 
                     trControl = control_top5)
