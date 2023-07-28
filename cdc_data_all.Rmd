@@ -34,7 +34,7 @@ library(corrplot)
 library(reshape2)
 library(mice)
 library(moderndive)
-library(MASS)
+#library(MASS)
 library(dplyr)
 
 ```
@@ -4443,27 +4443,27 @@ plot(importance_step)
 #library(MASS)
 
 # Create the full model
-full.model <- lm(CHD ~ ., data = cdc_step)
+# full.model <- lm(CHD ~ ., data = cdc_step)
 ```
 
 ### Forward stepwise selection
 ```{r}
 # Forward stepwise selection
-forward <- stepAIC(full.model, direction = "forward")
-
-forward
-
-summary(forward)
+# forward <- stepAIC(full.model, direction = "forward")
+# 
+# forward
+# 
+# summary(forward)
 ```
 
 ### Backward Stepwise selection
 ```{r}
 # Backward stepwise selection
-backward <- stepAIC(full.model, direction = "backward")
-
-backward
-
-summary(backward)
+# backward <- stepAIC(full.model, direction = "backward")
+# 
+# backward
+# 
+# summary(backward)
 ```
 
 ### creating lists & datasets of variable names
