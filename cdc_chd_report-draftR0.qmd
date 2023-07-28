@@ -20,14 +20,20 @@ blah blah blah about topic and background
 # *METHODOLOGY*
 blah blah blah about how we went about reviewing data, etc.
 
-## Initial eda findings
-blah blah blah about analysis
+## Exploratory Data Analysis
 
-## Deeper Analysis
-more blah blah blah about analysis
+
+## Machine Learning Models
+
 
 ## Results of Analysis (Findings)
-blah blah blah about findings
+
+
+## Predictions Using Machine Leanring
+
+
+# *RECOMMENDATIONS*
+blah blah blah.
 
 
 # *CONCLUSION*
