@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.313">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Isaac Johnson &amp; Jesse DeBolt">
+<meta name="dcterms.date" content="2023-08-01">
+
+<title>Healthcare Access and its Effects on Coronary Heart Disease Prevalence</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="cdc_chd_report-draftR0_files/libs/clipboard/clipboard.min.js"></script>
+<script src="cdc_chd_report-draftR0_files/libs/quarto-html/quarto.js"></script>
+<script src="cdc_chd_report-draftR0_files/libs/quarto-html/popper.min.js"></script>
+<script src="cdc_chd_report-draftR0_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="cdc_chd_report-draftR0_files/libs/quarto-html/anchor.min.js"></script>
+<link href="cdc_chd_report-draftR0_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="cdc_chd_report-draftR0_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="cdc_chd_report-draftR0_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="cdc_chd_report-draftR0_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="cdc_chd_report-draftR0_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+<link href="cdc_chd_report-draftR0_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="cdc_chd_report-draftR0_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract"><strong>ABSTRACT</strong></a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><strong>INTRODUCTION</strong></a></li>
+  <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology"><strong>METHODOLOGY</strong></a>
+  <ul class="collapse">
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis"><em>Exploratory Data Analysis</em></a></li>
+  <li><a href="#machine-learning-models" id="toc-machine-learning-models" class="nav-link" data-scroll-target="#machine-learning-models"><em>Machine Learning Models</em></a></li>
+  </ul></li>
+  <li><a href="#recommendations" id="toc-recommendations" class="nav-link" data-scroll-target="#recommendations"><strong>RECOMMENDATIONS</strong></a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><strong>CONCLUSION</strong></a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Healthcare Access and its Effects on Coronary Heart Disease Prevalence</h1>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    Isaac Johnson &amp; Jesse DeBolt 
+  </div>
+    <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Willamette University School of Computing and Information Sciences
+          </p>
+      </div>
+    </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 1, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+
+</div>
+<section id="abstract" class="level2">
+<h2 class="anchored" data-anchor-id="abstract"><strong>ABSTRACT</strong></h2>
+<p>This project represents the culmination of our Master of Data Science program at Willamette University’s School of Computing &amp; Information Sciences, under the supervision of Dr.&nbsp;Jameson Watts. Serving as a testament to the knowledge and skills we have honed throughout our course, this capstone project required us to plan and execute a comprehensive data science project that holds consequential potential for an organization or society at large.</p>
+<p>We chose to focus on a topic of significant personal and societal importance - the impact of disparities in healthcare access on the prevalence of coronary heart disease. By examining this critical issue, we aim to contribute meaningfully to the ongoing discussions on healthcare equity and accessibility. The findings and insights gleaned from our research have the potential to influence policymaking and interventions in the healthcare sector, ultimately enhancing outcomes for individuals across urban and rural communities.</p>
+</section>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction"><strong>INTRODUCTION</strong></h2>
+<p>The relationship between access to healthcare services and individual health outcomes is profound, with notable disparities emerging between urban and rural areas. To create effective interventions and policies, it is imperative to understand the factors contributing to these discrepancies and their impact on health outcomes, particularly cardiovascular diseases.</p>
+<p>This project aims to illuminate the key factors influencing healthcare access disparities, with a view to leveraging this knowledge in developing policy interventions for improving cardiovascular disease outcomes. Through rigorous data analysis and predictive modeling, we have established a correlation between the prevalence of heart disease and the urban or rural residence of individuals.</p>
+<p>The forthcoming sections detail our investigative journey, offering a transparent look into our methodology and conclusions. We will first present our exploratory analysis, illuminating interesting patterns we unearthed in the process. Subsequently, we delved into the machine learning models that helped us gain deeper insights from our data exploration. Following this, we detail how we harnessed these insights to make predictive analyses with our machine learning models. Finally, we provide recommendations and propose potential enhancements that could influence the rate of heart disease prevalence in these areas.</p>
+<p>Our investigation aims to serve as a roadmap for future efforts targeting healthcare access disparities, highlighting the vital role of data science in unraveling complex societal issues. By bridging the knowledge gap, we hope to inspire impactful changes that improve healthcare accessibility, ultimately leading to healthier lives irrespective of geographical residence.</p>
+</section>
+<section id="methodology" class="level2">
+<h2 class="anchored" data-anchor-id="methodology"><strong>METHODOLOGY</strong></h2>
+<p>Our research journey began with a review of datasets made available by several organizations, including the Centers for Disease Control and Prevention, County Health Rankings &amp; Roadmaps, Behavioral Risk Factor Surveillance System (BRFSS), and the U.S. Census Bureau, among others. Initially, we endeavored to merge these diverse datasets into a singular, usable set—a complex and time-consuming task. However, this effort was superseded by our discovery of the Interactive Atlas of Heart Disease and Stroke, provided by the CDC. This comprehensive dataset offered a rich pool of information, encompassing heart disease prevalence data, other medical conditions, demographics, healthcare delivery and insurance, as well as social, economic, and environmental data. All data was presented at both the state and county level, further aiding our analysis.</p>
+<p>As we walk you through this journey, our findings will demonstrate the integral role of methodical data analysis in unearthing the complex factors contributing to disparities in healthcare access. The goal is to provide a thorough and nuanced understanding of the healthcare landscape, which could influence future interventions and policy development.</p>
+<section id="data-cleaning-and-feature-engineering" class="level4">
+<h4 class="anchored" data-anchor-id="data-cleaning-and-feature-engineering"><em>Data Cleaning and Feature Engineering</em></h4>
+<p>The data acquisition from the CDC Interactive Atlas of Heart Disease and Stroke proved to be a complex task, as the information wasn’t available as a single dataset. Instead, we had to download more than 60 individual datasets. Managing these files and coordinating the development of the necessary code across our team was challenging. To streamline these tasks and handle version control, we utilized Git and GitHub—a decision that provided valuable experience in collaborative coding and version management.</p>
+<p>Once compiled, the data needed substantial manipulation to be tailored to our specific needs. Our preparation process involved merging the various datasets into a single, coherent dataset, eliminating superfluous features and observations, and conducting other data manipulations to improve usability.</p>
+<p>A crucial part of our data preparation was handling missing and “NA” values. In instances where missing values could be inferred from alternative data sources, we conducted further research and used coding methods to populate these data. For missing values without readily available replacements, we imputed the data using mean values based on specific criteria.<br>
+<br></p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["County"],"name":[1],"type":["chr"],"align":["left"]},{"label":["State"],"name":[2],"type":["chr"],"align":["left"]},{"label":["UrbanRural"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["CHD"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["HighBP"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["HighChol"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Stroke"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["Diabetes"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["Obesity"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["PhysInactivity"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["Smoker"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["Age65Plus"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["CholScreen"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["CholMedNonAdhear"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["CholMedElegible"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["cruParticipate"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["bpmUse"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["MedHouseIncome"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["Poverty"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["Unemploy"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["SNAPrecipients"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["EdLessColl"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["MedHomeValue"],"name":[23],"type":["dbl"],"align":["right"]},{"label":["HealthIns"],"name":[24],"type":["dbl"],"align":["right"]},{"label":["AirQuality"],"name":[25],"type":["dbl"],"align":["right"]},{"label":["Parks"],"name":[26],"type":["dbl"],"align":["right"]},{"label":["Broadband"],"name":[27],"type":["dbl"],"align":["right"]},{"label":["pcp"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["CardioPhys"],"name":[29],"type":["dbl"],"align":["right"]},{"label":["Hospitals"],"name":[30],"type":["dbl"],"align":["right"]},{"label":["Pharmacies"],"name":[31],"type":["dbl"],"align":["right"]},{"label":["pop"],"name":[32],"type":["dbl"],"align":["right"]}],"data":[{"1":"Abbeville","2":"SC","3":"0","4":"9.2","5":"45.0","6":"39.5","7":"4.8","8":"11.4","9":"31.8","10":"24.6","11":"19.9","12":"21.6","13":"85.3","14":"16.6","15":"13.9","16":"40.6","17":"80.2","18":"47000","19":"15.3","20":"4.5","21":"13.2","22":"81.7","23":"101000","24":"13.7","25":"9.9","26":"22","27":"25.9","28":"140.0","29":"9.00","30":"1","31":"12.4","32":"24582"},{"1":"Acadia","2":"LA","3":"1","4":"8.9","5":"41.8","6":"39.5","7":"4.4","8":"10.4","9":"41.7","10":"31.3","11":"23.8","12":"15.4","13":"85.2","14":"17.2","15":"21.3","16":"6.9","17":"77.7","18":"45000","19":"20.7","20":"4.9","21":"22.2","22":"84.8","23":"130000","24":"10.1","25":"8.7","26":"12","27":"22.1","28":"73.0","29":"3.00","30":"2","31":"22.6","32":"62371"},{"1":"Accomack","2":"VA","3":"0","4":"10.0","5":"44.7","6":"36.5","7":"5.3","8":"10.9","9":"34.6","10":"27.4","11":"19.9","12":"23.5","13":"88.3","14":"14.6","15":"13.9","16":"20.4","17":"82.0","18":"44000","19":"17.6","20":"4.3","21":"15.0","22":"80.3","23":"174000","24":"15.1","25":"7.3","26":"8","27":"27.2","28":"28.0","29":"12.75","30":"1","31":"12.0","32":"32560"},{"1":"Ada","2":"ID","3":"1","4":"5.6","5":"28.5","6":"30.0","7":"2.5","8":"7.8","9":"26.3","10":"17.1","11":"13.1","12":"14.5","13":"82.5","14":"12.0","15":"14.9","16":"47.3","17":"70.0","18":"73000","19":"7.7","20":"3.3","21":"6.5","22":"59.9","23":"299000","24":"9.5","25":"6.2","26":"61","27":"12.0","28":"969.0","29":"21.90","30":"4","31":"7.0","32":"469473"},{"1":"Adair","2":"IA","3":"0","4":"8.2","5":"37.0","6":"36.6","7":"3.7","8":"9.1","9":"32.4","10":"21.5","11":"16.8","12":"22.4","13":"86.3","14":"10.7","15":"11.7","16":"54.0","17":"80.8","18":"55000","19":"10.8","20":"3.1","21":"8.8","22":"80.5","23":"111000","24":"5.1","25":"7.3","26":"3","27":"23.4","28":"16.0","29":"12.75","30":"1","31":"53.5","32":"7048"},{"1":"Adair","2":"OK","3":"0","4":"10.5","5":"44.8","6":"39.1","7":"5.6","8":"9.9","9":"28.0","10":"27.8","11":"30.0","12":"15.7","13":"82.3","14":"20.0","15":"29.9","16":"8.3","17":"76.1","18":"37000","19":"22.3","20":"3.7","21":"28.5","22":"89.2","23":"93000","24":"22.4","25":"9.1","26":"6","27":"48.9","28":"23.0","29":"12.75","30":"1","31":"0.0","32":"22171"},{"1":"Adair","2":"MO","3":"0","4":"6.7","5":"27.8","6":"29.8","7":"3.1","8":"7.2","9":"30.8","10":"19.3","11":"18.3","12":"14.7","13":"78.9","14":"11.3","15":"19.5","16":"36.9","17":"75.7","18":"49000","19":"17.9","20":"4.3","21":"9.7","22":"68.8","23":"124000","24":"15.4","25":"7.8","26":"16","27":"21.9","28":"45.0","29":"1.00","30":"1","31":"15.8","32":"25468"},{"1":"Adair","2":"KY","3":"0","4":"9.1","5":"44.4","6":"40.7","7":"4.1","8":"9.4","9":"27.6","10":"32.9","11":"23.4","12":"18.7","13":"88.8","14":"16.9","15":"30.8","16":"13.6","17":"79.8","18":"42000","19":"22.1","20":"5.0","21":"14.6","22":"81.6","23":"105000","24":"8.5","25":"8.8","26":"12","27":"26.0","28":"102.0","29":"12.75","30":"1","31":"31.8","32":"19366"},{"1":"Adams","2":"IA","3":"0","4":"8.5","5":"38.6","6":"37.3","7":"3.8","8":"8.2","9":"27.3","10":"21.8","11":"17.6","12":"23.0","13":"86.5","14":"11.5","15":"11.2","16":"35.7","17":"81.3","18":"56000","19":"10.8","20":"3.0","21":"9.4","22":"82.7","23":"81000","24":"6.0","25":"7.2","26":"1","27":"20.4","28":"12.0","29":"12.75","30":"1","31":"0.0","32":"3633"},{"1":"Adams","2":"ID","3":"0","4":"10.0","5":"39.4","6":"37.9","7":"4.4","8":"8.4","9":"27.2","10":"19.0","11":"15.8","12":"30.1","13":"86.3","14":"13.1","15":"15.8","16":"35.7","17":"79.0","18":"50000","19":"13.7","20":"6.6","21":"6.5","22":"81.2","23":"229000","24":"16.4","25":"5.6","26":"82","27":"27.2","28":"12.0","29":"12.75","30":"0","31":"0.0","32":"4200"},{"1":"Adams","2":"WA","3":"0","4":"7.1","5":"28.0","6":"30.2","7":"3.5","8":"9.3","9":"30.7","10":"23.5","11":"17.0","12":"11.1","13":"76.9","14":"16.4","15":"16.9","16":"35.7","17":"68.1","18":"56000","19":"12.7","20":"5.5","21":"17.8","22":"86.2","23":"160000","24":"13.1","25":"8.7","26":"32","27":"19.8","28":"26.0","29":"12.75","30":"2","31":"0.0","32":"19702"},{"1":"Adams","2":"NE","3":"0","4":"7.1","5":"31.8","6":"34.2","7":"3.1","8":"10.0","9":"34.1","10":"25.5","11":"15.3","12":"17.8","13":"82.3","14":"13.1","15":"14.6","16":"70.5","17":"78.8","18":"54000","19":"10.2","20":"2.4","21":"9.3","22":"74.4","23":"138000","24":"9.6","25":"6.3","26":"29","27":"17.3","28":"61.0","29":"1.00","30":"1","31":"22.5","32":"31541"},{"1":"Adams","2":"ND","3":"0","4":"9.6","5":"38.6","6":"36.3","7":"4.2","8":"7.2","9":"24.0","10":"20.0","11":"17.3","12":"25.7","13":"86.7","14":"11.0","15":"25.6","16":"73.8","17":"81.7","18":"51000","19":"10.8","20":"3.4","21":"4.9","22":"76.5","23":"96000","24":"9.5","25":"4.0","26":"13","27":"20.4","28":"4.0","29":"12.75","30":"1","31":"0.0","32":"2271"},{"1":"Adams","2":"WI","3":"0","4":"9.8","5":"40.4","6":"40.3","7":"4.5","8":"7.8","9":"28.2","10":"21.9","11":"19.2","12":"29.4","13":"84.6","14":"11.1","15":"20.9","16":"59.8","17":"79.9","18":"52000","19":"12.3","20":"6.2","21":"12.7","22":"85.2","23":"140000","24":"9.1","25":"7.5","26":"15","27":"23.5","28":"54.0","29":"12.75","30":"1","31":"0.0","32":"20208"},{"1":"Adams","2":"IN","3":"0","4":"8.5","5":"37.0","6":"34.5","7":"3.9","8":"7.9","9":"29.7","10":"27.8","11":"23.5","12":"15.3","13":"83.4","14":"12.4","15":"13.8","16":"48.3","17":"78.4","18":"59000","19":"11.8","20":"2.2","21":"4.9","22":"85.0","23":"142000","24":"14.3","25":"9.2","26":"9","27":"27.4","28":"26.0","29":"12.75","30":"1","31":"11.2","32":"35544"},{"1":"Adams","2":"OH","3":"0","4":"9.9","5":"41.0","6":"37.2","7":"4.6","8":"11.1","9":"33.8","10":"29.8","11":"28.1","12":"17.9","13":"82.9","14":"16.2","15":"27.3","16":"16.3","17":"79.6","18":"42000","19":"20.6","20":"6.3","21":"18.7","22":"84.5","23":"115000","24":"9.6","25":"8.7","26":"11","27":"28.6","28":"20.0","29":"12.75","30":"1","31":"14.6","32":"27685"},{"1":"Adams","2":"PA","3":"1","4":"7.7","5":"33.7","6":"34.9","7":"3.3","8":"9.3","9":"32.2","10":"22.9","11":"17.9","12":"20.3","13":"86.5","14":"12.4","15":"15.9","16":"35.0","17":"78.4","18":"70000","19":"8.0","20":"4.4","21":"7.2","22":"77.4","23":"212000","24":"7.7","25":"7.3","26":"21","27":"15.8","28":"191.0","29":"18.00","30":"1","31":"10.6","32":"102627"},{"1":"Adams","2":"CO","3":"1","4":"5.0","5":"23.3","6":"27.0","7":"2.4","8":"8.2","9":"30.9","10":"22.4","11":"14.7","12":"10.5","13":"84.1","14":"12.9","15":"14.3","16":"40.2","17":"64.6","18":"74000","19":"9.4","20":"6.2","21":"8.4","22":"74.8","23":"336000","24":"12.3","25":"9.2","26":"85","27":"11.7","28":"2.1","29":"24.60","30":"3","31":"4.8","32":"509844"},{"1":"Adams","2":"MS","3":"0","4":"10.0","5":"47.7","6":"36.5","7":"6.1","8":"12.4","9":"35.3","10":"35.3","11":"22.3","12":"18.7","13":"85.7","14":"22.2","15":"14.6","16":"29.3","17":"81.5","18":"37000","19":"27.2","20":"8.2","21":"18.3","22":"82.2","23":"94000","24":"17.6","25":"8.2","26":"36","27":"24.8","28":"23.0","29":"10.20","30":"1","31":"20.4","32":"31103"},{"1":"Adams","2":"IL","3":"0","4":"7.8","5":"36.6","6":"33.9","7":"3.6","8":"8.4","9":"25.6","10":"20.7","11":"17.6","12":"20.2","13":"86.6","14":"11.4","15":"22.7","16":"47.4","17":"77.3","18":"57000","19":"10.7","20":"3.9","21":"16.4","22":"74.8","23":"131000","24":"6.1","25":"8.6","26":"42","27":"19.3","28":"147.0","29":"32.70","30":"1","31":"7.6","32":"65670"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<section id="table-1-sample-data-from-fully-cleaned-dataset" class="level5">
+<h5 class="anchored" data-anchor-id="table-1-sample-data-from-fully-cleaned-dataset"><em>Table 1: Sample data from fully cleaned dataset</em></h5>
+<p><br> Following our comprehensive data manipulation process, we had transformed the raw data into a structured and analyzable format, as in Table 1. This equipped us to dive into a detailed exploratory analysis. This painstaking process of data preparation emphasized the critical role of thorough data cleaning and feature engineering in successful data science projects. By laying a solid foundation through these initial steps, we were able to engage in robust analyses that yield dependable insights and conclusions.</p>
+</section>
+</section>
+<section id="exploratory-data-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="exploratory-data-analysis"><em>Exploratory Data Analysis</em></h3>
+</section>
+<section id="machine-learning-models" class="level3">
+<h3 class="anchored" data-anchor-id="machine-learning-models"><em>Machine Learning Models</em></h3>
+<p><br></p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/VarConnectInteract.png" class="img-fluid figure-img" width="388"></p>
+<p></p><figcaption class="figure-caption">Image 1: Variable Connections</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><br></p>
+<p><br></p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/VarConnectInteract.png" class="img-fluid figure-img" width="388"></p>
+<p></p><figcaption class="figure-caption">Image 2: Variable Connections with Interactions</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><br></p>
+</section>
+</section>
+<section id="recommendations" class="level2">
+<h2 class="anchored" data-anchor-id="recommendations"><strong>RECOMMENDATIONS</strong></h2>
+<p>blah blah blah.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion"><strong>CONCLUSION</strong></h2>
+<p>blah blah blah and done.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
