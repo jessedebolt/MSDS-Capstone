@@ -505,7 +505,7 @@ control_top5 <- trainControl(method="repeatedcv",
                              repeats=3)
 
 # Fit the model
-model_top5 <- train(HighBP ~ . -county -state -CHD -HighChol -Stroke -pop -cruParticipate -Obesity -Unemploy -PhysInactivity -Parks -SNAPrecipients -Pharmacies -MedHouseIncome -CholMedElegible -Hospitals -MedHomeValue -pcp -CardioPhys -Broadband -AirQuality -HealthIns -Age65Plus -Smoker + UrbanRural*bpmUse + UrbanRural*EdLessColl + UrbanRural*CholMedNonAdhear + UrbanRural*CholScreen + UrbanRural*Diabetes + Poverty*bpmUse + Poverty*EdLessColl + Poverty*CholMedNonAdhear + Poverty*CholScreen + Poverty*Diabetes,  
+model_top5 <- train(HighBP ~ . -county -state -CHD -HighChol -Stroke -pop -cruParticipate -Obesity -Unemploy -PhysInactivity -Parks -SNAPrecipients -Pharmacies -MedHouseIncome -CholMedElegible -Hospitals -MedHomeValue -pcp -CardioPhys -Broadband -AirQuality -HealthIns -Age65Plus -Smoker + UrbanRural*bpmUse + UrbanRural*EdLessColl + UrbanRural*CholMedNonAdhear + UrbanRural*CholScreen + UrbanRural*Diabetes -Poverty,  
                     data=cdc_tr_top5, 
                     method="lm", 
                     trControl = control_top5)
