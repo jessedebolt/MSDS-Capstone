@@ -1996,7 +1996,7 @@ lowest_10
 
 ggplot(cdc, aes(x = HealthIns, fill = UrbanRural)) +
   geom_density(alpha = 0.5) +
-  labs(x = "PhysInactivity", y = "Density") +
+  labs(x = "%Uninsured", y = "Density") +
   theme_minimal() +
   scale_fill_brewer(palette = "Dark2")
 
