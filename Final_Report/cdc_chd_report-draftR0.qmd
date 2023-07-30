@@ -20,6 +20,10 @@ library(tidyverse)
 library(gridExtra)
 library(ggthemes)
 library(reshape2)
+library(GGally)
+library(qgraph)
+library(corrplot)
+library(usmap)
 
 ```
 
@@ -30,6 +34,14 @@ cdc <- read_csv("../data/CDC_all.csv")
 
 ```
 
+```{r}
+plot_usmap(data = cdc, values = "CHD") +
+  scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
+                        label = scales::comma) +
+  theme(legend.position = "right") +
+  labs(title = "Coronary Heart Disease Prevalence by County")
+
+```
 
 ## **ABSTRACT**
 This project represents the culmination of our Master of Data Science program at Willamette University's School of Computing & Information Sciences, under the supervision of Dr. Jameson Watts. Serving as a testament to the knowledge and skills we have honed throughout our course, this capstone project required us to plan and execute a comprehensive data science project that holds consequential potential for an organization or society at large.  
@@ -262,61 +274,133 @@ The percentage of the population aged 65 and older is slightly higher in rural c
 
 **Correlation Analysis**  
 
-- CHD shows high positive correlation with Stroke, High Blood Pressure (HBP), and High Cholesterol (HighChol). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include stroke and HBP, HighChol and HBP, and population with all kinds of hospitals and cardiologists.  These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists.
+- CHD shows high positive correlation with Stroke, High Blood Pressure (HBP), and High Cholesterol (HighChol). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include stroke and HBP, HighChol and HBP, and population with all kinds of hospitals and cardiologists, see Figure 1.  These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists. 
+
+
+```{r}
+# calculate the correlation matrix
+correlation_matrix <- cor(cdc_clean[, c("CHD", "HighBP", "HighChol", "Stroke", "pop", "Hospitals", "pcp", "CardioPhys")])
+
+# Increase label size
+qgraph(correlation_matrix, layout = "circle", labels = names(correlation_matrix), vsize = 11, vsize2 = 0.5)
+
+```
+Figure 1: Correlation Network of Variables  
+In the graphic above, the red lines represent negative correlations, green lines represent positive correlations. The thicker the line the stronger the correlation.
 
 - Coronary heart disease shows moderate positive correlations with smoking, poverty, less than a college education, broadband availability, and % of population that is age 65+. So these were factors we were interested to look at when engineering features for our models.
+
+```{r}
+cdc %>%
+    select("Smoker",
+           "Poverty",
+           "EdLessColl",
+           "Broadband",
+           "Age65Plus",
+           "UrbanRural") %>%
+  mutate(UrbanRural = recode(UrbanRural, 
+                             "Large_Urban" = "Urban-Lg",
+                             "LargeFringe_Urban" = "Urban-Med",
+                             "MediumSmall_Urban" = "Urban-Sm",
+                             "Rural" = "Rural")) %>% 
+    ggpairs(mapping = aes(color = .$"UrbanRural", alpha = 0.5))
+
+```
 
 - A negative high correlation was observed between median household income and stroke.  Which meant to us that if you had a higher income your risk of stroke was lower.  We don’t know why that is, but perhaps due to having higher income you were more likely able to have health insurance, take time off from work to see a doctor, and maybe even live a healthier lifestyle. These would be things that would be interesting to investigate further, in future projects.
 
 - Coronary heart disease shows moderate negative correlations with median household income and median home value, which we interpreted as meaning that the higher your income level, you were more likely to afford a higher valued house, and it translated to having a lower prevalence for coronary heart disease.
 
+**Urban-Rural Divide**  
+We were interested to dive deeper into the disparities between urban and rural counties:
 
+- In terms of obesity, physical inactivity, cholesterol medication non-adherence, and percentage of uninsured, no significant urban-rural differences were observed.
 
+- Further exploration and analysis may be needed to understand the role of these factors in CHD prevalence.
 
+# Placeholder for graphic
+(*Include a visualization here (not really seeing difference in urban rural, obesity, physical inactivity, chol med non adherence, % uninsured))
 
-
-
-# Outliers
 ```{r}
-cdc_out <- cdc_clean %>% 
-  select(-c("County", "State", "UrbanRural"))
+correlation_matrix <- cor(cdc[, c("Smoker",
+         "Poverty",
+         "EdLessColl",
+         "Broadband",
+         "Age65Plus"
+         )])
+corrplot(correlation_matrix, method = "number")
 
-# Scale the data
-cdc_out <- as.data.frame(scale(cdc_out))
-
-# Reshape the data to long format
-cdc_out_long <- melt(cdc_out, id.vars = NULL)
-
-# Create boxplots for each variable
-ggplot(cdc_out_long, aes(x = variable, y = value)) +
-  geom_boxplot(outlier.shape = 8,     # Use a different shape for outliers
-               outlier.size = 2,      # Change the size of the outlier points
-               outlier.color = "red") +  # Change the color of the outlier points
-  ggtitle("Outliers Within the Data") +
-  theme(axis.text.x = element_text(angle = 90))  # Rotate x-axis labels for readability
 ```
 
+```{r}
+cdc %>%
+    select("Obesity", "PhysInactivity", "CholMedNonAdhear", "HealthIns", "UrbanRural") %>%
+  mutate(UrbanRural = recode(UrbanRural, 
+                             "Large_Urban" = "Urban-Lg",
+                             "LargeFringe_Urban" = "Urban-Med",
+                             "MediumSmall_Urban" = "Urban-Sm",
+                             "Rural" = "Rural")) %>% 
+    ggpairs(mapping = aes(color = .$"UrbanRural", alpha = 0.5))
 
+```
+
+**Analysis of Top Predictors**  
+Deep dive into the top predictors of CHD, Stroke, HBP, and HChol:  
+# Placeholder for graphic  
+(*include visualization density plots top 5 most influential predictors for each condition? Edlesscoll healthins poverty smoker?
+*include scatter plots?)
+```{r}
+ggplot(cdc, aes(x = Broadband, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  labs(x = "EdLessColl", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+```
+
+Jesse notes for graphics:  
+pretty density plots(line 2k ish?) colored overlay graphs
+	top 5 variables, (ed, ins, poverty, smoker) look at line 2000, 
+	copy, paste? medium home value, ln2106 for example
+
+towards end, nicer scatter for three or so of them, CHD at 4011
+	change code to select just the few we need as CDC2.
+	
+	
 ### *Machine Learning Models*
 
 
 
 
 <br>
-```{r echo=FALSE, fig.align='center', fig.cap='Image 1: Variable Connections'}
+```{r echo=FALSE, fig.align='center', fig.cap='Figure 2: Variable Connections'}
 knitr::include_graphics("images/VarConnect.png")
 
 ```
 <br>
 
 <br>
-```{r echo=FALSE, fig.align='center', fig.cap='Image 2: Variable Connections with Interactions'}
+```{r echo=FALSE, fig.align='center', fig.cap='Figure 3: Variable Connections with Interactions'}
 knitr::include_graphics("images/VarConnectInteract.png")
 
 ```
 <br>
 
 ## **RECOMMENDATIONS**
+Summarize the EDA, Models, predictions, and recommendations  
+Health disparities represent a critical issue in our healthcare system, influenced by a complex interplay of socio-demographic factors.  
+  
+  
+Discuss challenges faced
+- How or if we worked around those challenges
+- Discuss what we could have done better/different
+- Discuss what we would have liked to do if had more time
+- Discuss what could be done with this in the future  
+  
+  
+Of course, this project is not without its limitations. Public datasets may lack granularity or may not capture all the nuances of the healthcare system. The observational nature of this analysis limits our ability to draw definitive causal conclusions. However, despite these constraints, the findings of this project can serve as a springboard for future research and can provide important directional insights. Future iterations of this project could involve integrating richer datasets, implementing more sophisticated models, and collaborating with healthcare providers or institutions to apply the insights in real-world settings. Regardless of these potential improvements, this project stands as a testament to the power of using data in promoting health equity and fostering positive societal change.  
+
+
 blah blah blah.
 
 

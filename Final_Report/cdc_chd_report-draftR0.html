@@ -56,7 +56,7 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis"><em>Exploratory Data Analysis</em></a></li>
   </ul></li>
-  <li><a href="#outliers" id="toc-outliers" class="nav-link" data-scroll-target="#outliers">Outliers</a>
+  <li><a href="#placeholder-for-graphic" id="toc-placeholder-for-graphic" class="nav-link" data-scroll-target="#placeholder-for-graphic">Placeholder for graphic</a>
   <ul class="collapse">
   <li><a href="#machine-learning-models" id="toc-machine-learning-models" class="nav-link" data-scroll-target="#machine-learning-models"><em>Machine Learning Models</em></a></li>
   <li><a href="#recommendations" id="toc-recommendations" class="nav-link" data-scroll-target="#recommendations"><strong>RECOMMENDATIONS</strong></a></li>
@@ -108,6 +108,11 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <div class="cell">
 
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
+</div>
 </div>
 <section id="abstract" class="level2">
 <h2 class="anchored" data-anchor-id="abstract"><strong>ABSTRACT</strong></h2>
@@ -169,7 +174,7 @@ With 3,140 counties to study, 1165 are categorized as Urban and 1975 as Rural. T
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>When focusing on the urban-rural divide, the top five states with the highest amount of urban counties are California, New York, Texas, Virginia, and Florida. On the flip side, the states with the most rural counties are Texas, Kansas, Kentucky, Georgia, and Missouri.</p>
@@ -178,18 +183,18 @@ CHD has an average prevalence of 8.2% across all counties, but we note a small d
 <p>The differences are even more striking when comparing large urban counties with rural ones.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Then we wanted to look at the extremes or the unexpected values to see what was interesting. We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest rates. There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol, stroke, etc… None of these differences seemed to point to anything other than a difference between higher prevalence rates of CHD and lower, not what we were expecting to see of a difference between urban and rural counties.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p><strong>Healthcare Facilities and Professionals</strong><br>
@@ -205,20 +210,60 @@ Other factors that may influence CHD prevalence:<br>
 The percentage of the population aged 65 and older is slightly higher in rural counties (20%) than in urban ones (17%).</p>
 <p><strong>Correlation Analysis</strong></p>
 <ul>
-<li><p>CHD shows high positive correlation with Stroke, High Blood Pressure (HBP), and High Cholesterol (HighChol). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include stroke and HBP, HighChol and HBP, and population with all kinds of hospitals and cardiologists. These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists.</p></li>
-<li><p>Coronary heart disease shows moderate positive correlations with smoking, poverty, less than a college education, broadband availability, and % of population that is age 65+. So these were factors we were interested to look at when engineering features for our models.</p></li>
+<li>CHD shows high positive correlation with Stroke, High Blood Pressure (HBP), and High Cholesterol (HighChol). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include stroke and HBP, HighChol and HBP, and population with all kinds of hospitals and cardiologists, see Figure 1. These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists.</li>
+</ul>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Figure 1: Correlation Network of Variables<br>
+In the graphic above, the red lines represent negative correlations, green lines represent positive correlations. The thicker the line the stronger the correlation.</p>
+<ul>
+<li>Coronary heart disease shows moderate positive correlations with smoking, poverty, less than a college education, broadband availability, and % of population that is age 65+. So these were factors we were interested to look at when engineering features for our models.</li>
+</ul>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
 <li><p>A negative high correlation was observed between median household income and stroke. Which meant to us that if you had a higher income your risk of stroke was lower. We don’t know why that is, but perhaps due to having higher income you were more likely able to have health insurance, take time off from work to see a doctor, and maybe even live a healthier lifestyle. These would be things that would be interesting to investigate further, in future projects.</p></li>
 <li><p>Coronary heart disease shows moderate negative correlations with median household income and median home value, which we interpreted as meaning that the higher your income level, you were more likely to afford a higher valued house, and it translated to having a lower prevalence for coronary heart disease.</p></li>
 </ul>
+<p><strong>Urban-Rural Divide</strong><br>
+We were interested to dive deeper into the disparities between urban and rural counties:</p>
+<ul>
+<li><p>In terms of obesity, physical inactivity, cholesterol medication non-adherence, and percentage of uninsured, no significant urban-rural differences were observed.</p></li>
+<li><p>Further exploration and analysis may be needed to understand the role of these factors in CHD prevalence.</p></li>
+</ul>
 </section>
 </section>
-<section id="outliers" class="level1">
-<h1>Outliers</h1>
+<section id="placeholder-for-graphic" class="level1">
+<h1>Placeholder for graphic</h1>
+<p>(*Include a visualization here (not really seeing difference in urban rural, obesity, physical inactivity, chol med non adherence, % uninsured))</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>Analysis of Top Predictors</strong><br>
+Deep dive into the top predictors of CHD, Stroke, HBP, and HChol:<br>
+# Placeholder for graphic<br>
+(<em>include visualization density plots top 5 most influential predictors for each condition? Edlesscoll healthins poverty smoker? </em>include scatter plots?)</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Jesse notes for graphics:<br>
+pretty density plots(line 2k ish?) colored overlay graphs top 5 variables, (ed, ins, poverty, smoker) look at line 2000, copy, paste? medium home value, ln2106 for example</p>
+<p>towards end, nicer scatter for three or so of them, CHD at 4011 change code to select just the few we need as CDC2.</p>
 <section id="machine-learning-models" class="level3">
 <h3 class="anchored" data-anchor-id="machine-learning-models"><em>Machine Learning Models</em></h3>
 <p><br></p>
@@ -227,7 +272,7 @@ The percentage of the population aged 65 and older is slightly higher in rural c
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/VarConnect.png" class="img-fluid figure-img" width="388"></p>
-<p></p><figcaption class="figure-caption">Image 1: Variable Connections</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure 2: Variable Connections</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -239,7 +284,7 @@ The percentage of the population aged 65 and older is slightly higher in rural c
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/VarConnectInteract.png" class="img-fluid figure-img" width="388"></p>
-<p></p><figcaption class="figure-caption">Image 2: Variable Connections with Interactions</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure 3: Variable Connections with Interactions</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -248,6 +293,10 @@ The percentage of the population aged 65 and older is slightly higher in rural c
 </section>
 <section id="recommendations" class="level2">
 <h2 class="anchored" data-anchor-id="recommendations"><strong>RECOMMENDATIONS</strong></h2>
+<p>Summarize the EDA, Models, predictions, and recommendations<br>
+Health disparities represent a critical issue in our healthcare system, influenced by a complex interplay of socio-demographic factors.</p>
+<p>Discuss challenges faced - How or if we worked around those challenges - Discuss what we could have done better/different - Discuss what we would have liked to do if had more time - Discuss what could be done with this in the future</p>
+<p>Of course, this project is not without its limitations. Public datasets may lack granularity or may not capture all the nuances of the healthcare system. The observational nature of this analysis limits our ability to draw definitive causal conclusions. However, despite these constraints, the findings of this project can serve as a springboard for future research and can provide important directional insights. Future iterations of this project could involve integrating richer datasets, implementing more sophisticated models, and collaborating with healthcare providers or institutions to apply the insights in real-world settings. Regardless of these potential improvements, this project stands as a testament to the power of using data in promoting health equity and fostering positive societal change.</p>
 <p>blah blah blah.</p>
 </section>
 <section id="conclusion" class="level2">
