@@ -12,12 +12,24 @@ format:
     toc: true
 ---
 
-```{r setup, echo=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 library(readr)
+library(tidyverse)
+library(gridExtra)
+library(ggthemes)
+library(reshape2)
 
 ```
+
+
+```{r load}
+cdc_clean <- read_csv("data/cleanCDC.csv")
+cdc <- read_csv("../data/CDC_all.csv")
+
+```
+
 
 ## **ABSTRACT**
 This project represents the culmination of our Master of Data Science program at Willamette University's School of Computing & Information Sciences, under the supervision of Dr. Jameson Watts. Serving as a testament to the knowledge and skills we have honed throughout our course, this capstone project required us to plan and execute a comprehensive data science project that holds consequential potential for an organization or society at large.  
@@ -46,10 +58,8 @@ Once compiled, the data needed substantial manipulation to be tailored to our sp
   
 A crucial part of our data preparation was handling missing and "NA" values. In instances where missing values could be inferred from alternative data sources, we conducted further research and used coding methods to populate these data. For missing values without readily available replacements, we imputed the data using mean values based on specific criteria.  
 <br>
-```{r echo=FALSE}
-cdc <- read_csv("images/cleanCDC.csv")
-
-rmarkdown::paged_table(head(cdc, n=20))
+```{r}
+rmarkdown::paged_table(head(cdc_clean, n=20))
 
 ```
 ##### *Table 1: Sample data from fully cleaned dataset*  
@@ -60,6 +70,153 @@ Following our comprehensive data manipulation process, we had transformed the ra
 ### *Exploratory Data Analysis*
 
 
+# States with most urban and rural counties
+```{r figure1, echo=FALSE}
+# Reverse the color palette
+color_func <- colorRampPalette(c("lightgreen", "darkgreen"))
+custom_colors <- rev(color_func(10))
+
+# Select top 10 rural states
+top_rural <- cdc %>%
+  filter(UrbanRural == "Rural") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+# Plot top 10 rural states
+mostRural = ggplot(top_rural, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with Most Rural",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+```{r figure2, echo=FALSE}
+# Reverse the color palette
+color_func <- colorRampPalette(c("lightblue", "darkblue"))
+custom_colors <- rev(color_func(10))
+
+# Select top 10 urban states
+top_urban <- cdc %>%
+  filter(grepl("Urban", UrbanRural)) %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+# Plot top 10 urban states
+mostUrban = ggplot(top_urban, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with Most Urban",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+```{r}
+# Arrange plots side by side
+grid.arrange(mostUrban, mostRural, ncol = 2)
+```
+
+
+# Prevalence of CHD in urban/rural
+```{r}
+library(RColorBrewer)
+colors <- brewer.pal(4, "Set2")
+
+ggplot(data = cdc, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = colors) +
+  labs(x = "Urban or Rural Area", 
+       y = "Prevalence of Coronary Heart Disease", 
+       fill = "Area Type",
+       title = "Prevalence of Coronary Heart Disease in Urban and Rural Areas") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(hjust = 0.5))
+```
+
+
+# states with highest and lowest prevalence visual
+
+```{r}
+# Top 10 states with highest prevalence
+highest_prevalence <- cdc %>%
+  group_by(state) %>%
+  summarise(average_CHD = mean(CHD, na.rm = TRUE)) %>%
+  arrange(desc(average_CHD)) %>%
+  slice(1:10) %>%
+  mutate(average_CHD_text = sprintf("%.1f%%", average_CHD))
+
+# Top 10 states with lowest prevalence
+lowest_prevalence <- cdc %>%
+  group_by(state) %>%
+  summarise(average_CHD = mean(CHD, na.rm = TRUE)) %>%
+  arrange(average_CHD) %>%
+  slice(1:10) %>%
+  mutate(average_CHD_text = sprintf("%.1f%%", average_CHD))
+
+# Add a new column to differentiate between the two groups
+highest_prevalence$group <- "Highest Prevalence"
+lowest_prevalence$group <- "Lowest Prevalence"
+
+# Combine the two data frames
+combined_prevalence <- rbind(highest_prevalence, lowest_prevalence)
+
+# Create the plot
+ggplot(combined_prevalence, aes(x = reorder(state, average_CHD), y = average_CHD)) +
+  geom_bar(stat = "identity", aes(fill = group)) +
+  geom_text(aes(label = average_CHD_text), hjust = 1.2, size = 3) +
+  coord_flip() +
+  facet_grid(group ~ ., scales = "free", space = "free") +
+  scale_y_continuous(limits = c(0, 11)) +
+  scale_fill_manual(values = c("darkorange", "steelblue")) +
+  theme_fivethirtyeight() +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank(), 
+        legend.position = "none",
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(), 
+        plot.background = element_blank(),
+        strip.text = element_text(size = 13))+
+  ggtitle("Average Coronary Heart Disease Prevalence (%)")
+
+```
+
+# Outliers
+```{r}
+cdc_out <- cdc_clean %>% 
+  select(-c("County", "State", "UrbanRural"))
+
+# Scale the data
+cdc_out <- as.data.frame(scale(cdc_out))
+
+# Reshape the data to long format
+cdc_out_long <- melt(cdc_out, id.vars = NULL)
+
+# Create boxplots for each variable
+ggplot(cdc_out_long, aes(x = variable, y = value)) +
+  geom_boxplot(outlier.shape = 8,     # Use a different shape for outliers
+               outlier.size = 2,      # Change the size of the outlier points
+               outlier.color = "red") +  # Change the color of the outlier points
+  ggtitle("Outliers Within the Data") +
+  theme(axis.text.x = element_text(angle = 90))  # Rotate x-axis labels for readability
+```
+
+
 ### *Machine Learning Models*
 
 
@@ -67,7 +224,7 @@ Following our comprehensive data manipulation process, we had transformed the ra
 
 <br>
 ```{r echo=FALSE, fig.align='center', fig.cap='Image 1: Variable Connections'}
-knitr::include_graphics("images/VarConnectInteract.png")
+knitr::include_graphics("images/VarConnect.png")
 
 ```
 <br>
