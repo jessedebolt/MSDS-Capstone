@@ -69,8 +69,27 @@ Following our comprehensive data manipulation process, we had transformed the ra
 
 ### *Exploratory Data Analysis*
 
+**Data Description:**  
+Our dataset consists of 3,140 rows, each corresponding to a county in the United States, and 46 columns representing various variables. The variables span a range of categories, including:
 
-# States with most urban and rural counties
+- Geographic: county, state, urban or rural categorization, and more.
+
+- Health-specific: prevalence of coronary heart disease (CHD), high blood pressure, and high cholesterol, stroke, diabetes, etc.
+
+- Healthcare Infrastructure: number of doctors, cardiologists, hospitals, and hospitals with cardiac units, etc.
+
+- Socio-economic: percentage of population in poverty, median income, median home value, and education level.
+
+- Lifestyle and Environmental: number of parks, air quality, access to broadband, etc.
+
+- Demographic: Age over 65, ethnicity, sex, etc.
+
+These variables were chosen because each one is either directly linked or indirectly associated with CHD in some manner.
+
+**Demographic Distribution:**  
+With 3,140 counties to study, 1165 are categorized as Urban and 1975 as Rural. The states with the highest number of counties in our study are Texas, Georgia, and Virginia, while those with the least are D.C., Delaware, and Hawaii.  
+
+
 ```{r figure1, echo=FALSE}
 # Reverse the color palette
 color_func <- colorRampPalette(c("lightgreen", "darkgreen"))
@@ -130,8 +149,13 @@ mostUrban = ggplot(top_urban, aes(x = state, y = count, fill = state)) +
 grid.arrange(mostUrban, mostRural, ncol = 2)
 ```
 
+When focusing on the urban-rural divide, the top five states with the highest amount of urban counties are California, New York, Texas, Virginia, and Florida. On the flip side, the states with the most rural counties are Texas, Kansas, Kentucky, Georgia, and Missouri. 
 
-# Prevalence of CHD in urban/rural
+**CHD Prevalence Across Urban and Rural Counties**  
+CHD has an average prevalence of 8.2% across all counties, but we note a small difference between urban (7.24%) and rural counties (8.7%). 
+
+The differences are even more striking when comparing large urban counties with rural ones. 
+
 ```{r}
 library(RColorBrewer)
 colors <- brewer.pal(4, "Set2")
@@ -148,8 +172,6 @@ ggplot(data = cdc, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
         plot.title = element_text(hjust = 0.5))
 ```
 
-
-# states with highest and lowest prevalence visual
 
 ```{r}
 # Top 10 states with highest prevalence
@@ -195,6 +217,64 @@ ggplot(combined_prevalence, aes(x = reorder(state, average_CHD), y = average_CHD
   ggtitle("Average Coronary Heart Disease Prevalence (%)")
 
 ```
+
+Then we wanted to look at the extremes or the unexpected values to see what was interesting.  We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest rates.  There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol,  stroke, etc… None of these differences seemed to point to anything other than a difference between higher prevalence rates of CHD and lower, not what we were expecting to see of a difference between urban and rural counties. 
+
+
+```{r}
+# Calculate the average CHD prevalence by state and UrbanRural level
+chd_prevalence_by_state_and_urbanrural <- cdc %>%
+  group_by(state, UrbanRural) %>%
+  summarise(average_CHD = mean(CHD, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(UrbanRural = recode(UrbanRural, 
+                             "Large_Urban" = "Urban-Lg",
+                             "LargeFringe_Urban" = "Urban-Lg Fringe",
+                             "MediumSmall_Urban" = "Urban-Med,Sm",
+                             "Rural" = "Rural"),
+        state = fct_rev(state))
+
+# Generate a heatmap
+ggplot(chd_prevalence_by_state_and_urbanrural, aes(y = state, x = UrbanRural, fill = average_CHD)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "red") +
+  labs(y = "State", x = "Urban/Rural Level", fill = "Avg Prevalence", 
+       title = "Heatmap of CHD Prevalence by State and Urban/Rural Level") +
+  theme(axis.text.x = element_text(angle = 0),
+        legend.title = element_text(angle = 90))
+
+```
+
+**Healthcare Facilities and Professionals**  
+Analyze the role of healthcare availability and infrastructure in CHD prevalence:
+
+- Urban counties have, on average, more hospitals (2.2 per county) compared to rural counties (0.9 per county), making the average per county 1.
+
+- When adjusted for population, there are 7 hospitals per 100,000 people in rural counties compared to 1.7 in urban counties.
+
+- One surprising finding was that 227 urban counties and 473 rural counties lack a hospital.
+
+- There are more primary care physicians in urban counties (258 per county) compared to rural counties (38 per county). However, after adjusting for population, there are 152 PCPs per 1,000 people in urban areas and 127 in rural ones.
+
+**Population Factors**  
+Other factors that may influence CHD prevalence:  
+The percentage of the population aged 65 and older is slightly higher in rural counties (20%) than in urban ones (17%).
+
+**Correlation Analysis**  
+
+- CHD shows high positive correlation with Stroke, High Blood Pressure (HBP), and High Cholesterol (HighChol). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include stroke and HBP, HighChol and HBP, and population with all kinds of hospitals and cardiologists.  These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists.
+
+- Coronary heart disease shows moderate positive correlations with smoking, poverty, less than a college education, broadband availability, and % of population that is age 65+. So these were factors we were interested to look at when engineering features for our models.
+
+- A negative high correlation was observed between median household income and stroke.  Which meant to us that if you had a higher income your risk of stroke was lower.  We don’t know why that is, but perhaps due to having higher income you were more likely able to have health insurance, take time off from work to see a doctor, and maybe even live a healthier lifestyle. These would be things that would be interesting to investigate further, in future projects.
+
+- Coronary heart disease shows moderate negative correlations with median household income and median home value, which we interpreted as meaning that the higher your income level, you were more likely to afford a higher valued house, and it translated to having a lower prevalence for coronary heart disease.
+
+
+
+
+
+
 
 # Outliers
 ```{r}

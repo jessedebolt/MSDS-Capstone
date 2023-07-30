@@ -56,9 +56,6 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis"><em>Exploratory Data Analysis</em></a></li>
   </ul></li>
-  <li><a href="#states-with-most-urban-and-rural-counties" id="toc-states-with-most-urban-and-rural-counties" class="nav-link" data-scroll-target="#states-with-most-urban-and-rural-counties">States with most urban and rural counties</a></li>
-  <li><a href="#prevalence-of-chd-in-urbanrural" id="toc-prevalence-of-chd-in-urbanrural" class="nav-link" data-scroll-target="#prevalence-of-chd-in-urbanrural">Prevalence of CHD in urban/rural</a></li>
-  <li><a href="#states-with-highest-and-lowest-prevalence-visual" id="toc-states-with-highest-and-lowest-prevalence-visual" class="nav-link" data-scroll-target="#states-with-highest-and-lowest-prevalence-visual">states with highest and lowest prevalence visual</a></li>
   <li><a href="#outliers" id="toc-outliers" class="nav-link" data-scroll-target="#outliers">Outliers</a>
   <ul class="collapse">
   <li><a href="#machine-learning-models" id="toc-machine-learning-models" class="nav-link" data-scroll-target="#machine-learning-models"><em>Machine Learning Models</em></a></li>
@@ -151,10 +148,19 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="exploratory-data-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="exploratory-data-analysis"><em>Exploratory Data Analysis</em></h3>
-</section>
-</section>
-<section id="states-with-most-urban-and-rural-counties" class="level1">
-<h1>States with most urban and rural counties</h1>
+<p><strong>Data Description:</strong><br>
+Our dataset consists of 3,140 rows, each corresponding to a county in the United States, and 46 columns representing various variables. The variables span a range of categories, including:</p>
+<ul>
+<li><p>Geographic: county, state, urban or rural categorization, and more.</p></li>
+<li><p>Health-specific: prevalence of coronary heart disease (CHD), high blood pressure, and high cholesterol, stroke, diabetes, etc.</p></li>
+<li><p>Healthcare Infrastructure: number of doctors, cardiologists, hospitals, and hospitals with cardiac units, etc.</p></li>
+<li><p>Socio-economic: percentage of population in poverty, median income, median home value, and education level.</p></li>
+<li><p>Lifestyle and Environmental: number of parks, air quality, access to broadband, etc.</p></li>
+<li><p>Demographic: Age over 65, ethnicity, sex, etc.</p></li>
+</ul>
+<p>These variables were chosen because each one is either directly linked or indirectly associated with CHD in some manner.</p>
+<p><strong>Demographic Distribution:</strong><br>
+With 3,140 counties to study, 1165 are categorized as Urban and 1975 as Rural. The states with the highest number of counties in our study are Texas, Georgia, and Virginia, while those with the least are D.C., Delaware, and Hawaii.</p>
 <div class="cell">
 
 </div>
@@ -166,28 +172,51 @@ ul.task-list li input[type="checkbox"] {
 <p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-</section>
-<section id="prevalence-of-chd-in-urbanrural" class="level1">
-<h1>Prevalence of CHD in urban/rural</h1>
+<p>When focusing on the urban-rural divide, the top five states with the highest amount of urban counties are California, New York, Texas, Virginia, and Florida. On the flip side, the states with the most rural counties are Texas, Kansas, Kentucky, Georgia, and Missouri.</p>
+<p><strong>CHD Prevalence Across Urban and Rural Counties</strong><br>
+CHD has an average prevalence of 8.2% across all counties, but we note a small difference between urban (7.24%) and rural counties (8.7%).</p>
+<p>The differences are even more striking when comparing large urban counties with rural ones.</p>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-</section>
-<section id="states-with-highest-and-lowest-prevalence-visual" class="level1">
-<h1>states with highest and lowest prevalence visual</h1>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Then we wanted to look at the extremes or the unexpected values to see what was interesting. We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest rates. There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol, stroke, etc… None of these differences seemed to point to anything other than a difference between higher prevalence rates of CHD and lower, not what we were expecting to see of a difference between urban and rural counties.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>Healthcare Facilities and Professionals</strong><br>
+Analyze the role of healthcare availability and infrastructure in CHD prevalence:</p>
+<ul>
+<li><p>Urban counties have, on average, more hospitals (2.2 per county) compared to rural counties (0.9 per county), making the average per county 1.</p></li>
+<li><p>When adjusted for population, there are 7 hospitals per 100,000 people in rural counties compared to 1.7 in urban counties.</p></li>
+<li><p>One surprising finding was that 227 urban counties and 473 rural counties lack a hospital.</p></li>
+<li><p>There are more primary care physicians in urban counties (258 per county) compared to rural counties (38 per county). However, after adjusting for population, there are 152 PCPs per 1,000 people in urban areas and 127 in rural ones.</p></li>
+</ul>
+<p><strong>Population Factors</strong><br>
+Other factors that may influence CHD prevalence:<br>
+The percentage of the population aged 65 and older is slightly higher in rural counties (20%) than in urban ones (17%).</p>
+<p><strong>Correlation Analysis</strong></p>
+<ul>
+<li><p>CHD shows high positive correlation with Stroke, High Blood Pressure (HBP), and High Cholesterol (HighChol). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include stroke and HBP, HighChol and HBP, and population with all kinds of hospitals and cardiologists. These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists.</p></li>
+<li><p>Coronary heart disease shows moderate positive correlations with smoking, poverty, less than a college education, broadband availability, and % of population that is age 65+. So these were factors we were interested to look at when engineering features for our models.</p></li>
+<li><p>A negative high correlation was observed between median household income and stroke. Which meant to us that if you had a higher income your risk of stroke was lower. We don’t know why that is, but perhaps due to having higher income you were more likely able to have health insurance, take time off from work to see a doctor, and maybe even live a healthier lifestyle. These would be things that would be interesting to investigate further, in future projects.</p></li>
+<li><p>Coronary heart disease shows moderate negative correlations with median household income and median home value, which we interpreted as meaning that the higher your income level, you were more likely to afford a higher valued house, and it translated to having a lower prevalence for coronary heart disease.</p></li>
+</ul>
+</section>
 </section>
 <section id="outliers" class="level1">
 <h1>Outliers</h1>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <section id="machine-learning-models" class="level3">
