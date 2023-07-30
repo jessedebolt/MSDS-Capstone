@@ -1,0 +1,40 @@
+---
+title: "Healthcare Access and its Effects on Coronary Heart Disease Prevalence"
+author: "Isaac Johnson & Jesse DeBolt"
+date: "August 1, 2023"
+course: DATA510 - Data Science Capstone Project
+categories: [Engineering, Analysis, Visualizations, Machine Learning]
+image: "DATA501_Final.png"
+format: html
+---
+
+
+# *ABSTRACT*
+Tell that what you are going to tell them
+
+# *INTRODUCTION AND BACKGROUND*
+blah blah blah about topic and background
+? maybe about datasets
+
+
+# *METHODOLOGY*
+blah blah blah about how we went about reviewing data, etc.
+
+## Exploratory Data Analysis
+
+
+## Machine Learning Models
+
+
+## Results of Analysis (Findings)
+
+
+## Predictions Using Machine Leanring
+
+
+# *RECOMMENDATIONS*
+blah blah blah.
+
+
+# *CONCLUSION*
+blah blah blah and done.
