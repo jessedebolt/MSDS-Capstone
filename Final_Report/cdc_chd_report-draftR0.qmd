@@ -10,6 +10,7 @@ image: "DATA501_Final.png"
 format:
   html:
     toc: true
+    embed-resources: true
 ---
 
 ```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
