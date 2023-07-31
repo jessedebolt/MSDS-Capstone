@@ -33,6 +33,8 @@ library(usmap)
 library(rpart)
 library(rpart.plot)
 library(RColorBrewer)
+library(jtools)
+library(caret)
 
 ```
 
@@ -445,7 +447,7 @@ knitr::include_graphics("images/VarConnect.png")
 
 The inclusion of interaction terms is where we began to reveal differences between urban and rural for these sub-models that then lead to factors that influence coronary heart disease prevalence. These findings contribute to the broader narrative about CHD prevalence, and the disparity between urban and rural environments.  
 
-For instance, in the Stroke model, the main variables (Age65plus, Poverty, Smoker, bpmUse, SNAPrecipients) all proved statistically significant when interacting with the urban/rural divide, except for SNAPrecipients. Similarly, in the HighBP model, the top variables (bpmUse, EdLessColl, CholMedNonAdhear, CholScreen, Diabetes) revealed significant interactions for EdLessColl and CholScreen. For the HighChol model, all variables except Age65Plus and bpmUse showed significant interactions.  What this revealed, is that for these statistically significant variables, when accounting for an interaction with urban or rural, this is where you can start to see the additional pieces to the story that explain why there is a difference in coronary heart disease prevalence rates between urban and rural areas.  
+For instance, in the Stroke model, the main variables (`Age65plus`, `Poverty`, `Smoker`, `bpmUse`, `SNAPrecipients`) all proved statistically significant when interacting with the urban/rural divide, except for `SNAPrecipients.` Similarly, in the `HighBP` model, the top variables (`bpmUse`, `EdLessColl`, `CholMedNonAdhear`, `CholScreen`, `Diabetes`) revealed significant interactions for `EdLessColl` and `CholScreen.` For the `HighChol` model, all variables except `Age65Plus` and `bpmUse` showed significant interactions.  What this revealed, is that for these statistically significant variables, when accounting for an interaction with urban or rural, this is where you can start to see the additional pieces to the story that explain why there is a difference in coronary heart disease prevalence rates between urban and rural areas.  
 
 ```{r echo=FALSE, fig.align='center', fig.cap='Figure 3: Variable Connections with Interactions'}
 knitr::include_graphics("images/VarConnectInteract.png")
@@ -458,36 +460,99 @@ Having constructed our models, we will now interpret the coefficients and their 
 #### *Stroke Model*
 In the stroke model, significant variables include `UrbanRural1` (1 meaning Urban), `Smoker` (percentage of people who smoke in the county), `Age65Plus` (percentage of population over the age of 65), `bpmUse` (percentage of the population that has been prescribed blood pressure medications), `Poverty` (percentage of the population who are considered at the poverty level), and `SNAPrecipients` (percentage of the population that are on SNAP benefits).  
 
+```{r}
+# Set the seed
+set.seed(2112)
 
-{insert stroke coefficients?}
+# Train test split
+cdc_index_top5 <- createDataPartition(cdc_clean$Stroke, p = 0.8, list = FALSE)
+cdc_tr_top5 <- cdc_clean[cdc_index_top5, ]
+cdc_te_top5 <- cdc_clean[-cdc_index_top5, ]
 
-Let’s examine a couple of these coefficients.  When looking at the percentage of people who smoke, we get the coefficient of Smoker 0.054767.  Which means for every extra 1% of people who smoke, we'd expect about a 0.05% increase in stroke prevalence, not considering the other factors.  Now, if we consider adding an interaction with urban or rural status, we get a coefficient of UrbanRural1:Smoker 0.010469. This suggests that city places with more smokers see about a 0.01% higher stroke prevalence than we'd expect just from being a city and having more smokers separately.  
+# Set control requirements
+control_top5 <- trainControl(method="repeatedcv", 
+                             number =5,
+                             repeats=3)
 
-Another one we can look at, is the coefficient for people who are prescribed blood pressure medication, we get bpmUse 0.057698. For every extra 1% of people who use blood pressure medication, we'd expect about a 0.057% increase in stroke prevalence, not considering the other factors.  Then if we add the interaction to consider urban or rural status, we get UrbanRural1:bpmUse -0.033723. This suggests that city places where more people use blood pressure medication see about a 0.034% lower stroke prevalence than we'd expect just from being a city and the blood pressure medication usage separately.  
+# Fit the model
+model_top5 <- train(Stroke ~ UrbanRural + Age65Plus + Poverty + Smoker + bpmUse + SNAPrecipients + Age65Plus*UrbanRural + Poverty*UrbanRural + Smoker*UrbanRural + bpmUse*UrbanRural + SNAPrecipients*UrbanRural,  
+                    data=cdc_tr_top5, 
+                    method="lm", 
+                    trControl = control_top5)
+
+summ(model_top5$finalModel)
+
+```
+
+Let’s examine a couple of these coefficients.  When looking at the percentage of people who smoke, we get the coefficient of Smoker 0.054767.  Which means for every extra 1% of people who smoke, we'd expect about a 0.05% increase in stroke prevalence, not considering the other factors.  Now, if we consider adding an interaction with urban or rural status, we get a coefficient of `UrbanRural1:Smoker` 0.010469. This suggests that city places with more smokers see about a 0.01% higher stroke prevalence than we'd expect just from being a city and having more smokers separately.  
+
+Another one we can look at, is the coefficient for people who are prescribed blood pressure medication, we get `bpmUse` 0.057698. For every extra 1% of people who use blood pressure medication, we'd expect about a 0.057% increase in stroke prevalence, not considering the other factors.  Then if we add the interaction to consider urban or rural status, we get `UrbanRural1:bpmUse` -0.033723. This suggests that city places where more people use blood pressure medication see about a 0.034% lower stroke prevalence than we'd expect just from being a city and the blood pressure medication usage separately.  
 
 #### *High Blood Pressure Model*
 In the high blood pressure model, significant variables include `UrbanRural1` (1 meaning urban county), `Diabetes` (percentage of population diagnosed with diabetes), `CholScreen` (percentage of patients who have been screened for high cholesterol), `CholMedNonAdhear` (percentage of patients not taking their cholesterol medication), `bpmUse` (percentage of the population that has been prescribed blood pressure medications), and `EdLessColl` (percentage of the population who have completed less than a college education).  
 
+```{r}
+# Set the seed
+set.seed(2112)
 
-{insert highbp coefficients?}
+# Train test split
+cdc_index_top5 <- createDataPartition(cdc_clean$HighBP, p = 0.8, list = FALSE)
+cdc_tr_top5 <- cdc_clean[cdc_index_top5, ]
+cdc_te_top5 <- cdc_clean[-cdc_index_top5, ]
 
-Looking closer at the percentage of people who have less. Than a college education, we see the coefficient of EdLessColl 0.209690. Which means, for every extra 1% of people who didn't go to college, we'd expect about a 0.21% increase in high blood pressure, not considering the other factors. This could be due to various things like diet, lifestyle, and stress levels. Then if we add the interaction with urban or rural, we get the coefficient of UrbanRural1:EdLessColl -0.038142. Here, city places with more people who didn't go to college see about a 0.04% lower high blood pressure rate than we'd expect just from being a city and having fewer college graduates separately.  
+# Set control requirements
+control_top5 <- trainControl(method="repeatedcv", 
+                             number =5,
+                             repeats=3)
 
-If we examine cholesterol screening, we get the coefficient CholScreen 0.569438. So, for every extra 1% of people who get their cholesterol checked, we'd expect about a 0.57% increase in high blood pressure, not considering the other factors. This could be because the more people get checked, the more likely we are to find high blood pressure. However, then we we add the interaction for urban or rural, we see that we get a coefficient o fUrbanRural1:CholScreen -0.283930. This suggests that city places with more people getting their cholesterol checked see about a 0.28% lower high blood pressure rate than we'd expect just from being a city and the cholesterol checks separately.  
+# Fit the model
+model_top5 <- train(HighBP ~ UrbanRural + Age65Plus + Poverty + Smoker + bpmUse + SNAPrecipients + Age65Plus*UrbanRural + Poverty*UrbanRural + Smoker*UrbanRural + bpmUse*UrbanRural + SNAPrecipients*UrbanRural,  
+                    data=cdc_tr_top5, 
+                    method="lm", 
+                    trControl = control_top5)
+
+summ(model_top5$finalModel)
+
+```
+
+Looking closer at the percentage of people who have less. Than a college education, we see the coefficient of `EdLessColl` 0.209690. Which means, for every extra 1% of people who didn't go to college, we'd expect about a 0.21% increase in high blood pressure, not considering the other factors. This could be due to various things like diet, lifestyle, and stress levels. Then if we add the interaction with urban or rural, we get the coefficient of `UrbanRural1:EdLessColl` -0.038142. Here, city places with more people who didn't go to college see about a 0.04% lower high blood pressure rate than we'd expect just from being a city and having fewer college graduates separately.  
+
+If we examine cholesterol screening, we get the coefficient CholScreen 0.569438. So, for every extra 1% of people who get their cholesterol checked, we'd expect about a 0.57% increase in high blood pressure, not considering the other factors. This could be because the more people get checked, the more likely we are to find high blood pressure. However, then we we add the interaction for urban or rural, we see that we get a coefficient of `UrbanRural1:CholScreen` -0.283930. This suggests that city places with more people getting their cholesterol checked see about a 0.28% lower high blood pressure rate than we'd expect just from being a city and the cholesterol checks separately.  
 
 #### *High Cholesterol Model*
-In the HighChol model, significant variables include `UrbanRural1` (1 meaning Urban), `Age65Plus` (percentage of population over the age of 65), `CholScreen` (percentage of pateints who have been screened for high cholesterol), `bpmUse` (percentage of the population that has been prescribed blood pressure medications), `EdLessColl` (percentage of the population who have completed less than a college education), and `HealthIns` (percentage of the population that are uninsured).  
+In the HighChol model, significant variables include `UrbanRural1` (1 meaning Urban), `Age65Plus` (percentage of population over the age of 65), `CholScreen` (percentage of patients who have been screened for high cholesterol), `bpmUse` (percentage of the population that has been prescribed blood pressure medications), `EdLessColl` (percentage of the population who have completed less than a college education), and `HealthIns` (percentage of the population that are uninsured).  
 
+```{r}
+# Set the seed
+set.seed(2112)
 
-{insert highchol coefficients?}
+# Train test split
+cdc_index_top5 <- createDataPartition(cdc_clean$HighChol, p = 0.8, list = FALSE)
+cdc_tr_top5 <- cdc_clean[cdc_index_top5, ]
+cdc_te_top5 <- cdc_clean[-cdc_index_top5, ]
 
-Let’s take a closer look at if someone has a less than college education.  Since EdLessColl coefficient is 0.130220, then for each 1% increase in the population with less than a college education, we'd expect the prevalence of High Cholesterol to increase by about 0.13 percentage points, everything else held constant. This could be due to a number of factors, such as dietary habits, lifestyle, etc.  
+# Set control requirements
+control_top5 <- trainControl(method="repeatedcv", 
+                             number =5,
+                             repeats=3)
 
-Now if we were to look at adding an interaction term of urban or rural, we get a coefficient of UrbanRural1:EdLessColl -0.039767. This tells us that the combined effect of being in an urban area and having less than a college education is to reduce the prevalence of High Cholesterol by about 0.04 percentage points, compared to what we would expect if these two factors were acting independently. This is a subtle but important point.  
+# Fit the model
+model_top5 <- train(HighChol ~ UrbanRural + Age65Plus + Poverty + Smoker + bpmUse + SNAPrecipients + Age65Plus*UrbanRural + Poverty*UrbanRural + Smoker*UrbanRural + bpmUse*UrbanRural + SNAPrecipients*UrbanRural,  
+                    data=cdc_tr_top5, 
+                    method="lm", 
+                    trControl = control_top5)
 
-Now if we were to look at percentage of patients without health insurance, we get a coefficient of HealthIns 0.155021.   For each 1% increase in the population who are uninsured, we'd expect the prevalence of High Cholesterol to increase by about 0.16 percentage points, keeping all else constant. This may be because uninsured people might not have access to preventative care or proper medication.  
+summ(model_top5$finalModel)
 
-Then when we look at adding the interaction again between urban or rural and not having health insurance, we see a coefficient of UrbanRural1:HealthIns -0.032083. The combined effect of being in an urban area and being uninsured reduces the expected prevalence of High Cholesterol by about 0.03 percentage points, compared to what we would expect if these two factors were acting independently.  
+```
+
+Let’s take a closer look at if someone has a less than college education.  Since `EdLessColl` coefficient is 0.130220, then for each 1% increase in the population with less than a college education, we'd expect the prevalence of High Cholesterol to increase by about 0.13 percentage points, everything else held constant. This could be due to a number of factors, such as dietary habits, lifestyle, etc.  
+
+Now if we were to look at adding an interaction term of urban or rural, we get a coefficient of `UrbanRural1:EdLessColl` -0.039767. This tells us that the combined effect of being in an urban area and having less than a college education is to reduce the prevalence of High Cholesterol by about 0.04 percentage points, compared to what we would expect if these two factors were acting independently. This is a subtle but important point.  
+
+Now if we were to look at percentage of patients without health insurance, we get a coefficient of `HealthIns` 0.155021.   For each 1% increase in the population who are uninsured, we'd expect the prevalence of High Cholesterol to increase by about 0.16 percentage points, keeping all else constant. This may be because uninsured people might not have access to preventative care or proper medication.  
+
+Then when we look at adding the interaction again between urban or rural and not having health insurance, we see a coefficient of `UrbanRural1:HealthIns` -0.032083. The combined effect of being in an urban area and being uninsured reduces the expected prevalence of High Cholesterol by about 0.03 percentage points, compared to what we would expect if these two factors were acting independently.  
 
 Through these coefficients, we gain a comprehensive understanding of the different factors contributing to stroke, high blood pressure, and high cholesterol and how their impacts diverge between urban and rural environments. This understanding can guide future strategies and interventions to address these health issues more effectively.  
 
@@ -497,8 +562,6 @@ Please note, that while the coefficients provide insight into the relationship b
 The main indicators of coronary heart disease are high blood pressure, high cholesterol, and stroke. These factors are typical aspects of CHD, hence their significance. Upon examination of the top five indicators for each of these, we note some overlap among ten different factors, as depicted in Figure 2 above.  
 
 When we take into account the interactions between urban and rural populations, the most statistically significant factors reduce to seven individual components. Some of these are not easily modifiable, or they require further analysis to discern the contributing elements. With an urban or rural context, the factors most amenable to adjustment include education, health insurance, smoking, and poverty.  
-
-
 
 As our research and models indicate, individuals with education levels less than college are more at risk for high blood pressure and high cholesterol, two leading indicators of heart disease. The U.S. medical system, with its intricate insurance requirements, scheduling procedures, billing understanding, and diagnosis comprehension, can pose substantial challenges, especially for the less educated and elderly. One potential solution to this would be the provision of health advocates or coaches who are accessible to those who find it difficult to seek help and gain understanding.  
 
