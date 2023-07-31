@@ -37,65 +37,67 @@ cdc <- read_csv("../data/CDC_all.csv")
 ```
 
 ```{r}
-plot_usmap(data = cdc, values = "CHD") +
-  scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
-                        label = scales::comma) +
-  theme(legend.position = "right") +
+plot_usmap(data = cdc, values = "CHD", color = "black") +
+  scale_fill_continuous(low = "blue", high = "red", name = "CHD(%)", 
+                        na.value = "blue", labels = scales::comma) +
+  theme(legend.position = c(.9, .28), # Move the legend to the middle right
+        plot.title = element_text(hjust = .9, vjust = -140), # Align title to the lower right
+        legend.title = element_text(size = 10)) +
   labs(title = "Coronary Heart Disease Prevalence by County")
 
 ```
 
 ```{r}
-library(ggplot2)
-library(gridExtra)
-
-# Subset data for urban and rural
-cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
-cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
-
-
-# Create maps
-p1 <- plot_usmap(data = cdc_urban, values = "CHD") +
-  scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
-                        label = scales::comma) +
-  theme(legend.position = "right") +
-  labs(title = "Coronary Heart Disease Prevalence by County (Urban)")
-
-p2 <- plot_usmap(data = cdc_rural, values = "CHD") +
-  scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
-                        label = scales::comma) +
-  theme(legend.position = "right") +
-  labs(title = "Coronary Heart Disease Prevalence by County (Rural)")
-
-# Combine maps
-grid.arrange(p1, p2, ncol = 2)
+# library(ggplot2)
+# library(gridExtra)
+# 
+# # Subset data for urban and rural
+# cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
+# cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
+# 
+# 
+# # Create maps
+# p1 <- plot_usmap(data = cdc_urban, values = "CHD") +
+#   scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
+#                         label = scales::comma) +
+#   theme(legend.position = "right") +
+#   labs(title = "Coronary Heart Disease Prevalence by County (Urban)")
+# 
+# p2 <- plot_usmap(data = cdc_rural, values = "CHD") +
+#   scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
+#                         label = scales::comma) +
+#   theme(legend.position = "right") +
+#   labs(title = "Coronary Heart Disease Prevalence by County (Rural)")
+# 
+# # Combine maps
+# grid.arrange(p1, p2, ncol = 2)
 
 ```
 
 ```{r}
-library(ggplot2)
-library(usmap)
-library(cowplot)
-
-# Subset data for urban and rural
-cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
-cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
-
-# Create maps
-p1 <- plot_usmap(data = cdc_urban, values = "CHD", background = "white") +
-  scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
-                        label = scales::comma, guide = FALSE) +
-  labs(title = "Urban Heart Disease Prevalence") +
-  theme(plot.title = element_text(hjust = 0.5))
-
-p2 <- plot_usmap(data = cdc_rural, values = "CHD", background = "white") +
-  scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
-                        label = scales::comma) +
-  labs(title = "Rural Heart Disease Prevalence") +
-  theme(plot.title = element_text(hjust = 0.5))
-
-# Combine maps
-plot_grid(p1, p2, align = "hv", ncol = 2)
+# library(ggplot2)
+# library(usmap)
+# library(cowplot)
+# 
+# # Subset data for urban and rural
+# cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
+# cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
+# 
+# # Create maps
+# p1 <- plot_usmap(data = cdc_urban, values = "CHD", background = "white") +
+#   scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
+#                         label = scales::comma, guide = FALSE) +
+#   labs(title = "Urban Heart Disease Prevalence") +
+#   theme(plot.title = element_text(hjust = 0.5))
+# 
+# p2 <- plot_usmap(data = cdc_rural, values = "CHD", background = "white") +
+#   scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
+#                         label = scales::comma) +
+#   labs(title = "Rural Heart Disease Prevalence") +
+#   theme(plot.title = element_text(hjust = 0.5))
+# 
+# # Combine maps
+# plot_grid(p1, p2, align = "hv", ncol = 2)
 
 ```
 
@@ -286,8 +288,9 @@ ggplot(combined_prevalence, aes(x = reorder(state, average_CHD), y = average_CHD
 
 ```
 
-We then wanted to look at the extremes or the unexpected values to see what was interesting.  We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest rates.  There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol,  stroke, etc… None of these differences seemed to point to anything other than a difference between higher prevalence rates of CHD and lower, not what we were expecting to see of a difference between urban and rural counties. 
+We then wanted to look at the extremes or the unexpected values to see what was interesting.  We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest rates.  There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol,  stroke, etc… None of these differences seemed to point to anything other than a difference between higher prevalence rates of CHD and lower, not what we were expecting to see of a difference between urban and rural counties.  
 
+*Coronary Heart Disease Prevalence Urban/Rural by State*
 ```{r}
 # Calculate the average CHD prevalence by state and UrbanRural level
 chd_prevalence_by_state_and_urbanrural <- cdc %>%
@@ -309,10 +312,12 @@ chd_prevalence_by_state_and_urbanrural <- chd_prevalence_by_state_and_urbanrural
 ggplot(chd_prevalence_by_state_and_urbanrural, aes(y = state, x = UrbanRural, fill = average_CHD)) +
   geom_tile() +
   scale_fill_gradient(low = "white", high = "red") +
-  labs(y = "State", x = "Urban/Rural Level", fill = "Avg Prevalence", 
-       title = "Heatmap of CHD Prevalence by State and Urban/Rural Level") +
+  labs(y = "State", x = "Urban/Rural Level", fill = "Avg Prevalence") +
   theme(axis.text.x = element_text(angle = 0),
-        legend.title = element_text(angle = 90))
+        panel.background = element_rect(fill = "white"), # Change background to white
+        panel.grid.major.y = element_blank(), # Remove horizontal grid lines
+        panel.grid.minor.y = element_blank(), # Remove horizontal grid lines
+        legend.position = "none") # Remove legend
 
 ```
 
