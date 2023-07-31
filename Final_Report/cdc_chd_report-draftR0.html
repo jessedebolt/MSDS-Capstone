@@ -54,14 +54,12 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><strong>INTRODUCTION</strong></a></li>
   <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology"><strong>METHODOLOGY</strong></a>
   <ul class="collapse">
-  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis"><em>Exploratory Data Analysis</em></a></li>
+  <li><a href="#data-cleaning-and-feature-engineering" id="toc-data-cleaning-and-feature-engineering" class="nav-link" data-scroll-target="#data-cleaning-and-feature-engineering"><strong>Data Cleaning and Feature Engineering</strong></a></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis"><strong>Exploratory Data Analysis</strong></a></li>
+  <li><a href="#machine-learning-models" id="toc-machine-learning-models" class="nav-link" data-scroll-target="#machine-learning-models"><strong>Machine Learning Models</strong></a></li>
   </ul></li>
-  <li><a href="#placeholder-for-graphic" id="toc-placeholder-for-graphic" class="nav-link" data-scroll-target="#placeholder-for-graphic">Placeholder for graphic</a>
-  <ul class="collapse">
-  <li><a href="#machine-learning-models" id="toc-machine-learning-models" class="nav-link" data-scroll-target="#machine-learning-models"><em>Machine Learning Models</em></a></li>
   <li><a href="#recommendations" id="toc-recommendations" class="nav-link" data-scroll-target="#recommendations"><strong>RECOMMENDATIONS</strong></a></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><strong>CONCLUSION</strong></a></li>
-  </ul></li>
   </ul>
 </nav>
 </div>
@@ -114,6 +112,16 @@ ul.task-list li input[type="checkbox"] {
 <p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 <section id="abstract" class="level2">
 <h2 class="anchored" data-anchor-id="abstract"><strong>ABSTRACT</strong></h2>
 <p>This project represents the culmination of our Master of Data Science program at Willamette University’s School of Computing &amp; Information Sciences, under the supervision of Dr.&nbsp;Jameson Watts. Serving as a testament to the knowledge and skills we have honed throughout our course, this capstone project required us to plan and execute a comprehensive data science project that holds consequential potential for an organization or society at large.</p>
@@ -130,8 +138,8 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="methodology"><strong>METHODOLOGY</strong></h2>
 <p>Our research journey began with a review of datasets made available by several organizations, including the Centers for Disease Control and Prevention, County Health Rankings &amp; Roadmaps, Behavioral Risk Factor Surveillance System (BRFSS), and the U.S. Census Bureau, among others. Initially, we endeavored to merge these diverse datasets into a singular, usable set—a complex and time-consuming task. However, this effort was superseded by our discovery of the Interactive Atlas of Heart Disease and Stroke, provided by the CDC. This comprehensive dataset offered a rich pool of information, encompassing heart disease prevalence data, other medical conditions, demographics, healthcare delivery and insurance, as well as social, economic, and environmental data. All data was presented at both the state and county level, further aiding our analysis.</p>
 <p>As we walk you through this journey, our findings will demonstrate the integral role of methodical data analysis in unearthing the complex factors contributing to disparities in healthcare access. The goal is to provide a thorough and nuanced understanding of the healthcare landscape, which could influence future interventions and policy development.</p>
-<section id="data-cleaning-and-feature-engineering" class="level4">
-<h4 class="anchored" data-anchor-id="data-cleaning-and-feature-engineering"><em>Data Cleaning and Feature Engineering</em></h4>
+<section id="data-cleaning-and-feature-engineering" class="level3">
+<h3 class="anchored" data-anchor-id="data-cleaning-and-feature-engineering"><strong>Data Cleaning and Feature Engineering</strong></h3>
 <p>The data acquisition from the CDC Interactive Atlas of Heart Disease and Stroke proved to be a complex task, as the information wasn’t available as a single dataset. Instead, we had to download more than 60 individual datasets. Managing these files and coordinating the development of the necessary code across our team was challenging. To streamline these tasks and handle version control, we utilized Git and GitHub—a decision that provided valuable experience in collaborative coding and version management.</p>
 <p>Once compiled, the data needed substantial manipulation to be tailored to our specific needs. Our preparation process involved merging the various datasets into a single, coherent dataset, eliminating superfluous features and observations, and conducting other data manipulations to improve usability.</p>
 <p>A crucial part of our data preparation was handling missing and “NA” values. In instances where missing values could be inferred from alternative data sources, we conducted further research and used coding methods to populate these data. For missing values without readily available replacements, we imputed the data using mean values based on specific criteria.<br>
@@ -152,9 +160,10 @@ ul.task-list li input[type="checkbox"] {
 </section>
 </section>
 <section id="exploratory-data-analysis" class="level3">
-<h3 class="anchored" data-anchor-id="exploratory-data-analysis"><em>Exploratory Data Analysis</em></h3>
-<p><strong>Data Description:</strong><br>
-Our dataset consists of 3,140 rows, each corresponding to a county in the United States, and 46 columns representing various variables. The variables span a range of categories, including:</p>
+<h3 class="anchored" data-anchor-id="exploratory-data-analysis"><strong>Exploratory Data Analysis</strong></h3>
+<section id="data-description" class="level4">
+<h4 class="anchored" data-anchor-id="data-description"><em>Data Description</em></h4>
+<p>Our dataset consists of 3,140 rows, each corresponding to a county in the United States, and 46 columns representing various variables. The variables span a range of categories, including:</p>
 <ul>
 <li><p>Geographic: county, state, urban or rural categorization, and more.</p></li>
 <li><p>Health-specific: prevalence of coronary heart disease (CHD), high blood pressure, and high cholesterol, stroke, diabetes, etc.</p></li>
@@ -164,57 +173,67 @@ Our dataset consists of 3,140 rows, each corresponding to a county in the United
 <li><p>Demographic: Age over 65, ethnicity, sex, etc.</p></li>
 </ul>
 <p>These variables were chosen because each one is either directly linked or indirectly associated with CHD in some manner.</p>
-<p><strong>Demographic Distribution:</strong><br>
-With 3,140 counties to study, 1165 are categorized as Urban and 1975 as Rural. The states with the highest number of counties in our study are Texas, Georgia, and Virginia, while those with the least are D.C., Delaware, and Hawaii.</p>
+</section>
+<section id="demographic-distribution" class="level4">
+<h4 class="anchored" data-anchor-id="demographic-distribution"><em>Demographic Distribution:</em></h4>
+<p>With 3,140 counties to study, 1165 are categorized as Urban and 1975 as Rural. The states with the highest number of counties in our study are Texas, Georgia, and Virginia, while those with the least are D.C., Delaware, and Hawaii.</p>
 <div class="cell">
 
 </div>
 <div class="cell">
 
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>When focusing on the urban-rural divide, the top five states with the highest amount of urban counties are California, New York, Texas, Virginia, and Florida. On the flip side, the states with the most rural counties are Texas, Kansas, Kentucky, Georgia, and Missouri.</p>
-<p><strong>CHD Prevalence Across Urban and Rural Counties</strong><br>
-CHD has an average prevalence of 8.2% across all counties, but we note a small difference between urban (7.24%) and rural counties (8.7%).</p>
-<p>The differences are even more striking when comparing large urban counties with rural ones.</p>
-<div class="cell">
-<div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
-</div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Then we wanted to look at the extremes or the unexpected values to see what was interesting. We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest rates. There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol, stroke, etc… None of these differences seemed to point to anything other than a difference between higher prevalence rates of CHD and lower, not what we were expecting to see of a difference between urban and rural counties.</p>
+<p>When focusing on the urban-rural divide, the top five states with the highest amount of urban counties are California, New York, Texas, Virginia, and Florida. On the flip side, the states with the most rural counties are Texas, Kansas, Kentucky, Georgia, and Missouri.</p>
+</section>
+<section id="chd-prevalence-across-urban-and-rural-counties" class="level4">
+<h4 class="anchored" data-anchor-id="chd-prevalence-across-urban-and-rural-counties"><em>CHD Prevalence Across Urban and Rural Counties</em></h4>
+<p>CHD has an average prevalence of 8.2% across all counties, but we note a small difference between urban (7.24%) and rural counties (8.7%).</p>
+<p>The differences are even more striking when comparing large urban counties with rural ones.</p>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p><strong>Healthcare Facilities and Professionals</strong><br>
-Analyze the role of healthcare availability and infrastructure in CHD prevalence:</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We then wanted to look at the extremes or the unexpected values to see what was interesting. We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest rates. There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol, stroke, etc… None of these differences seemed to point to anything other than a difference between higher prevalence rates of CHD and lower, not what we were expecting to see of a difference between urban and rural counties.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="healthcare-facilities-and-professionals" class="level4">
+<h4 class="anchored" data-anchor-id="healthcare-facilities-and-professionals"><em>Healthcare Facilities and Professionals</em></h4>
+<p>Analyze the role of healthcare availability and infrastructure in CHD prevalence:</p>
 <ul>
 <li><p>Urban counties have, on average, more hospitals (2.2 per county) compared to rural counties (0.9 per county), making the average per county 1.</p></li>
 <li><p>When adjusted for population, there are 7 hospitals per 100,000 people in rural counties compared to 1.7 in urban counties.</p></li>
 <li><p>One surprising finding was that 227 urban counties and 473 rural counties lack a hospital.</p></li>
 <li><p>There are more primary care physicians in urban counties (258 per county) compared to rural counties (38 per county). However, after adjusting for population, there are 152 PCPs per 1,000 people in urban areas and 127 in rural ones.</p></li>
 </ul>
-<p><strong>Population Factors</strong><br>
-Other factors that may influence CHD prevalence:<br>
+</section>
+<section id="population-factors" class="level4">
+<h4 class="anchored" data-anchor-id="population-factors"><em>Population Factors</em></h4>
+<p>Other factors that may influence CHD prevalence:<br>
 The percentage of the population aged 65 and older is slightly higher in rural counties (20%) than in urban ones (17%).</p>
-<p><strong>Correlation Analysis</strong></p>
+</section>
+<section id="correlation-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="correlation-analysis"><em>Correlation Analysis</em></h4>
 <ul>
 <li>CHD shows high positive correlation with Stroke, High Blood Pressure (HBP), and High Cholesterol (HighChol). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include stroke and HBP, HighChol and HBP, and population with all kinds of hospitals and cardiologists, see Figure 1. These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists.</li>
 </ul>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Figure 1: Correlation Network of Variables<br>
@@ -224,48 +243,65 @@ In the graphic above, the red lines represent negative correlations, green lines
 </ul>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
+</div>
+<div class="cell">
+
 </div>
 <ul>
 <li><p>A negative high correlation was observed between median household income and stroke. Which meant to us that if you had a higher income your risk of stroke was lower. We don’t know why that is, but perhaps due to having higher income you were more likely able to have health insurance, take time off from work to see a doctor, and maybe even live a healthier lifestyle. These would be things that would be interesting to investigate further, in future projects.</p></li>
 <li><p>Coronary heart disease shows moderate negative correlations with median household income and median home value, which we interpreted as meaning that the higher your income level, you were more likely to afford a higher valued house, and it translated to having a lower prevalence for coronary heart disease.</p></li>
 </ul>
-<p><strong>Urban-Rural Divide</strong><br>
-We were interested to dive deeper into the disparities between urban and rural counties:</p>
+</section>
+<section id="urban-rural-divide" class="level4">
+<h4 class="anchored" data-anchor-id="urban-rural-divide"><em>Urban-Rural Divide</em></h4>
+<p>We were interested to dive deeper into the disparities between urban and rural counties:</p>
 <ul>
-<li><p>In terms of obesity, physical inactivity, cholesterol medication non-adherence, and percentage of uninsured, no significant urban-rural differences were observed.</p></li>
-<li><p>Further exploration and analysis may be needed to understand the role of these factors in CHD prevalence.</p></li>
+<li>In terms of obesity, physical inactivity, cholesterol medication non-adherence, and percentage of uninsured, no significant urban-rural differences were observed.</li>
+</ul>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>Further exploration and analysis may be needed to understand the role of these factors in CHD prevalence.</li>
+</ul>
+</section>
+<section id="analysis-of-top-predictors" class="level4">
+<h4 class="anchored" data-anchor-id="analysis-of-top-predictors"><em>Analysis of Top Predictors</em></h4>
+<p>Deep dive into the top predictors of CHD, Stroke, HBP, and HChol:</p>
+<ul>
+<li>In terms of coronary heart disease, high blood pressure, high cholesterol, stroke, and age over 65 we found significant correlation.</li>
+</ul>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>With these findings we decided to take a more quantifiable look at the data. This led us to the use of machine learning methods, which we go into more detail next.</li>
 </ul>
 </section>
 </section>
-<section id="placeholder-for-graphic" class="level1">
-<h1>Placeholder for graphic</h1>
-<p>(*Include a visualization here (not really seeing difference in urban rural, obesity, physical inactivity, chol med non adherence, % uninsured))</p>
-<div class="cell">
-<div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p><strong>Analysis of Top Predictors</strong><br>
-Deep dive into the top predictors of CHD, Stroke, HBP, and HChol:<br>
-# Placeholder for graphic<br>
-(<em>include visualization density plots top 5 most influential predictors for each condition? Edlesscoll healthins poverty smoker? </em>include scatter plots?)</p>
-<div class="cell">
-<div class="cell-output-display">
-<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>Jesse notes for graphics:<br>
-pretty density plots(line 2k ish?) colored overlay graphs top 5 variables, (ed, ins, poverty, smoker) look at line 2000, copy, paste? medium home value, ln2106 for example</p>
-<p>towards end, nicer scatter for three or so of them, CHD at 4011 change code to select just the few we need as CDC2.</p>
 <section id="machine-learning-models" class="level3">
-<h3 class="anchored" data-anchor-id="machine-learning-models"><em>Machine Learning Models</em></h3>
+<h3 class="anchored" data-anchor-id="machine-learning-models"><strong>Machine Learning Models</strong></h3>
+<p>Our objective was to predict the prevalence of Coronary Heart Disease (CHD) in the dataset. Initially, we sought to ascertain whether the prediction of CHD was plausible based on the available data. More importantly, we needed to comprehend the drivers or contributing factors to CHD.</p>
+<p>To identify these drivers, we executed a series of models, including decision tree models, recursive partitioning and regression trees (rpart), and random forest models. These were instrumental in discerning key variables for feature engineering. We also employed backward stepwise feature selection. Our analytical efforts culminated in linear regression models, followed by generalized linear mixed models (GLMM) with a Poisson distribution. We successively eliminated the least critical variables until we identified the top five most impactful ones, yielding an RMSE of 0.3653547, and an Rsquared of 0.9463568. Essentially this means that with these top 5 variables we were able to explain almost 95% of the variance in the data, with a low rate of error.</p>
+<p>We discovered high correlations between CHD prevalence and factors such as high blood pressure, high cholesterol, and stroke occurrence. These five variables (Stroke, Age65plus, Smoker, HighChol, HighBP) could predict or explain a majority (95%) of the variation in the CHD data.</p>
+<p>Given their high correlation and their status as diagnostic criteria for CHD, we then decided to explore these variables in depth. We constructed predictive models for these variables to address questions such as: What factors influence these variables? What drives these health changes? Is there a divergence between urban and rural counties in these aspects?</p>
+<section id="insights-from-sub-models" class="level4">
+<h4 class="anchored" data-anchor-id="insights-from-sub-models"><em>Insights from Sub-models</em></h4>
+<p>We realized that we needed to take a step back, and look deeper at these variables that were important for modeling Coronary Heart Disease, and so we dove into creating models for High Cholesterol, High Blood Pressure, and Stroke.</p>
+<p>We found that most of the variance in the data could be explained by the models for Stroke, HighChol, and HighBP. The top five variables contributing to High Chol were EdLesscoll, bpmUse, healthIns, CholScreen, and Age65Plus, resulting in an RMSE of 1.728563, Rsquared of 0.7542299, and MAE of 1.361216. The most significant variables for HighBP were bpmUse, EdLessColl, CholMedNonAdhear, CholScreen, and Diabetes, with an RMSE of 2.398734, Rsquared of 0.8226873, and MAE of 1.873001. For Stroke, the most influential variables were Age65Plus, Poverty, Smoker, bpmUse, and SNAPrecipients, generating an RMSE of 0.3290255, Rsquared of 0.8530259, and a MAE of 0.2401123.</p>
+<p>The inclusion of interaction terms began to reveal differences between urban and rural CHD prevalences. These findings contribute to the broader narrative about CHD prevalence disparity between urban and rural environments.</p>
+<p>For instance, in the Stroke model, the main variables (Age65plus, Poverty, Smoker, bpmUse, SNAPrecipients) all proved statistically significant when interacting with the urban/rural divide, except for SNAPrecipients. Similarly, in the HighBP model, the top variables (bpmUse, EdLessColl, CholMedNonAdhear, CholScreen, Diabetes) revealed significant interactions for EdLessColl and CholScreen. For the HighChol model, all variables except Age and bpmUse showed significant interactions.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="cdc_chd_report-draftR0_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 <p><br></p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
@@ -291,6 +327,8 @@ pretty density plots(line 2k ish?) colored overlay graphs top 5 variables, (ed, 
 </div>
 <p><br></p>
 </section>
+</section>
+</section>
 <section id="recommendations" class="level2">
 <h2 class="anchored" data-anchor-id="recommendations"><strong>RECOMMENDATIONS</strong></h2>
 <p>Summarize the EDA, Models, predictions, and recommendations<br>
@@ -302,7 +340,6 @@ Health disparities represent a critical issue in our healthcare system, influenc
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion"><strong>CONCLUSION</strong></h2>
 <p>blah blah blah and done.</p>
-</section>
 </section>
 
 </main>

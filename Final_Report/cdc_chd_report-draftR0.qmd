@@ -24,6 +24,8 @@ library(GGally)
 library(qgraph)
 library(corrplot)
 library(usmap)
+library(rpart)
+library(rpart.plot)
 
 ```
 
@@ -40,6 +42,60 @@ plot_usmap(data = cdc, values = "CHD") +
                         label = scales::comma) +
   theme(legend.position = "right") +
   labs(title = "Coronary Heart Disease Prevalence by County")
+
+```
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+
+# Subset data for urban and rural
+cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
+cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
+
+
+# Create maps
+p1 <- plot_usmap(data = cdc_urban, values = "CHD") +
+  scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
+                        label = scales::comma) +
+  theme(legend.position = "right") +
+  labs(title = "Coronary Heart Disease Prevalence by County (Urban)")
+
+p2 <- plot_usmap(data = cdc_rural, values = "CHD") +
+  scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
+                        label = scales::comma) +
+  theme(legend.position = "right") +
+  labs(title = "Coronary Heart Disease Prevalence by County (Rural)")
+
+# Combine maps
+grid.arrange(p1, p2, ncol = 2)
+
+```
+
+```{r}
+library(ggplot2)
+library(usmap)
+library(cowplot)
+
+# Subset data for urban and rural
+cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
+cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
+
+# Create maps
+p1 <- plot_usmap(data = cdc_urban, values = "CHD", background = "white") +
+  scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
+                        label = scales::comma, guide = FALSE) +
+  labs(title = "Urban Heart Disease Prevalence") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+p2 <- plot_usmap(data = cdc_rural, values = "CHD", background = "white") +
+  scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
+                        label = scales::comma) +
+  labs(title = "Rural Heart Disease Prevalence") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Combine maps
+plot_grid(p1, p2, align = "hv", ncol = 2)
 
 ```
 
@@ -63,7 +119,7 @@ Our research journey began with a review of datasets made available by several o
   
 As we walk you through this journey, our findings will demonstrate the integral role of methodical data analysis in unearthing the complex factors contributing to disparities in healthcare access. The goal is to provide a thorough and nuanced understanding of the healthcare landscape, which could influence future interventions and policy development.
 
-#### *Data Cleaning and Feature Engineering*
+### **Data Cleaning and Feature Engineering**
 The data acquisition from the CDC Interactive Atlas of Heart Disease and Stroke proved to be a complex task, as the information wasn't available as a single dataset. Instead, we had to download more than 60 individual datasets. Managing these files and coordinating the development of the necessary code across our team was challenging. To streamline these tasks and handle version control, we utilized Git and GitHub—a decision that provided valuable experience in collaborative coding and version management.  
   
 Once compiled, the data needed substantial manipulation to be tailored to our specific needs. Our preparation process involved merging the various datasets into a single, coherent dataset, eliminating superfluous features and observations, and conducting other data manipulations to improve usability.  
@@ -79,9 +135,9 @@ rmarkdown::paged_table(head(cdc_clean, n=20))
 Following our comprehensive data manipulation process, we had transformed the raw data into a structured and analyzable format, as in Table 1. This equipped us to dive into a detailed exploratory analysis. This painstaking process of data preparation emphasized the critical role of thorough data cleaning and feature engineering in successful data science projects. By laying a solid foundation through these initial steps, we were able to engage in robust analyses that yield dependable insights and conclusions.
 
 
-### *Exploratory Data Analysis*
+### **Exploratory Data Analysis**
 
-**Data Description:**  
+#### *Data Description*  
 Our dataset consists of 3,140 rows, each corresponding to a county in the United States, and 46 columns representing various variables. The variables span a range of categories, including:
 
 - Geographic: county, state, urban or rural categorization, and more.
@@ -98,7 +154,7 @@ Our dataset consists of 3,140 rows, each corresponding to a county in the United
 
 These variables were chosen because each one is either directly linked or indirectly associated with CHD in some manner.
 
-**Demographic Distribution:**  
+#### *Demographic Distribution:*  
 With 3,140 counties to study, 1165 are categorized as Urban and 1975 as Rural. The states with the highest number of counties in our study are Texas, Georgia, and Virginia, while those with the least are D.C., Delaware, and Hawaii.  
 
 
@@ -163,7 +219,7 @@ grid.arrange(mostUrban, mostRural, ncol = 2)
 
 When focusing on the urban-rural divide, the top five states with the highest amount of urban counties are California, New York, Texas, Virginia, and Florida. On the flip side, the states with the most rural counties are Texas, Kansas, Kentucky, Georgia, and Missouri. 
 
-**CHD Prevalence Across Urban and Rural Counties**  
+#### *CHD Prevalence Across Urban and Rural Counties*  
 CHD has an average prevalence of 8.2% across all counties, but we note a small difference between urban (7.24%) and rural counties (8.7%). 
 
 The differences are even more striking when comparing large urban counties with rural ones. 
@@ -230,8 +286,7 @@ ggplot(combined_prevalence, aes(x = reorder(state, average_CHD), y = average_CHD
 
 ```
 
-Then we wanted to look at the extremes or the unexpected values to see what was interesting.  We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest rates.  There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol,  stroke, etc… None of these differences seemed to point to anything other than a difference between higher prevalence rates of CHD and lower, not what we were expecting to see of a difference between urban and rural counties. 
-
+We then wanted to look at the extremes or the unexpected values to see what was interesting.  We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest rates.  There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol,  stroke, etc… None of these differences seemed to point to anything other than a difference between higher prevalence rates of CHD and lower, not what we were expecting to see of a difference between urban and rural counties. 
 
 ```{r}
 # Calculate the average CHD prevalence by state and UrbanRural level
@@ -246,6 +301,10 @@ chd_prevalence_by_state_and_urbanrural <- cdc %>%
                              "Rural" = "Rural"),
         state = fct_rev(state))
 
+# Reorder the levels of UrbanRural
+chd_prevalence_by_state_and_urbanrural <- chd_prevalence_by_state_and_urbanrural %>%
+  mutate(UrbanRural = factor(UrbanRural, levels = c("Urban-Lg", "Urban-Lg Fringe", "Urban-Med,Sm", "Rural")))
+
 # Generate a heatmap
 ggplot(chd_prevalence_by_state_and_urbanrural, aes(y = state, x = UrbanRural, fill = average_CHD)) +
   geom_tile() +
@@ -257,7 +316,7 @@ ggplot(chd_prevalence_by_state_and_urbanrural, aes(y = state, x = UrbanRural, fi
 
 ```
 
-**Healthcare Facilities and Professionals**  
+#### *Healthcare Facilities and Professionals*  
 Analyze the role of healthcare availability and infrastructure in CHD prevalence:
 
 - Urban counties have, on average, more hospitals (2.2 per county) compared to rural counties (0.9 per county), making the average per county 1.
@@ -268,14 +327,12 @@ Analyze the role of healthcare availability and infrastructure in CHD prevalence
 
 - There are more primary care physicians in urban counties (258 per county) compared to rural counties (38 per county). However, after adjusting for population, there are 152 PCPs per 1,000 people in urban areas and 127 in rural ones.
 
-**Population Factors**  
+#### *Population Factors*  
 Other factors that may influence CHD prevalence:  
 The percentage of the population aged 65 and older is slightly higher in rural counties (20%) than in urban ones (17%).
 
-**Correlation Analysis**  
-
+#### *Correlation Analysis*  
 - CHD shows high positive correlation with Stroke, High Blood Pressure (HBP), and High Cholesterol (HighChol). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include stroke and HBP, HighChol and HBP, and population with all kinds of hospitals and cardiologists, see Figure 1.  These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists. 
-
 
 ```{r}
 # calculate the correlation matrix
@@ -291,19 +348,36 @@ In the graphic above, the red lines represent negative correlations, green lines
 - Coronary heart disease shows moderate positive correlations with smoking, poverty, less than a college education, broadband availability, and % of population that is age 65+. So these were factors we were interested to look at when engineering features for our models.
 
 ```{r}
-cdc %>%
-    select("Smoker",
-           "Poverty",
-           "EdLessColl",
-           "Broadband",
-           "Age65Plus",
-           "UrbanRural") %>%
-  mutate(UrbanRural = recode(UrbanRural, 
-                             "Large_Urban" = "Urban-Lg",
-                             "LargeFringe_Urban" = "Urban-Med",
-                             "MediumSmall_Urban" = "Urban-Sm",
-                             "Rural" = "Rural")) %>% 
-    ggpairs(mapping = aes(color = .$"UrbanRural", alpha = 0.5))
+# Reshape data from wide to long format
+cdc_long <- cdc %>%
+  pivot_longer(cols = c(EdLessColl, HealthIns, Poverty, Smoker), 
+               names_to = "Variable", values_to = "Value")
+
+# Create a single plot with multiple panels
+ggplot(cdc_long, aes(x = CHD, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ Variable, scales = "free") +
+  labs(x = "Coronary Heart Disease Prevalence", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+
+```
+
+```{r}
+# cdc %>%
+#     select("Smoker",
+#            "Poverty",
+#            "EdLessColl",
+#            "Broadband",
+#            "Age65Plus",
+#            "UrbanRural") %>%
+#   mutate(UrbanRural = recode(UrbanRural, 
+#                              "Large_Urban" = "Urban-Lg",
+#                              "LargeFringe_Urban" = "Urban-Med",
+#                              "MediumSmall_Urban" = "Urban-Sm",
+#                              "Rural" = "Rural")) %>% 
+#     ggpairs(mapping = aes(color = .$"UrbanRural", alpha = 0.5))
 
 ```
 
@@ -311,65 +385,85 @@ cdc %>%
 
 - Coronary heart disease shows moderate negative correlations with median household income and median home value, which we interpreted as meaning that the higher your income level, you were more likely to afford a higher valued house, and it translated to having a lower prevalence for coronary heart disease.
 
-**Urban-Rural Divide**  
+#### *Urban-Rural Divide*  
 We were interested to dive deeper into the disparities between urban and rural counties:
 
 - In terms of obesity, physical inactivity, cholesterol medication non-adherence, and percentage of uninsured, no significant urban-rural differences were observed.
 
-- Further exploration and analysis may be needed to understand the role of these factors in CHD prevalence.
-
-# Placeholder for graphic
-(*Include a visualization here (not really seeing difference in urban rural, obesity, physical inactivity, chol med non adherence, % uninsured))
-
-```{r}
-correlation_matrix <- cor(cdc[, c("Smoker",
-         "Poverty",
-         "EdLessColl",
-         "Broadband",
-         "Age65Plus"
-         )])
-corrplot(correlation_matrix, method = "number")
-
-```
-
 ```{r}
 cdc %>%
-    select("Obesity", "PhysInactivity", "CholMedNonAdhear", "HealthIns", "UrbanRural") %>%
-  mutate(UrbanRural = recode(UrbanRural, 
-                             "Large_Urban" = "Urban-Lg",
-                             "LargeFringe_Urban" = "Urban-Med",
-                             "MediumSmall_Urban" = "Urban-Sm",
-                             "Rural" = "Rural")) %>% 
-    ggpairs(mapping = aes(color = .$"UrbanRural", alpha = 0.5))
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(Obesity, CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
 
 ```
 
-**Analysis of Top Predictors**  
+- Further exploration and analysis may be needed to understand the role of these factors in CHD prevalence.
+
+#### *Analysis of Top Predictors*  
 Deep dive into the top predictors of CHD, Stroke, HBP, and HChol:  
-# Placeholder for graphic  
-(*include visualization density plots top 5 most influential predictors for each condition? Edlesscoll healthins poverty smoker?
-*include scatter plots?)
+
+- In terms of coronary heart disease, high blood pressure, high cholesterol, stroke, and age over 65 we found significant correlation. 
+
 ```{r}
-ggplot(cdc, aes(x = Broadband, fill = UrbanRural)) +
-  geom_density(alpha = 0.5) +
-  labs(x = "EdLessColl", y = "Density") +
-  theme_minimal() +
-  scale_fill_brewer(palette = "Dark2")
+# Select relevant columns
+cdc2 <- cdc %>% select(Age65Plus, CHD, HighBP, HighChol, Stroke, UrbanRural)
+
+# Recode UrbanRural
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), "Urban", "Rural")
+
+# Reshape data from wide to long format
+cdc_long <- cdc2 %>%
+  pivot_longer(cols = c(CHD, HighBP, HighChol, Stroke), 
+               names_to = "Variable", values_to = "Value")
+
+# Create a single plot with multiple panels
+s1 <- ggplot(cdc_long, aes(x = Age65Plus, y = Value, color = UrbanRural)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm", se = FALSE, aes(group = UrbanRural)) +
+  facet_wrap(~ Variable, scales = "free_y") +
+  scale_color_manual(values = c("Rural" = "green", "Urban" = "blue")) +
+  labs(x = "Age 65 Plus", y = "Value", color = "Urban/Rural") +
+  theme_minimal()
+
+# Print the plot
+print(s1)
 
 ```
 
-Jesse notes for graphics:  
-pretty density plots(line 2k ish?) colored overlay graphs
-	top 5 variables, (ed, ins, poverty, smoker) look at line 2000, 
-	copy, paste? medium home value, ln2106 for example
+- With these findings we decided to take a more quantifiable look at the data. This led us to the use of machine learning methods, which we go into more detail next.
 
-towards end, nicer scatter for three or so of them, CHD at 4011
-	change code to select just the few we need as CDC2.
-	
-	
-### *Machine Learning Models*
+### **Machine Learning Models**  
+Our objective was to predict the prevalence of Coronary Heart Disease (CHD) in the dataset. Initially, we sought to ascertain whether the prediction of CHD was plausible based on the available data. More importantly, we needed to comprehend the drivers or contributing factors to CHD.  
+
+To identify these drivers, we executed a series of models, including decision tree models, recursive partitioning and regression trees (rpart), and random forest models. These were instrumental in discerning key variables for feature engineering. We also employed backward stepwise feature selection. Our analytical efforts culminated in linear regression models, followed by generalized linear mixed models (GLMM) with a Poisson distribution. We successively eliminated the least critical variables until we identified the top five most impactful ones, yielding an RMSE of 0.3653547, and an Rsquared of 0.9463568. Essentially this means that with these top 5 variables we were able to explain almost 95% of the variance in the data, with a low rate of error.  
+
+We discovered high correlations between CHD prevalence and factors such as high blood pressure, high cholesterol, and stroke occurrence. These five variables (Stroke, Age65plus, Smoker, HighChol, HighBP) could predict or explain a majority (95%) of the variation in the CHD data.  
+
+Given their high correlation and their status as diagnostic criteria for CHD, we then decided to explore these variables in depth. We constructed predictive models for these variables to address questions such as: What factors influence these variables? What drives these health changes? Is there a divergence between urban and rural counties in these aspects?  
+
+#### *Insights from Sub-models*
+We realized that we needed to take a step back, and look deeper at these variables that were important for modeling Coronary Heart Disease, and so we dove into creating models for High Cholesterol, High Blood Pressure, and Stroke.  
+
+We found that most of the variance in the data could be explained by the models for Stroke, HighChol, and HighBP. The top five variables contributing to High Chol were EdLesscoll, bpmUse, healthIns, CholScreen, and Age65Plus, resulting in an RMSE of 1.728563, Rsquared of 0.7542299, and MAE of 1.361216. The most significant variables for HighBP were bpmUse, EdLessColl, CholMedNonAdhear, CholScreen, and Diabetes, with an RMSE of 2.398734, Rsquared of 0.8226873, and MAE of 1.873001. For Stroke, the most influential variables were Age65Plus, Poverty, Smoker, bpmUse, and SNAPrecipients, generating an RMSE of 0.3290255, Rsquared of 0.8530259, and a MAE of 0.2401123.  
+
+The inclusion of interaction terms began to reveal differences between urban and rural CHD prevalences. These findings contribute to the broader narrative about CHD prevalence disparity between urban and rural environments.  
+
+For instance, in the Stroke model, the main variables (Age65plus, Poverty, Smoker, bpmUse, SNAPrecipients) all proved statistically significant when interacting with the urban/rural divide, except for SNAPrecipients. Similarly, in the HighBP model, the top variables (bpmUse, EdLessColl, CholMedNonAdhear, CholScreen, Diabetes) revealed significant interactions for EdLessColl and CholScreen. For the HighChol model, all variables except Age and bpmUse showed significant interactions.
 
 
+```{r}
+cdc_test <- cdc %>% select (3, 5:46, )
+
+cdc_test <- cdc_test %>% select(c(CHD, HighChol, Stroke, HighBP))
+
+tree_model <- rpart(CHD ~ ., data=cdc_test)
+
+rpart.plot(tree_model)
+
+```
 
 
 <br>
