@@ -463,14 +463,9 @@ Summarize the EDA, Models, predictions, and recommendations
 Health disparities represent a critical issue in our healthcare system, influenced by a complex interplay of socio-demographic factors.  
   
   
-Discuss challenges faced
-- How or if we worked around those challenges
-- Discuss what we could have done better/different
-- Discuss what we would have liked to do if had more time
-- Discuss what could be done with this in the future  
+
   
   
-Of course, this project is not without its limitations. Public datasets may lack granularity or may not capture all the nuances of the healthcare system. The observational nature of this analysis limits our ability to draw definitive causal conclusions. However, despite these constraints, the findings of this project can serve as a springboard for future research and can provide important directional insights. Future iterations of this project could involve integrating richer datasets, implementing more sophisticated models, and collaborating with healthcare providers or institutions to apply the insights in real-world settings. Regardless of these potential improvements, this project stands as a testament to the power of using data in promoting health equity and fostering positive societal change.  
 
 ```{r}
 plot_usmap(data = cdc, values = "CHD", color = "black") +
@@ -485,4 +480,14 @@ plot_usmap(data = cdc, values = "CHD", color = "black") +
 
 
 ## **CONCLUSION**
-blah blah blah and done.
+
+
+Discuss challenges faced
+- How or if we worked around those challenges
+- Discuss what we could have done better/different
+- Discuss what we would have liked to do if had more time
+- Discuss what could be done with this in the future  
+
+What can be looked at further
+
+Of course, this project is not without its limitations. Public datasets may lack granularity or may not capture all the nuances of the healthcare system. The observational nature of this analysis limits our ability to draw definitive causal conclusions. However, despite these constraints, the findings of this project can serve as a springboard for future research and can provide important directional insights. Future iterations of this project could involve integrating richer datasets, implementing more sophisticated models, and collaborating with healthcare providers or institutions to apply the insights in real-world settings. Regardless of these potential improvements, this project stands as a testament to the power of using data in promoting health equity and fostering positive societal change.  
