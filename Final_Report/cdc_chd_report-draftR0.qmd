@@ -444,29 +444,35 @@ rpart.plot(tree_model)
 ```
 
 
-<br>
+
+
+
+
+## **RECOMMENDATIONS**
+The main indicators of coronary heart disease are high blood pressure, high cholesterol, and stroke. These factors are typical aspects of CHD, hence their significance. Upon examination of the top five indicators for each of these, we note some overlap among ten different factors, as depicted in Figure 2. When we take into account the interactions between urban and rural populations, the most statistically significant factors reduce to seven individual components. Some of these are not easily modifiable, or they require further analysis to discern the contributing elements. With an urban or rural context, the factors most amenable to adjustment include education, health insurance, smoking, and poverty.  
+
 ```{r echo=FALSE, fig.align='center', fig.cap='Figure 2: Variable Connections'}
 knitr::include_graphics("images/VarConnect.png")
 
 ```
-<br>
 
-<br>
+As our research and models indicate, individuals with education levels less than college are more at risk for high blood pressure and high cholesterol, two leading indicators of heart disease. The U.S. medical system, with its intricate insurance requirements, scheduling procedures, billing understanding, and diagnosis comprehension, can pose substantial challenges, especially for the less educated and elderly. One potential solution to this would be the provision of health advocates or coaches who are accessible to those who may find it difficult to seek help and gain understanding.  
+
 ```{r echo=FALSE, fig.align='center', fig.cap='Figure 3: Variable Connections with Interactions'}
 knitr::include_graphics("images/VarConnectInteract.png")
 
 ```
-<br>
 
-## **RECOMMENDATIONS**
-Summarize the EDA, Models, predictions, and recommendations  
-Health disparities represent a critical issue in our healthcare system, influenced by a complex interplay of socio-demographic factors.  
-  
-  
+When considering urban and rural disparities, individuals living further away from medical assistance could particularly benefit from a support system accessible via phone or online, negating the need to travel to a doctor’s office or clinic. This service could also be beneficial for those with financial constraints. Traveling can be a challenge not only for those in remote (rural) areas but also for those who may not own a vehicle due to financial limitations. These individuals may struggle to access pharmacies and physicians regularly. One way to address this could be through the provision of telemedicine options and mail-order prescriptions at reduced costs.  
 
-  
-  
+We have demonstrated that one aspect of heart disease prevalence is the urban/rural divide. Since it is impractical to construct and staff clinics and hospitals in every rural county, we must focus on small, achievable changes. Of the factors we identified, the most tangible for modification are smoking, education, and poverty. Further research could help us identify other factors that could contribute to reducing the prevalence of coronary heart disease.
 
+## **RESEARCH CONSIDERATION** 
+We recognize that this brief examination of healthcare disparities and the consequent prevalence of heart disease has certain limitations. The public datasets lack granularity and do not capture all the nuances of the healthcare system. Additionally, the observational nature of this analysis restricts our ability to draw definitive causal conclusions. Despite these constraints, however, the findings of this project can serve as a springboard for future research, offering important directional insights.  
+
+Future iterations of this project might incorporate richer datasets, deploy more sophisticated models, and involve collaboration with healthcare providers or institutions to apply the insights in real-world settings. Regardless of these potential enhancements, this project stands as a testament to the power of utilizing data to promote health equity and foster positive societal change. 
+
+## **CONCLUSION**
 ```{r}
 plot_usmap(data = cdc, values = "CHD", color = "black") +
   scale_fill_continuous(low = "blue", high = "red", name = "CHD(%)", 
@@ -477,17 +483,8 @@ plot_usmap(data = cdc, values = "CHD", color = "black") +
   labs(title = "Coronary Heart Disease Prevalence by County")
 
 ```
+Health disparities represent a critical issue in our healthcare system, influenced by a complex interplay of socio-demographic factors. Through our research, we found that one such disparity, access to care, influences health outcomes such as high blood pressure, high cholesterol, stroke, and inevitably, coronary heart disease. Upon further consideration, we believe that it is possible to help reduce the factors contributing to the prevalence of these issues. When we consider individuals living in rural areas, we observe that they tend to be more at risk for these types of heart conditions. Concentrating our efforts on providing assistance to these communities can potentially help to improve the situation for all. Assistance provided to those facing geographical disparities can also benefit those who do not. While this might not eliminate the gap between urban and rural prevalence of heart disease, it could certainly help reduce the overall prevalence.
 
 
-## **CONCLUSION**
 
 
-Discuss challenges faced
-- How or if we worked around those challenges
-- Discuss what we could have done better/different
-- Discuss what we would have liked to do if had more time
-- Discuss what could be done with this in the future  
-
-What can be looked at further
-
-Of course, this project is not without its limitations. Public datasets may lack granularity or may not capture all the nuances of the healthcare system. The observational nature of this analysis limits our ability to draw definitive causal conclusions. However, despite these constraints, the findings of this project can serve as a springboard for future research and can provide important directional insights. Future iterations of this project could involve integrating richer datasets, implementing more sophisticated models, and collaborating with healthcare providers or institutions to apply the insights in real-world settings. Regardless of these potential improvements, this project stands as a testament to the power of using data in promoting health equity and fostering positive societal change.  
