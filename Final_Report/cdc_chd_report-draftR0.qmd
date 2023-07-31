@@ -13,6 +13,11 @@ format:
     embed-resources: true
 ---
 
+## **ABSTRACT**
+This project represents the culmination of our Master of Data Science program at Willamette University's School of Computing & Information Sciences, under the supervision of Dr. Jameson Watts. Serving as a testament to the knowledge and skills we have honed throughout our course, this capstone project required us to plan and execute a comprehensive data science project that holds consequential potential for an organization or society at large.  
+  
+We chose to focus on a topic of significant personal and societal importance - the impact of disparities in healthcare access on the prevalence of coronary heart disease. By examining this critical issue, we aim to contribute meaningfully to the ongoing discussions on healthcare equity and accessibility. The findings and insights gleaned from our research have the potential to influence policymaking and interventions in the healthcare sector, ultimately enhancing outcomes for individuals across urban and rural communities.
+
 ```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
@@ -27,6 +32,7 @@ library(corrplot)
 library(usmap)
 library(rpart)
 library(rpart.plot)
+library(RColorBrewer)
 
 ```
 
@@ -37,76 +43,27 @@ cdc <- read_csv("../data/CDC_all.csv")
 
 ```
 
-```{r}
-plot_usmap(data = cdc, values = "CHD", color = "black") +
-  scale_fill_continuous(low = "blue", high = "red", name = "CHD(%)", 
-                        na.value = "blue", labels = scales::comma) +
-  theme(legend.position = c(.9, .28), # Move the legend to the middle right
-        plot.title = element_text(hjust = .9, vjust = -140), # Align title to the lower right
-        legend.title = element_text(size = 10)) +
-  labs(title = "Coronary Heart Disease Prevalence by County")
-
-```
 
 ```{r}
-# library(ggplot2)
-# library(gridExtra)
-# 
-# # Subset data for urban and rural
-# cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
-# cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
-# 
-# 
-# # Create maps
-# p1 <- plot_usmap(data = cdc_urban, values = "CHD") +
-#   scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
-#                         label = scales::comma) +
-#   theme(legend.position = "right") +
-#   labs(title = "Coronary Heart Disease Prevalence by County (Urban)")
-# 
-# p2 <- plot_usmap(data = cdc_rural, values = "CHD") +
-#   scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
-#                         label = scales::comma) +
-#   theme(legend.position = "right") +
-#   labs(title = "Coronary Heart Disease Prevalence by County (Rural)")
-# 
-# # Combine maps
-# grid.arrange(p1, p2, ncol = 2)
+# Subset data for urban and rural
+cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
+cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
+
+# Create map for Rural areas
+plot_usmap(data = cdc_rural, values = "CHD") +
+  scale_fill_continuous(low = "blue", high = "red", name = "CHD",
+                        label = scales::comma) +
+  theme(legend.position = "right") +
+  labs(title = "Coronary Heart Disease Prevalence by County (Rural)")
+
+# Create map for Urban areas
+plot_usmap(data = cdc_urban, values = "CHD") +
+  scale_fill_continuous(low = "blue", high = "red", name = "CHD",
+                        label = scales::comma) +
+  theme(legend.position = "right") +
+  labs(title = "Coronary Heart Disease Prevalence by County (Urban)")
 
 ```
-
-```{r}
-# library(ggplot2)
-# library(usmap)
-# library(cowplot)
-# 
-# # Subset data for urban and rural
-# cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
-# cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
-# 
-# # Create maps
-# p1 <- plot_usmap(data = cdc_urban, values = "CHD", background = "white") +
-#   scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
-#                         label = scales::comma, guide = FALSE) +
-#   labs(title = "Urban Heart Disease Prevalence") +
-#   theme(plot.title = element_text(hjust = 0.5))
-# 
-# p2 <- plot_usmap(data = cdc_rural, values = "CHD", background = "white") +
-#   scale_fill_continuous(low = "blue", high = "red", name = "CHD", 
-#                         label = scales::comma) +
-#   labs(title = "Rural Heart Disease Prevalence") +
-#   theme(plot.title = element_text(hjust = 0.5))
-# 
-# # Combine maps
-# plot_grid(p1, p2, align = "hv", ncol = 2)
-
-```
-
-## **ABSTRACT**
-This project represents the culmination of our Master of Data Science program at Willamette University's School of Computing & Information Sciences, under the supervision of Dr. Jameson Watts. Serving as a testament to the knowledge and skills we have honed throughout our course, this capstone project required us to plan and execute a comprehensive data science project that holds consequential potential for an organization or society at large.  
-  
-We chose to focus on a topic of significant personal and societal importance - the impact of disparities in healthcare access on the prevalence of coronary heart disease. By examining this critical issue, we aim to contribute meaningfully to the ongoing discussions on healthcare equity and accessibility. The findings and insights gleaned from our research have the potential to influence policymaking and interventions in the healthcare sector, ultimately enhancing outcomes for individuals across urban and rural communities.
-
 
 ## **INTRODUCTION**
 The relationship between access to healthcare services and individual health outcomes is profound, with notable disparities emerging between urban and rural areas. To create effective interventions and policies, it is imperative to understand the factors contributing to these discrepancies and their impact on health outcomes, particularly cardiovascular diseases.  
@@ -228,12 +185,17 @@ CHD has an average prevalence of 8.2% across all counties, but we note a small d
 The differences are even more striking when comparing large urban counties with rural ones. 
 
 ```{r}
-library(RColorBrewer)
+# Calculate the mean CHD for each UrbanRural category
+cdc_summary <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(CHD = mean(CHD))
+
 colors <- brewer.pal(4, "Set2")
 
-ggplot(data = cdc, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
+ggplot(data = cdc_summary, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
   geom_bar(stat = "identity", position = "dodge") +
   scale_fill_manual(values = colors) +
+  scale_y_continuous(limits = c(0, 9.5)) +
   labs(x = "Urban or Rural Area", 
        y = "Prevalence of Coronary Heart Disease", 
        fill = "Area Type",
@@ -241,6 +203,7 @@ ggplot(data = cdc, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         plot.title = element_text(hjust = 0.5))
+
 ```
 
 
@@ -500,8 +463,16 @@ Discuss challenges faced
   
 Of course, this project is not without its limitations. Public datasets may lack granularity or may not capture all the nuances of the healthcare system. The observational nature of this analysis limits our ability to draw definitive causal conclusions. However, despite these constraints, the findings of this project can serve as a springboard for future research and can provide important directional insights. Future iterations of this project could involve integrating richer datasets, implementing more sophisticated models, and collaborating with healthcare providers or institutions to apply the insights in real-world settings. Regardless of these potential improvements, this project stands as a testament to the power of using data in promoting health equity and fostering positive societal change.  
 
+```{r}
+plot_usmap(data = cdc, values = "CHD", color = "black") +
+  scale_fill_continuous(low = "blue", high = "red", name = "CHD(%)", 
+                        na.value = "blue", labels = scales::comma) +
+  theme(legend.position = c(.9, .28), # Move the legend to the middle right
+        plot.title = element_text(hjust = .9, vjust = -140), # Align title to the lower right
+        legend.title = element_text(size = 10)) +
+  labs(title = "Coronary Heart Disease Prevalence by County")
 
-blah blah blah.
+```
 
 
 ## **CONCLUSION**
