@@ -190,10 +190,20 @@ cdc_summary <- cdc %>%
   group_by(UrbanRural) %>%
   summarise(CHD = mean(CHD))
 
+# Calculate the average CHD for non-rural categories
+avg_non_rural <- cdc %>%
+  filter(UrbanRural != "Rural") %>%
+  summarise(CHD = mean(CHD)) %>%
+  pull(CHD)
+
 colors <- brewer.pal(4, "Set2")
 
 ggplot(data = cdc_summary, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
   geom_bar(stat = "identity", position = "dodge") +
+  geom_hline(yintercept = avg_non_rural, linetype = "dashed", color = "red", size = 1) +
+  geom_line(data = data.frame(UrbanRural = unique(cdc_summary$UrbanRural), CHD = avg_non_rural),
+            aes(color = "Average Non-Rural"), linetype = "dashed") +
+  scale_color_manual(name = "", values = "red") +
   scale_fill_manual(values = colors) +
   scale_y_continuous(limits = c(0, 9.5)) +
   labs(x = "Urban or Rural Area", 
@@ -205,7 +215,6 @@ ggplot(data = cdc_summary, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)
         plot.title = element_text(hjust = 0.5))
 
 ```
-
 
 ```{r}
 # Top 10 states with highest prevalence
