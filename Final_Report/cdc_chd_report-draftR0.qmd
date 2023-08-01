@@ -35,6 +35,7 @@ library(rpart.plot)
 library(RColorBrewer)
 library(jtools)
 library(caret)
+library(knitr)
 
 ```
 
@@ -312,7 +313,7 @@ Other factors that may influence CHD prevalence:
 The percentage of the population aged 65 and older is slightly higher in rural counties (20%) than in urban ones (17%).
 
 #### *Correlation Analysis*  
-- CHD shows high positive correlation with Stroke, High Blood Pressure (HBP), and High Cholesterol (HighChol). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include stroke and HBP, HighChol and HBP, and population with all kinds of hospitals and cardiologists, see Figure 1.  These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists. 
+- CHD shows high positive correlation with Stroke, High Blood Pressure (`HighBP`), and High Cholesterol (`HighChol`). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include stroke and `HighBP`, `HighChol` and `HighBP`, and population with all kinds of hospitals and cardiologists, see Figure 1.  These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists. 
 
 ```{r}
 # calculate the correlation matrix
@@ -383,7 +384,7 @@ geom_smooth(method = lm)
 - Further exploration and analysis may be needed to understand the role of these factors in CHD prevalence.
 
 #### *Analysis of Top Predictors*  
-Deep dive into the top predictors of CHD, Stroke, HBP, and HChol:  
+Deep dive into the top predictors of `CHD`, `Stroke`, `HBP`, and `HChol`:  
 
 - In terms of coronary heart disease, high blood pressure, high cholesterol, stroke, and age over 65 we found significant correlation. 
 
@@ -431,14 +432,14 @@ rpart.plot(tree_model)
 
 ```
  
-We discovered high correlations between CHD prevalence and factors such as high blood pressure, high cholesterol, and stroke occurrence. These five variables (Stroke, Age65plus, Smoker, HighChol, HighBP) could predict or explain a majority (95%) of the variation in the CHD data.  
+We discovered high correlations between `CHD` prevalence and factors such as high blood pressure, high cholesterol, and stroke occurrence. These five variables (`Stroke`, `Age65plus`, `Smoker`, `HighChol`, `HighBP`) could predict or explain a majority (95%) of the variation in the `CHD` data.  
 
 Given their high correlation and their status as diagnostic criteria for CHD, we then decided to explore these variables in depth. We constructed predictive models for these variables to address questions such as: What factors influence these variables? What drives these health changes? Is there a divergence between urban and rural counties in these aspects?
 
 #### *Insights from Sub-models*
 We realized that we needed to take a step back and look deeper at these variables that were important for modeling Coronary Heart Disease, and so we dove into creating models for High Cholesterol, High Blood Pressure, and Stroke.  
 
-We found that most of the variance in the data could be explained by the models for Stroke, HighChol, and HighBP. The top five variables contributing to High Chol were EdLesscoll, bpmUse, healthIns, CholScreen, and Age65Plus, resulting in an RMSE of 1.728563, and an Rsquared of 0.7542299. The most significant variables for HighBP were bpmUse, EdLessColl, CholMedNonAdhear, CholScreen, and Diabetes, with an RMSE of 2.398734, and an Rsquared of 0.8226873. For Stroke, the most influential variables were Age65Plus, Poverty, Smoker, bpmUse, and SNAPrecipients, generating an RMSE of 0.3290255, and an Rsquared of 0.8530259. Essentially for all 3 models with 5 variables each (some overlap of variables between them), we could explain a majority of the variance in the data, so we know these variables are important factors driving these health conditions.
+We found that most of the variance in the data could be explained by the models for `Stroke`, `HighChol`, and `HighBP.` The top five variables contributing to `HighChol` were `EdLesscoll`, `bpmUse`, `healthIns`, `CholScreen`, and `Age65Plus`, resulting in an RMSE of 1.728563, and an Rsquared of 0.7542299. The most significant variables for `HighBP` were `bpmUse`, `EdLessColl`, `CholMedNonAdhear`, `CholScreen`, and `Diabetes`, with an RMSE of 2.398734, and an Rsquared of 0.8226873. For `Stroke`, the most influential variables were `Age65Plus`, `Poverty`, `Smoker`, `bpmUse`, and `SNAPrecipients`, generating an RMSE of 0.3290255, and an Rsquared of 0.8530259. Essentially for all 3 models with 5 variables each (some overlap of variables between them), we could explain a majority of the variance in the data, so we know these variables are important factors driving these health conditions.
 
 ```{r echo=FALSE, fig.align='center', fig.cap='Figure 2: Variable Connections'}
 knitr::include_graphics("images/VarConnect.png")
@@ -465,26 +466,38 @@ In the stroke model, significant variables include `UrbanRural1` (1 meaning Urba
 set.seed(2112)
 
 # Train test split
-cdc_index_top5 <- createDataPartition(cdc_clean$Stroke, p = 0.8, list = FALSE)
-cdc_tr_top5 <- cdc_clean[cdc_index_top5, ]
-cdc_te_top5 <- cdc_clean[-cdc_index_top5, ]
+cdc_index_top5_stroke <- createDataPartition(cdc_clean$Stroke, p = 0.8, list = FALSE)
+cdc_tr_top5_stroke <- cdc_clean[cdc_index_top5_stroke, ]
+cdc_te_top5_stroke <- cdc_clean[-cdc_index_top5_stroke, ]
 
 # Set control requirements
-control_top5 <- trainControl(method="repeatedcv", 
+control_top5_stroke <- trainControl(method="repeatedcv", 
                              number =5,
                              repeats=3)
 
 # Fit the model
-model_top5 <- train(Stroke ~ UrbanRural + Age65Plus + Poverty + Smoker + bpmUse + SNAPrecipients + Age65Plus*UrbanRural + Poverty*UrbanRural + Smoker*UrbanRural + bpmUse*UrbanRural + SNAPrecipients*UrbanRural,  
-                    data=cdc_tr_top5, 
-                    method="lm", 
-                    trControl = control_top5)
+model_top5_Stroke <- train(Stroke ~ UrbanRural + Smoker + bpmUse + SNAPrecipients + Poverty + Smoker*UrbanRural + bpmUse*UrbanRural + SNAPrecipients*UrbanRural + Poverty*UrbanRural,
+                         data=cdc_tr_top5_stroke,
+                         method="lm", 
+                         trControl = control_top5_stroke)
 
-summ(model_top5$finalModel)
+#umm(model_top5_Stroke$finalModel)
+
+# Get the coefficients from the model
+coefficients_Stroke <- coef(model_top5_Stroke$finalModel)
+
+# Convert the coefficients to a data frame
+coefficients_df_Stroke <- as.data.frame(coefficients_Stroke)
+
+# Give the column of coefficients a name
+names(coefficients_df_Stroke) <- "Coefficient Value"
+
+# Use kable to create a nicely formatted table
+kable(coefficients_df_Stroke, digits = 3)
 
 ```
 
-Let’s examine a couple of these coefficients.  When looking at the percentage of people who smoke, we get the coefficient of Smoker 0.054767.  Which means for every extra 1% of people who smoke, we'd expect about a 0.05% increase in stroke prevalence, not considering the other factors.  Now, if we consider adding an interaction with urban or rural status, we get a coefficient of `UrbanRural1:Smoker` 0.010469. This suggests that city places with more smokers see about a 0.01% higher stroke prevalence than we'd expect just from being a city and having more smokers separately.  
+Let’s examine a couple of these coefficients.  When looking at the percentage of people who smoke, we get the coefficient of `Smoker` 0.054767.  Which means for every extra 1% of people who smoke, we'd expect about a 0.05% increase in stroke prevalence, not considering the other factors.  Now, if we consider adding an interaction with urban or rural status, we get a coefficient of `UrbanRural1:Smoker` 0.010469. This suggests that city places with more smokers see about a 0.01% higher stroke prevalence than we'd expect just from being a city and having more smokers separately.  
 
 Another one we can look at, is the coefficient for people who are prescribed blood pressure medication, we get `bpmUse` 0.057698. For every extra 1% of people who use blood pressure medication, we'd expect about a 0.057% increase in stroke prevalence, not considering the other factors.  Then if we add the interaction to consider urban or rural status, we get `UrbanRural1:bpmUse` -0.033723. This suggests that city places where more people use blood pressure medication see about a 0.034% lower stroke prevalence than we'd expect just from being a city and the blood pressure medication usage separately.  
 
@@ -492,27 +505,38 @@ Another one we can look at, is the coefficient for people who are prescribed blo
 In the high blood pressure model, significant variables include `UrbanRural1` (1 meaning urban county), `Diabetes` (percentage of population diagnosed with diabetes), `CholScreen` (percentage of patients who have been screened for high cholesterol), `CholMedNonAdhear` (percentage of patients not taking their cholesterol medication), `bpmUse` (percentage of the population that has been prescribed blood pressure medications), and `EdLessColl` (percentage of the population who have completed less than a college education).  
 
 ```{r}
-# Set the seed
 set.seed(2112)
 
 # Train test split
-cdc_index_top5 <- createDataPartition(cdc_clean$HighBP, p = 0.8, list = FALSE)
-cdc_tr_top5 <- cdc_clean[cdc_index_top5, ]
-cdc_te_top5 <- cdc_clean[-cdc_index_top5, ]
+cdc_index_top5_HighBP <- createDataPartition(cdc_clean$HighBP, p = 0.8, list = FALSE)
+cdc_tr_top5_HighBP <- cdc_clean[cdc_index_top5_HighBP, ]
+cdc_te_top5_HighBP <- cdc_clean[-cdc_index_top5_HighBP, ]
 
 # Set control requirements
-control_top5 <- trainControl(method="repeatedcv", 
+control_top5_HighBP <- trainControl(method="repeatedcv", 
                              number =5,
                              repeats=3)
 
 # Fit the model
-model_top5 <- train(HighBP ~ UrbanRural + Age65Plus + Poverty + Smoker + bpmUse + SNAPrecipients + Age65Plus*UrbanRural + Poverty*UrbanRural + Smoker*UrbanRural + bpmUse*UrbanRural + SNAPrecipients*UrbanRural,  
-                    data=cdc_tr_top5, 
+model_top5_HighBP <- train(HighBP ~ UrbanRural + bpmUse + EdLessColl + CholMedNonAdhear + CholScreen + Diabetes + UrbanRural*bpmUse + UrbanRural*EdLessColl + UrbanRural*CholMedNonAdhear + UrbanRural*CholScreen + UrbanRural*Diabetes,
+                    data=cdc_tr_top5_HighBP, 
                     method="lm", 
-                    trControl = control_top5)
+                    trControl = control_top5_HighBP)
 
-summ(model_top5$finalModel)
+# summ(model_top5_HighBP$finalModel)
 
+# Get the coefficients from the model
+coefficients_BP <- coef(model_top5_HighBP$finalModel)
+
+# Convert the coefficients to a data frame
+coefficients_df_BP <- as.data.frame(coefficients_BP)
+
+# Give the column of coefficients a name
+names(coefficients_df_BP) <- "Coefficient Value"
+
+# Use kable to create a nicely formatted table
+kable(coefficients_df_BP, digits = 3)
+  
 ```
 
 Looking closer at the percentage of people who have less. Than a college education, we see the coefficient of `EdLessColl` 0.209690. Which means, for every extra 1% of people who didn't go to college, we'd expect about a 0.21% increase in high blood pressure, not considering the other factors. This could be due to various things like diet, lifestyle, and stress levels. Then if we add the interaction with urban or rural, we get the coefficient of `UrbanRural1:EdLessColl` -0.038142. Here, city places with more people who didn't go to college see about a 0.04% lower high blood pressure rate than we'd expect just from being a city and having fewer college graduates separately.  
@@ -523,26 +547,37 @@ If we examine cholesterol screening, we get the coefficient CholScreen 0.569438.
 In the HighChol model, significant variables include `UrbanRural1` (1 meaning Urban), `Age65Plus` (percentage of population over the age of 65), `CholScreen` (percentage of patients who have been screened for high cholesterol), `bpmUse` (percentage of the population that has been prescribed blood pressure medications), `EdLessColl` (percentage of the population who have completed less than a college education), and `HealthIns` (percentage of the population that are uninsured).  
 
 ```{r}
-# Set the seed
 set.seed(2112)
 
 # Train test split
-cdc_index_top5 <- createDataPartition(cdc_clean$HighChol, p = 0.8, list = FALSE)
-cdc_tr_top5 <- cdc_clean[cdc_index_top5, ]
-cdc_te_top5 <- cdc_clean[-cdc_index_top5, ]
+cdc_index_top5_Chol <- createDataPartition(cdc_clean$HighChol, p = 0.8, list = FALSE)
+cdc_tr_top5_Chol <- cdc_clean[cdc_index_top5_Chol, ]
+cdc_te_top5_Chol <- cdc_clean[-cdc_index_top5_Chol, ]
 
 # Set control requirements
-control_top5 <- trainControl(method="repeatedcv", 
-                             number =5,
-                             repeats=3)
+control_top5_Chol <- trainControl(method="repeatedcv",
+                                  number =5,
+                                  repeats=3)
 
 # Fit the model
-model_top5 <- train(HighChol ~ UrbanRural + Age65Plus + Poverty + Smoker + bpmUse + SNAPrecipients + Age65Plus*UrbanRural + Poverty*UrbanRural + Smoker*UrbanRural + bpmUse*UrbanRural + SNAPrecipients*UrbanRural,  
-                    data=cdc_tr_top5, 
-                    method="lm", 
-                    trControl = control_top5)
+model_top5_Chol <- train(HighChol ~ UrbanRural + EdLessColl + bpmUse + HealthIns + CholScreen +Age65Plus + UrbanRural*EdLessColl + UrbanRural*bpmUse + UrbanRural*HealthIns + UrbanRural*CholScreen + UrbanRural*Age65Plus,
+                         data=cdc_tr_top5_Chol,
+                         method="lm", 
+                         trControl = control_top5_Chol)
 
-summ(model_top5$finalModel)
+#summ(model_top5_Chol$finalModel)
+
+# Get the coefficients from the model
+coefficients_Chol <- coef(model_top5_Chol$finalModel)
+
+# Convert the coefficients to a data frame
+coefficients_df_Chol <- as.data.frame(coefficients_Chol)
+
+# Give the column of coefficients a name
+names(coefficients_df_Chol) <- "Coefficient Value"
+
+# Use kable to create a nicely formatted table
+kable(coefficients_df_Chol, digits = 3)
 
 ```
 
