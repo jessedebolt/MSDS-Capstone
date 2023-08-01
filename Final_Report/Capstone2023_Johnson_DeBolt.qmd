@@ -1,0 +1,602 @@
+---
+title: "Healthcare Access and its Effects on Coronary Heart Disease Prevalence"
+author:
+  - name: "Isaac Johnson & Jesse DeBolt"
+    affiliation: "Willamette University School of Computing and Information Sciences"
+date: "August 1, 2023"
+date-format: "long"
+course: DATA510 - Data Science Capstone Project
+image: "DATA501_Final.png"
+format:
+  html:
+    toc: true
+    embed-resources: true
+---
+
+## **ABSTRACT**
+For this project, we chose to focus on a topic of significant personal and societal importance - the impact of disparities specifically the difference between urban and rural counties in healthcare access on the prevalence of coronary heart disease. By examining this critical issue, we aim to contribute meaningfully to the ongoing discussions on healthcare equity and accessibility. The findings and insights gleaned from our research have the potential to influence policy making and interventions in the healthcare sector, ultimately enhancing outcomes for individuals across urban and rural communities.
+
+```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(readr)
+library(tidyverse)
+library(gridExtra)
+library(ggthemes)
+library(reshape2)
+library(GGally)
+library(qgraph)
+library(corrplot)
+library(usmap)
+library(rpart)
+library(rpart.plot)
+library(RColorBrewer)
+library(jtools)
+library(caret)
+library(knitr)
+
+```
+
+
+```{r load}
+cdc_clean <- read_csv("data/cleanCDC.csv")
+cdc <- read_csv("../data/CDC_all.csv")
+
+```
+
+
+```{r}
+# Subset data for urban and rural
+cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
+cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
+
+# Create map for Rural areas
+plot_usmap(data = cdc_rural, values = "CHD", color = "transparent", lwd = 0.05) +
+  scale_fill_continuous(low = "blue", high = "red", na.value = "lightgrey", name = "CHD",
+                        label = scales::comma) +
+  theme(legend.position = "right") +
+  labs(title = "Coronary Heart Disease Prevalence by County (Rural)")
+
+# Create map for Urban areas
+plot_usmap(data = cdc_urban, values = "CHD", color = "transparent", lwd = 0.1) +
+  scale_fill_continuous(low = "blue", high = "red", na.value = "lightgrey", name = "CHD",
+                        label = scales::comma) +
+  theme(legend.position = "right") +
+  labs(title = "Coronary Heart Disease Prevalence by County (Urban)")
+
+```
+
+## **INTRODUCTION**
+The relationship between access to healthcare services and individual health outcomes is profound, with notable disparities emerging between urban and rural areas. To create effective interventions and policies, it is imperative to understand the factors contributing to these discrepancies and their impact on health outcomes, particularly coronary heart disease.  
+  
+This project aims to illuminate the key factors influencing healthcare disparities between urban and rural counties, with a view to leveraging this knowledge in developing policy interventions for improving coronary heart disease outcomes. Through rigorous data analysis and predictive modeling, we have established a correlation between the prevalence of coronary heart disease and whether urban or rural counties.  
+  
+The forthcoming sections detail our investigative journey, offering a transparent look into our methodology and conclusions. We will first present our exploratory analysis, illuminating interesting patterns we unearthed in the process. Subsequently, we delved into the machine learning models that helped us gain deeper insights from our data exploration. Following this, we detail how we harnessed these insights to make predictive analyses with our machine learning models. Finally, we provide recommendations and propose potential enhancements that could influence the rate of coronary heart disease prevalence in these areas.  
+  
+## **METHODOLOGY**
+Our research journey began with a review of datasets made available by several organizations, ultimately culminating in our discovery of the Interactive Atlas of Heart Disease and Stroke, provided by the CDC. This comprehensive dataset offered a rich pool of information, encompassing heart disease prevalence data, other medical conditions, demographics, healthcare delivery and insurance, as well as social, economic, and environmental data. All data was presented at both the state and county level, further aiding our analysis.  
+  
+As we walk you through this journey, our findings will demonstrate the integral role of methodical data analysis in unearthing the complex factors contributing to disparities in healthcare access between urban and rural counties. The goal is to provide a thorough and nuanced understanding of the healthcare landscape, which could influence future interventions and policy development.
+
+### **Data Cleaning and Feature Engineering**
+The data acquisition from the CDC Interactive Atlas of Heart Disease and Stroke proved to be a complex task, as the information wasn't available as a single dataset. Instead, we had to download more than 60 individual datasets. Managing these files and coordinating the development of the necessary code across our team was challenging.  
+  
+Once compiled, the data needed substantial manipulation to be tailored to our specific needs. Our preparation process involved merging the various datasets into a single, coherent dataset, eliminating superfluous features and observations, and conducting other data manipulations to improve usability.  
+  
+A crucial part of our data preparation was handling missing and "NA" values. In instances where missing values could be inferred from alternative data sources, we conducted further research and used coding methods to populate these data. For missing values without readily available replacements, we imputed the data using mean values based on specific criteria.  
+<br>
+```{r}
+rmarkdown::paged_table(head(cdc_clean, n=20))
+
+```
+##### *Table 1: Sample data from fully cleaned dataset*  
+<br>
+Following our comprehensive data manipulation process, we had transformed the raw data into a structured and analyzable format, as in Table 1. This equipped us to dive into a detailed exploratory analysis. This painstaking process of data preparation emphasized the critical role of thorough data cleaning and feature engineering in successful data science projects. By laying a solid foundation through these initial steps, we were able to engage in robust analyses that yield dependable insights and conclusions.
+
+
+### **Exploratory Data Analysis**
+
+#### *Data Description*  
+Our dataset consists of 3,140 rows, each corresponding to a county in the United States, and 46 columns representing various variables. The variables span a range of categories, including:
+
+- Geographic: county, state, urban or rural categorization, and more.
+
+- Health-specific: prevalence of coronary heart disease (CHD), high blood pressure, and high cholesterol, stroke, diabetes, etc.
+
+- Healthcare Infrastructure: number of doctors, cardiologists, hospitals, and hospitals with cardiac units, etc.
+
+- Socio-economic: percentage of population in poverty, median income, median home value, and education level.
+
+- Lifestyle and Environmental: number of parks, air quality, access to broadband, etc.
+
+- Demographic: Age over 65, ethnicity, sex, etc.
+
+These variables were chosen because each one is either directly linked or indirectly associated with CHD in some manner.
+
+#### *Demographic Distribution:*  
+With 3,140 counties to study, 1165 are categorized as Urban and 1975 as Rural. The states with the highest number of counties in our study are Texas, Georgia, and Virginia, while those with the least are D.C., Delaware, and Hawaii.  
+
+
+```{r figure1, echo=FALSE}
+# Reverse the color palette
+color_func <- colorRampPalette(c("lightgreen", "darkgreen"))
+custom_colors <- rev(color_func(10))
+
+# Select top 10 rural states
+top_rural <- cdc %>%
+  filter(UrbanRural == "Rural") %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+# Plot top 10 rural states
+mostRural = ggplot(top_rural, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with Most Rural",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+```{r figure2, echo=FALSE}
+# Reverse the color palette
+color_func <- colorRampPalette(c("lightblue", "darkblue"))
+custom_colors <- rev(color_func(10))
+
+# Select top 10 urban states
+top_urban <- cdc %>%
+  filter(grepl("Urban", UrbanRural)) %>%
+  group_by(state) %>%
+  summarise(count = n()) %>%
+  arrange(count) %>%
+  slice_tail(n = 10) %>%
+  mutate(state = factor(state, levels = rev(state)))
+
+# Plot top 10 urban states
+mostUrban = ggplot(top_urban, aes(x = state, y = count, fill = state)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5) +
+  labs(title = "Top 10 States with Most Urban",
+       x = "State", y = "Count") +
+  scale_fill_manual(values = custom_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+```{r}
+# Arrange plots side by side
+grid.arrange(mostUrban, mostRural, ncol = 2)
+```
+
+When focusing on the urban-rural divide, the top five states with the highest amount of urban counties are Texas, Virginia, Georgia, North Carolina, and Indiana. On the flip side, the states with the most rural counties are Texas, Kansas, Kentucky, Georgia, and Missouri. 
+
+#### *CHD Prevalence Across Urban and Rural Counties*  
+CHD has an average prevalence of 8.2% across all counties, but we note a small difference between urban (7.24%) and rural counties (8.7%). 
+
+The differences are even more striking when comparing large urban counties with rural ones. 
+
+```{r}
+# Calculate the mean CHD for each UrbanRural category
+cdc_summary <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(CHD = mean(CHD))
+
+# Calculate the average CHD for non-rural categories
+avg_non_rural <- cdc %>%
+  filter(UrbanRural != "Rural") %>%
+  summarise(CHD = mean(CHD)) %>%
+  pull(CHD)
+
+colors <- brewer.pal(4, "Set2")
+
+ggplot(data = cdc_summary, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_hline(yintercept = avg_non_rural, linetype = "dashed", color = "red", size = 1) +
+  geom_line(data = data.frame(UrbanRural = unique(cdc_summary$UrbanRural), CHD = avg_non_rural),
+            aes(color = "Average Non-Rural"), linetype = "dashed") +
+  scale_color_manual(name = "", values = "red") +
+  scale_fill_manual(values = colors) +
+  scale_y_continuous(limits = c(0, 9.5)) +
+  labs(x = "Urban or Rural Area", 
+       y = "Prevalence of Coronary Heart Disease", 
+       fill = "Area Type",
+       title = "Prevalence of Coronary Heart Disease in Urban and Rural Areas") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r}
+# Top 10 states with highest prevalence
+highest_prevalence <- cdc %>%
+  group_by(state) %>%
+  summarise(average_CHD = mean(CHD, na.rm = TRUE)) %>%
+  arrange(desc(average_CHD)) %>%
+  slice(1:10) %>%
+  mutate(average_CHD_text = sprintf("%.1f%%", average_CHD))
+
+# Top 10 states with lowest prevalence
+lowest_prevalence <- cdc %>%
+  group_by(state) %>%
+  summarise(average_CHD = mean(CHD, na.rm = TRUE)) %>%
+  arrange(average_CHD) %>%
+  slice(1:10) %>%
+  mutate(average_CHD_text = sprintf("%.1f%%", average_CHD))
+
+# Add a new column to differentiate between the two groups
+highest_prevalence$group <- "Highest Prevalence"
+lowest_prevalence$group <- "Lowest Prevalence"
+
+# Combine the two data frames
+combined_prevalence <- rbind(highest_prevalence, lowest_prevalence)
+
+# Create the plot
+ggplot(combined_prevalence, aes(x = reorder(state, average_CHD), y = average_CHD)) +
+  geom_bar(stat = "identity", aes(fill = group)) +
+  geom_text(aes(label = average_CHD_text), hjust = 1.2, size = 3) +
+  coord_flip() +
+  facet_grid(group ~ ., scales = "free", space = "free") +
+  scale_y_continuous(limits = c(0, 11)) +
+  scale_fill_manual(values = c("darkorange", "steelblue")) +
+  theme_fivethirtyeight() +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank(), 
+        legend.position = "none",
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(), 
+        plot.background = element_blank(),
+        strip.text = element_text(size = 13))+
+  ggtitle("Average Coronary Heart Disease Prevalence (%)")
+
+```
+
+We then wanted to look at the extremes or the unexpected values to see what was interesting.  We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest prevalence rates.  There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol,  stroke, etc… None of these differences seemed to point to anything other than just a difference between higher prevalence rates of CHD and lower, not what we were expecting to see, which was clues as to why there was a difference between urban and rural counties.  
+
+*Coronary Heart Disease Prevalence Urban/Rural by State*
+```{r}
+# Calculate the average CHD prevalence by state and UrbanRural level
+chd_prevalence_by_state_and_urbanrural <- cdc %>%
+  group_by(state, UrbanRural) %>%
+  summarise(average_CHD = mean(CHD, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(UrbanRural = recode(UrbanRural, 
+                             "Large_Urban" = "Urban-Lg",
+                             "LargeFringe_Urban" = "Urban-Lg Fringe",
+                             "MediumSmall_Urban" = "Urban-Med,Sm",
+                             "Rural" = "Rural"),
+        state = fct_rev(state))
+
+# Reorder the levels of UrbanRural
+chd_prevalence_by_state_and_urbanrural <- chd_prevalence_by_state_and_urbanrural %>%
+  mutate(UrbanRural = factor(UrbanRural, levels = c("Urban-Lg", "Urban-Lg Fringe", "Urban-Med,Sm", "Rural")))
+
+# Generate a heatmap
+ggplot(chd_prevalence_by_state_and_urbanrural, aes(y = state, x = UrbanRural, fill = average_CHD)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "red") +
+  labs(y = "State", x = "Urban/Rural Level", fill = "Avg Prevalence") +
+  theme(axis.text.x = element_text(angle = 0),
+        panel.background = element_rect(fill = "white"), # Change background to white
+        panel.grid.major.y = element_blank(), # Remove horizontal grid lines
+        panel.grid.minor.y = element_blank(), # Remove horizontal grid lines
+        legend.position = "none") # Remove legend
+
+```
+
+#### *Healthcare Facilities and Professionals*  
+We analyzed the role of healthcare availability and infrastructure in CHD prevalence:
+
+- Urban counties have, on average, more hospitals (2.2 per county) compared to rural counties (0.9 per county), making the average per county 1.
+
+- When adjusted for population, there are 7 hospitals per 100,000 people in rural counties compared to 1.7 in urban counties.
+
+- One surprising finding was that 227 urban counties and 473 rural counties lack a hospital.
+
+- There are more primary care physicians (PCP) in urban counties (258 per county) compared to rural counties (38 per county). However, after adjusting for population, there are 152 PCPs per 1,000 people in urban areas and 127 in rural ones.
+
+#### *Population Factors*  
+Other factors that may influence coronary heart disease prevalence:  
+The percentage of the population aged 65 and older is slightly higher in rural counties (20%) than in urban ones (17%).
+
+#### *Correlation Analysis*  
+- Coronary heart disease (`CHD`) shows high positive correlation with `Stroke`, High Blood Pressure (`HighBP`), and High Cholesterol (`HighChol`). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include `Stroke` and `HighBP`, `HighChol` and `HighBP`, and population with all kinds of hospitals and cardiologists, see Figure 1.  These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists. 
+
+```{r}
+# calculate the correlation matrix
+correlation_matrix <- cor(cdc_clean[, c("CHD", "HighBP", "HighChol", "Stroke", "pop", "Hospitals", "pcp", "CardioPhys")])
+
+# Increase label size
+qgraph(correlation_matrix, layout = "circle", labels = names(correlation_matrix), vsize = 11, vsize2 = 0.5)
+
+```
+Figure 1: Correlation Network of Variables  
+In the graphic above, the red lines represent negative correlations, green lines represent positive correlations. The thicker the line the stronger the correlation.
+
+- Coronary heart disease shows moderate positive correlations with smoking, poverty, less than a college education, broadband availability, and percentage of population that is age 65+. So these were factors we were interested to look closer at when engineering features for our models.
+
+```{r}
+# Reshape data from wide to long format
+cdc_long <- cdc %>%
+  pivot_longer(cols = c(EdLessColl, HealthIns, Poverty, Smoker), 
+               names_to = "Variable", values_to = "Value")
+
+# Create a single plot with multiple panels
+ggplot(cdc_long, aes(x = CHD, fill = UrbanRural)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ Variable, scales = "free") +
+  labs(x = "Coronary Heart Disease Prevalence", y = "Density") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+```
+
+- A negative high correlation was observed between median household income and stroke.  Which we interpreted as if you had a higher income your risk of stroke was lower.  We don’t know why that is, but perhaps due to having higher income you were more likely to have health insurance, ability to take time off from work to see a doctor, and maybe even live a healthier lifestyle. These would be things that would be interesting to investigate further, in future projects.
+
+- Coronary heart disease shows moderate negative correlations with median household income and median home value, which we interpreted as meaning that the higher your income level, you were more likely to afford a higher valued house, and it translated to having a lower prevalence for coronary heart disease.
+
+#### *Urban-Rural Divide*  
+We were interested to dive deeper into the disparities between urban and rural counties:
+
+- In terms of obesity, physical inactivity, cholesterol medication non-adherence, and percentage of people without health insurance, no significant urban-rural differences were observed initially.
+
+```{r}
+cdc %>%
+  filter(UrbanRural %in% c(unique(UrbanRural))) %>%
+ggplot(aes(Obesity, CHD, color=UrbanRural)) +
+geom_point(alpha=0.3)+
+facet_wrap(~UrbanRural)+
+geom_smooth(method = lm)
+
+```
+
+- Further exploration and analysis may be needed to understand the role of these factors in CHD prevalence.
+
+#### *Analysis of Top Predictors*  
+Deep dive into the top predictors of coronary heart disease (`CHD`), `Stroke`, high blood pressure (`HighBP`), and high cholesterol (`HighChol`):  
+
+- In terms of coronary heart disease, high blood pressure, high cholesterol, stroke, and age over 65 we found significant correlation as well as some difference in urban and rural. 
+
+```{r}
+# Select relevant columns
+cdc2 <- cdc %>% select(Age65Plus, CHD, HighBP, HighChol, Stroke, UrbanRural)
+
+# Recode UrbanRural
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), "Urban", "Rural")
+
+# Reshape data from wide to long format
+cdc_long <- cdc2 %>%
+  pivot_longer(cols = c(CHD, HighBP, HighChol, Stroke), 
+               names_to = "Variable", values_to = "Value")
+
+# Create a single plot with multiple panels
+s1 <- ggplot(cdc_long, aes(x = Age65Plus, y = Value, color = UrbanRural)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm", se = FALSE, aes(group = UrbanRural)) +
+  facet_wrap(~ Variable, scales = "free_y") +
+  scale_color_manual(values = c("Rural" = "green", "Urban" = "blue")) +
+  labs(x = "Age 65 Plus", y = "Value", color = "Urban/Rural") +
+  theme_minimal()
+
+# Print the plot
+print(s1)
+
+```
+
+- With these findings we decided to take a more quantifiable look at the data. This led us to the use of machine learning methods, which we go into more detail next.
+
+### **Machine Learning Models**  
+Our objective was to predict the prevalence of Coronary Heart Disease (CHD) in the dataset. Initially, we sought to ascertain whether the prediction of CHD was plausible based on the available data. More importantly, we needed to comprehend the drivers or contributing factors to CHD.  
+
+To identify these drivers, we executed a series of models, including decision tree models, recursive partitioning and regression trees (rpart), and random forest models. These were instrumental in discerning key variables for feature engineering. We also employed backward stepwise feature selection. Our analytical efforts culminated in linear regression models, and generalized linear mixed models (GLMM) with a Poisson distribution. Although the Poisson distribution method proved to be slightly more accurate than the standard linear regression, we decided to use the standard linear model for efficiency and easier explainability.  
+
+Through this process we successively eliminated the least critical variables until we identified the top five most impactful ones, yielding an RMSE of 0.3653547, and an Rsquared of 0.9463568. Essentially this means that with these top 5 variables we were able to explain 95% of the variance in the data, with a low rate of error.  
+
+```{r}
+cdc_test <- cdc %>% select (3, 5:46, )
+
+cdc_test <- cdc_test %>% select(c(CHD, HighChol, Stroke, HighBP))
+
+tree_model <- rpart(CHD ~ ., data=cdc_test)
+
+rpart.plot(tree_model)
+
+```
+ 
+We discovered high correlations between `CHD` prevalence and factors such as high blood pressure, high cholesterol, and stroke occurrence. These five variables (`Stroke`, `Age65plus`, `Smoker`, `HighChol`, `HighBP`) explain a majority (95%) of the variation in the `CHD` data.  
+
+Given their high correlation and their status as diagnostic criteria for CHD, we then decided to explore these highly correlated variables in depth. We constructed predictive models for these variables to address questions such as: What factors influence these variables? What drives these health changes? Is there a divergence between urban and rural counties in these aspects?
+
+#### *Insights from Sub-models*
+We realized that we needed to take a step back and look deeper at these variables that were important for modeling Coronary Heart Disease, and so we dove into creating models for High Cholesterol, High Blood Pressure, and Stroke.  
+
+We found that most of the variance in the data could be explained by each of these models for `Stroke`, `HighChol`, and `HighBP.` The top five variables contributing to `HighChol` were `EdLesscoll`, `bpmUse`, `healthIns`, `CholScreen`, and `Age65Plus`, resulting in an RMSE of 1.728563, and an Rsquared of 0.7542299. The most significant variables for `HighBP` were `bpmUse`, `EdLessColl`, `CholMedNonAdhear`, `CholScreen`, and `Diabetes`, with an RMSE of 2.398734, and an Rsquared of 0.8226873. For `Stroke`, the most influential variables were `Age65Plus`, `Poverty`, `Smoker`, `bpmUse`, and `SNAPrecipients`, generating an RMSE of 0.3290255, and an Rsquared of 0.8530259. Essentially for all 3 models with 5 variables each (some overlap of variables between them), we could explain a majority of the variance in the data from 75-85%, so we know these variables are important factors driving these health conditions.
+
+```{r echo=FALSE, fig.align='center', fig.cap='Figure 2: Variable Connections'}
+knitr::include_graphics("images/VarConnect.png")
+
+```
+
+The inclusion of interaction terms is where we began to clearly reveal differences between urban and rural for these sub-models that then lead to the factors that influence coronary heart disease (CHD) prevalence. These findings contribute to the broader narrative about CHD prevalence, and the disparity between urban and rural environments.  
+
+For instance, in the Stroke model, the main variables (`Age65plus`, `Poverty`, `Smoker`, `bpmUse`, `SNAPrecipients`) all proved statistically significant when interacting with the urban/rural divide, except for `SNAPrecipients.` Similarly, in the `HighBP` model, the top variables (`bpmUse`, `EdLessColl`, `CholMedNonAdhear`, `CholScreen`, `Diabetes`) revealed significant interactions for `EdLessColl` and `CholScreen.` For the `HighChol` model, all variables except `Age65Plus` and `bpmUse` showed significant interactions.  What this revealed, is that for these statistically significant variables, when accounting for an interaction with urban or rural, this is where you can start to see where these additional pieces add to the story explaining why there is a difference in coronary heart disease prevalence rates between urban and rural areas.  
+
+```{r echo=FALSE, fig.align='center', fig.cap='Figure 3: Variable Connections with Statistically Significant Interactions'}
+knitr::include_graphics("images/VarConnectInteract.png")
+
+```
+
+#### *Interpreting Coefficients*
+Having constructed our models, we can now interpret the coefficients and their implications for our predictors and outcome variables. These interpretations enable us to understand the relationships between these variables and the influence they wield over our target outcomes. The model coefficients provide us with valuable insight into how these variables influence high blood pressure, high cholesterol, and stroke which then influence coronary heart disease and how their effect may differ between urban and rural environments.  
+
+#### *Stroke Model*
+In the stroke model, significant variables include `UrbanRural1` (1 meaning Urban), `Smoker` (percentage of people who smoke in the county), `Age65Plus` (percentage of population over the age of 65), `bpmUse` (percentage of the population that has been prescribed blood pressure medications), `Poverty` (percentage of the population who are considered at the poverty level), and `SNAPrecipients` (percentage of the population that are on SNAP benefits).  
+
+```{r}
+# Set the seed
+set.seed(2112)
+
+# Train test split
+cdc_index_top5_stroke <- createDataPartition(cdc_clean$Stroke, p = 0.8, list = FALSE)
+cdc_tr_top5_stroke <- cdc_clean[cdc_index_top5_stroke, ]
+cdc_te_top5_stroke <- cdc_clean[-cdc_index_top5_stroke, ]
+
+# Set control requirements
+control_top5_stroke <- trainControl(method="repeatedcv", 
+                             number =5,
+                             repeats=3)
+
+# Fit the model
+model_top5_Stroke <- train(Stroke ~ UrbanRural + Age65Plus + Poverty + Smoker + bpmUse + SNAPrecipients + Age65Plus*UrbanRural + Poverty*UrbanRural + Smoker*UrbanRural + bpmUse*UrbanRural + SNAPrecipients*UrbanRural,
+                         data=cdc_tr_top5_stroke,
+                         method="lm", 
+                         trControl = control_top5_stroke)
+
+#umm(model_top5_Stroke$finalModel)
+
+# Get the coefficients from the model
+coefficients_Stroke <- coef(model_top5_Stroke$finalModel)
+
+# Convert the coefficients to a data frame
+coefficients_df_Stroke <- as.data.frame(coefficients_Stroke)
+
+# Give the column of coefficients a name
+names(coefficients_df_Stroke) <- "Coefficient Value"
+
+# Use kable to create a nicely formatted table
+kable(coefficients_df_Stroke, digits = 3)
+
+```
+
+Let’s examine a couple of these coefficients.  When looking at the percentage of people who smoke, we get the coefficient of `Smoker` 0.057.  Which means for every extra 1% of people who smoke, we'd expect about a 0.06% increase in stroke prevalence, not considering the other factors.  Now, if we consider adding an interaction with urban or rural status, we get a coefficient of `UrbanRural1:Smoker` 0.002. This suggests that urban counties with more smokers see about a 0.002% higher stroke prevalence than we'd expect just from being an urban county and having more smokers separately.  
+
+Another one to consider, is the coefficient for people who are prescribed blood pressure medication, we get `bpmUse` 0.050. For every extra 1% of people who use blood pressure medication, we'd expect about a 0.05% increase in stroke prevalence, not considering the other factors.  Then if we add the interaction to consider urban or rural status, we get `UrbanRural1:bpmUse` -0.021. This suggests that urban counties where more people use blood pressure medication see about a 0.021% lower stroke prevalence than we'd expect just from being an urban county and the blood pressure medication usage separately.  
+
+#### *High Blood Pressure Model*
+In the high blood pressure model, significant variables include `UrbanRural1` (1 meaning urban county), `Diabetes` (percentage of population diagnosed with diabetes), `CholScreen` (percentage of patients who have been screened for high cholesterol), `CholMedNonAdhear` (percentage of patients not taking their cholesterol medication), `bpmUse` (percentage of the population that has been prescribed blood pressure medications), and `EdLessColl` (percentage of the population who have completed less than a college education).  
+
+```{r}
+set.seed(2112)
+
+# Train test split
+cdc_index_top5_HighBP <- createDataPartition(cdc_clean$HighBP, p = 0.8, list = FALSE)
+cdc_tr_top5_HighBP <- cdc_clean[cdc_index_top5_HighBP, ]
+cdc_te_top5_HighBP <- cdc_clean[-cdc_index_top5_HighBP, ]
+
+# Set control requirements
+control_top5_HighBP <- trainControl(method="repeatedcv", 
+                             number =5,
+                             repeats=3)
+
+# Fit the model
+model_top5_HighBP <- train(HighBP ~ UrbanRural + bpmUse + EdLessColl + CholMedNonAdhear + CholScreen + Diabetes + UrbanRural*bpmUse + UrbanRural*EdLessColl + UrbanRural*CholMedNonAdhear + UrbanRural*CholScreen + UrbanRural*Diabetes,
+                    data=cdc_tr_top5_HighBP, 
+                    method="lm", 
+                    trControl = control_top5_HighBP)
+
+# summ(model_top5_HighBP$finalModel)
+
+# Get the coefficients from the model
+coefficients_BP <- coef(model_top5_HighBP$finalModel)
+
+# Convert the coefficients to a data frame
+coefficients_df_BP <- as.data.frame(coefficients_BP)
+
+# Give the column of coefficients a name
+names(coefficients_df_BP) <- "Coefficient Value"
+
+# Use kable to create a nicely formatted table
+kable(coefficients_df_BP, digits = 3)
+  
+```
+
+Looking closer at the percentage of people who have less than a college education, we see the coefficient of `EdLessColl` 0.203. Which means, for every extra 1% of people who didn't go to college, we'd expect about a 0.20% increase in high blood pressure, not considering the other factors. This could be due to various things like diet, lifestyle, and stress levels. Then if we add the interaction with urban or rural, we get the coefficient of `UrbanRural1:EdLessColl` -0.040. Here, urban counties with more people who didn't go to college see about a 0.04% lower high blood pressure rate than we'd expect just from being an urban county and having fewer college graduates separately.  
+
+If we examine cholesterol screening, we get the coefficient `CholScreen` 0.568. So, for every extra 1% of people who get their cholesterol checked, we'd expect about a 0.57% increase in high blood pressure, not considering the other factors. This could be because the more people get checked, the more likely we are to find high blood pressure. However, then we we add the interaction for urban or rural, we see that we get a coefficient of `UrbanRural1:CholScreen` -0.300. This suggests that urban counties with more people getting their cholesterol checked see about a 0.3% lower high blood pressure rate than we'd expect just from being an urban county and the cholesterol checks separately.  
+
+#### *High Cholesterol Model*
+In the HighChol model, significant variables include `UrbanRural1` (1 meaning Urban), `Age65Plus` (percentage of population over the age of 65), `CholScreen` (percentage of patients who have been screened for high cholesterol), `bpmUse` (percentage of the population that has been prescribed blood pressure medications), `EdLessColl` (percentage of the population who have completed less than a college education), and `HealthIns` (percentage of the population that are uninsured).  
+
+```{r}
+set.seed(2112)
+
+# Train test split
+cdc_index_top5_Chol <- createDataPartition(cdc_clean$HighChol, p = 0.8, list = FALSE)
+cdc_tr_top5_Chol <- cdc_clean[cdc_index_top5_Chol, ]
+cdc_te_top5_Chol <- cdc_clean[-cdc_index_top5_Chol, ]
+
+# Set control requirements
+control_top5_Chol <- trainControl(method="repeatedcv",
+                                  number =5,
+                                  repeats=3)
+
+# Fit the model
+model_top5_Chol <- train(HighChol ~ UrbanRural + EdLessColl + bpmUse + HealthIns + CholScreen + Age65Plus + UrbanRural*EdLessColl + UrbanRural*bpmUse + UrbanRural*HealthIns + UrbanRural*CholScreen + UrbanRural*Age65Plus,
+                         data=cdc_tr_top5_Chol,
+                         method="lm", 
+                         trControl = control_top5_Chol)
+
+#summ(model_top5_Chol$finalModel)
+
+# Get the coefficients from the model
+coefficients_Chol <- coef(model_top5_Chol$finalModel)
+
+# Convert the coefficients to a data frame
+coefficients_df_Chol <- as.data.frame(coefficients_Chol)
+
+# Give the column of coefficients a name
+names(coefficients_df_Chol) <- "Coefficient Value"
+
+# Use kable to create a nicely formatted table
+kable(coefficients_df_Chol, digits = 3)
+
+```
+
+Taking a closer look at counties that have a higher percentage of people with less than a college education, since `EdLessColl` coefficient is 0.130, then for each 1% increase in the population with less than a college education. We would expect the prevalence of High Cholesterol to increase by about 0.13 percentage points, everything else held constant. This could be due to a number of factors, such as dietary habits, lifestyle, etc.  
+
+Now if we were to look at adding an interaction term of urban or rural, we get a coefficient of `UrbanRural1:EdLessColl` -0.042. This tells us that the combined effect of being in an urban area and having less than a college education is to reduce the prevalence of High Cholesterol by about 0.04 percentage points, compared to what we would expect if these two factors were acting independently. This is a subtle but important point.  
+
+Now if we were to look at percentage of patients without health insurance, we get a coefficient of `HealthIns` 0.158. For each 1% increase in the population who are uninsured, we'd expect the prevalence of High Cholesterol to increase by about 0.16 percentage points, keeping all else constant. This may be because uninsured people might not have access to preventative care or proper medication.  
+
+Then when we look at adding the interaction again between urban or rural and not having health insurance, we see a coefficient of `UrbanRural1:HealthIns` -0.038. The combined effect of being in an urban area and being uninsured reduces the expected prevalence of High Cholesterol by about 0.04 percentage points, compared to what we would expect if these two factors were acting independently.  
+
+Through these coefficients, we gain a comprehensive understanding of the different factors contributing to stroke, high blood pressure, and high cholesterol and how their impacts diverge between urban and rural environments. This understanding can guide future strategies and interventions to address these health issues more effectively.  
+
+Please note, that while the coefficients provide insight into the relationship between predictors and outcomes, these relationships may not necessarily be causal. Further research and potentially experimental designs may be required to establish causality.  
+
+## **RECOMMENDATIONS**
+When we take into account the interactions between urban and rural populations, the most statistically significant factors reduce to seven individual components. Some of these are not easily modifiable, or they require further analysis to discern the contributing elements. With an urban or rural context, the factors most amenable to adjustment include education, health insurance, smoking, and poverty.  
+
+As our research and models indicate, individuals with education levels less than college are more at risk for high blood pressure and high cholesterol, two of the leading indicators of coronary heart disease. The U.S. medical system, with its intricate insurance requirements, scheduling procedures, billing understanding, and diagnosis comprehension, can pose substantial challenges, especially for the less educated and elderly. One potential solution to this would be the provision of health advocates or coaches who are accessible to those who find it difficult to seek help and gain understanding.  
+
+When considering urban and rural disparities, individuals living further away from medical assistance could particularly benefit from a support system accessible via phone or online, negating the need to travel to a doctor’s office or clinic. This service could also be beneficial for those with financial constraints. Traveling can be a challenge not only for those in remote (rural) areas but also for those who may not own a vehicle due to financial limitations. These individuals may struggle to access pharmacies and physicians regularly. One way to address this could be through the provision of telemedicine options and mail-order prescriptions at reduced costs.  
+
+```{r}
+plot_usmap(data = cdc, values = "CHD", color = "transparent", lwd = .05) +
+  scale_fill_continuous(low = "blue", high = "red", name = "CHD(%)", 
+                        na.value = "blue", labels = scales::comma) +
+  theme(legend.position = c(.9, .28), # Move the legend to the middle right
+        plot.title = element_text(hjust = .9, vjust = -140), # Align title to the lower right
+        legend.title = element_text(size = 10)) +
+  labs(title = "Coronary Heart Disease Prevalence by County")
+
+```
+
+We have demonstrated that one aspect of coronary heart disease prevalence is the urban and rural divide. Since it is impractical to construct and staff clinics and hospitals in every rural county, we must focus on small, achievable changes. Of the factors we identified, the most tangible for modification are smoking, education, and poverty. Further research could help us identify other factors that could contribute to reducing the prevalence of coronary heart disease.
+
+## **RESEARCH CONSIDERATION** 
+We recognize that this brief examination of healthcare disparities and the consequent prevalence of heart disease has certain limitations. The public datasets lack granularity and do not capture all the nuances of the healthcare system. Additionally, the observational nature of this analysis restricts our ability to draw definitive causal conclusions. Despite these constraints, however, the findings of this project can serve as a springboard for future research, offering important directional insights.  
+
+Future iterations of this project might incorporate richer datasets, deploy more sophisticated models, and involve collaboration with healthcare providers or institutions to apply the insights in real-world settings. Regardless of these potential enhancements, this project stands as a testament to the power of utilizing data to promote health equity and foster positive societal change. 
+
+## **CONCLUSION**
+Health disparities represent a critical issue in our healthcare system, influenced by a complex interplay of socio-demographic factors. Through our research, we found that one such disparity, access to care due to urban or rural status, influences health outcomes such as high blood pressure, high cholesterol, stroke, and inevitably, coronary heart disease. Upon further consideration, we believe that it is possible to help reduce the factors contributing to the prevalence of these issues. When we consider individuals living in rural areas, we observe that they tend to be more at risk for these types of health conditions. Concentrating our efforts on providing assistance to these communities can potentially help to improve the situation for all. Assistance provided to those facing geographical disparities can also benefit those who do not. While this might not eliminate the gap between urban and rural prevalence of coronary heart disease, it could certainly help to reduce the overall prevalence.
