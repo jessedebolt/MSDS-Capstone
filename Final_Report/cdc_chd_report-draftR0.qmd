@@ -14,9 +14,7 @@ format:
 ---
 
 ## **ABSTRACT**
-This project represents the culmination of our Master of Data Science program at Willamette University's School of Computing & Information Sciences, under the supervision of Dr. Jameson Watts. Serving as a testament to the knowledge and skills we have honed throughout our course, this capstone project required us to plan and execute a comprehensive data science project that holds consequential potential for an organization or society at large.  
-  
-We chose to focus on a topic of significant personal and societal importance - the impact of disparities in healthcare access on the prevalence of coronary heart disease. By examining this critical issue, we aim to contribute meaningfully to the ongoing discussions on healthcare equity and accessibility. The findings and insights gleaned from our research have the potential to influence policy making and interventions in the healthcare sector, ultimately enhancing outcomes for individuals across urban and rural communities.
+For this project, we chose to focus on a topic of significant personal and societal importance - the impact of disparities specifically the difference between urban and rural counties in healthcare access on the prevalence of coronary heart disease. By examining this critical issue, we aim to contribute meaningfully to the ongoing discussions on healthcare equity and accessibility. The findings and insights gleaned from our research have the potential to influence policy making and interventions in the healthcare sector, ultimately enhancing outcomes for individuals across urban and rural communities.
 
 ```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
@@ -69,21 +67,19 @@ plot_usmap(data = cdc_urban, values = "CHD", color = "transparent", lwd = 0.1) +
 ```
 
 ## **INTRODUCTION**
-The relationship between access to healthcare services and individual health outcomes is profound, with notable disparities emerging between urban and rural areas. To create effective interventions and policies, it is imperative to understand the factors contributing to these discrepancies and their impact on health outcomes, particularly cardiovascular diseases.  
+The relationship between access to healthcare services and individual health outcomes is profound, with notable disparities emerging between urban and rural areas. To create effective interventions and policies, it is imperative to understand the factors contributing to these discrepancies and their impact on health outcomes, particularly coronary heart disease.  
   
-This project aims to illuminate the key factors influencing healthcare access disparities, with a view to leveraging this knowledge in developing policy interventions for improving cardiovascular disease outcomes. Through rigorous data analysis and predictive modeling, we have established a correlation between the prevalence of heart disease and the urban or rural residence of individuals.  
+This project aims to illuminate the key factors influencing healthcare disparities between urban and rural counties, with a view to leveraging this knowledge in developing policy interventions for improving coronary heart disease outcomes. Through rigorous data analysis and predictive modeling, we have established a correlation between the prevalence of coronary heart disease and whether urban or rural counties.  
   
-The forthcoming sections detail our investigative journey, offering a transparent look into our methodology and conclusions. We will first present our exploratory analysis, illuminating interesting patterns we unearthed in the process. Subsequently, we delved into the machine learning models that helped us gain deeper insights from our data exploration. Following this, we detail how we harnessed these insights to make predictive analyses with our machine learning models. Finally, we provide recommendations and propose potential enhancements that could influence the rate of heart disease prevalence in these areas.  
+The forthcoming sections detail our investigative journey, offering a transparent look into our methodology and conclusions. We will first present our exploratory analysis, illuminating interesting patterns we unearthed in the process. Subsequently, we delved into the machine learning models that helped us gain deeper insights from our data exploration. Following this, we detail how we harnessed these insights to make predictive analyses with our machine learning models. Finally, we provide recommendations and propose potential enhancements that could influence the rate of coronary heart disease prevalence in these areas.  
   
-Our investigation aims to serve as a roadmap for future efforts targeting healthcare access disparities, highlighting the vital role of data science in unraveling complex societal issues. By bridging the knowledge gap, we hope to inspire impactful changes that improve healthcare accessibility, ultimately leading to healthier lives irrespective of geographical residence.
-
 ## **METHODOLOGY**
-Our research journey began with a review of datasets made available by several organizations, including the Centers for Disease Control and Prevention, County Health Rankings & Roadmaps, Behavioral Risk Factor Surveillance System (BRFSS), and the U.S. Census Bureau, among others. Initially, we endeavored to merge these diverse datasets into a singular, usable set—a complex and time-consuming task. However, this effort was superseded by our discovery of the Interactive Atlas of Heart Disease and Stroke, provided by the CDC. This comprehensive dataset offered a rich pool of information, encompassing heart disease prevalence data, other medical conditions, demographics, healthcare delivery and insurance, as well as social, economic, and environmental data. All data was presented at both the state and county level, further aiding our analysis.  
+Our research journey began with a review of datasets made available by several organizations, ultimately culminating in our discovery of the Interactive Atlas of Heart Disease and Stroke, provided by the CDC. This comprehensive dataset offered a rich pool of information, encompassing heart disease prevalence data, other medical conditions, demographics, healthcare delivery and insurance, as well as social, economic, and environmental data. All data was presented at both the state and county level, further aiding our analysis.  
   
-As we walk you through this journey, our findings will demonstrate the integral role of methodical data analysis in unearthing the complex factors contributing to disparities in healthcare access. The goal is to provide a thorough and nuanced understanding of the healthcare landscape, which could influence future interventions and policy development.
+As we walk you through this journey, our findings will demonstrate the integral role of methodical data analysis in unearthing the complex factors contributing to disparities in healthcare access between urban and rural counties. The goal is to provide a thorough and nuanced understanding of the healthcare landscape, which could influence future interventions and policy development.
 
 ### **Data Cleaning and Feature Engineering**
-The data acquisition from the CDC Interactive Atlas of Heart Disease and Stroke proved to be a complex task, as the information wasn't available as a single dataset. Instead, we had to download more than 60 individual datasets. Managing these files and coordinating the development of the necessary code across our team was challenging. To streamline these tasks and handle version control, we utilized Git and GitHub—a decision that provided valuable experience in collaborative coding and version management.  
+The data acquisition from the CDC Interactive Atlas of Heart Disease and Stroke proved to be a complex task, as the information wasn't available as a single dataset. Instead, we had to download more than 60 individual datasets. Managing these files and coordinating the development of the necessary code across our team was challenging.  
   
 Once compiled, the data needed substantial manipulation to be tailored to our specific needs. Our preparation process involved merging the various datasets into a single, coherent dataset, eliminating superfluous features and observations, and conducting other data manipulations to improve usability.  
   
@@ -180,7 +176,7 @@ mostUrban = ggplot(top_urban, aes(x = state, y = count, fill = state)) +
 grid.arrange(mostUrban, mostRural, ncol = 2)
 ```
 
-When focusing on the urban-rural divide, the top five states with the highest amount of urban counties are California, New York, Texas, Virginia, and Florida. On the flip side, the states with the most rural counties are Texas, Kansas, Kentucky, Georgia, and Missouri. 
+When focusing on the urban-rural divide, the top five states with the highest amount of urban counties are Texas, Virginia, Georgia, North Carolina, and Indiana. On the flip side, the states with the most rural counties are Texas, Kansas, Kentucky, Georgia, and Missouri. 
 
 #### *CHD Prevalence Across Urban and Rural Counties*  
 CHD has an average prevalence of 8.2% across all counties, but we note a small difference between urban (7.24%) and rural counties (8.7%). 
@@ -264,7 +260,7 @@ ggplot(combined_prevalence, aes(x = reorder(state, average_CHD), y = average_CHD
 
 ```
 
-We then wanted to look at the extremes or the unexpected values to see what was interesting.  We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest rates.  There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol,  stroke, etc… None of these differences seemed to point to anything other than a difference between higher prevalence rates of CHD and lower, not what we were expecting to see of a difference between urban and rural counties.  
+We then wanted to look at the extremes or the unexpected values to see what was interesting.  We looked at the rural counties with the lowest prevalence rates of CHD, and then looked at the urban counties with the highest prevalence rates.  There was some differences we noticed, such as in the higher CHD prevalence group also had higher blood pressure rates, higher cholesterol,  stroke, etc… None of these differences seemed to point to anything other than just a difference between higher prevalence rates of CHD and lower, not what we were expecting to see, which was clues as to why there was a difference between urban and rural counties.  
 
 *Coronary Heart Disease Prevalence Urban/Rural by State*
 ```{r}
@@ -298,7 +294,7 @@ ggplot(chd_prevalence_by_state_and_urbanrural, aes(y = state, x = UrbanRural, fi
 ```
 
 #### *Healthcare Facilities and Professionals*  
-Analyze the role of healthcare availability and infrastructure in CHD prevalence:
+We analyzed the role of healthcare availability and infrastructure in CHD prevalence:
 
 - Urban counties have, on average, more hospitals (2.2 per county) compared to rural counties (0.9 per county), making the average per county 1.
 
@@ -306,14 +302,14 @@ Analyze the role of healthcare availability and infrastructure in CHD prevalence
 
 - One surprising finding was that 227 urban counties and 473 rural counties lack a hospital.
 
-- There are more primary care physicians in urban counties (258 per county) compared to rural counties (38 per county). However, after adjusting for population, there are 152 PCPs per 1,000 people in urban areas and 127 in rural ones.
+- There are more primary care physicians (PCP) in urban counties (258 per county) compared to rural counties (38 per county). However, after adjusting for population, there are 152 PCPs per 1,000 people in urban areas and 127 in rural ones.
 
 #### *Population Factors*  
-Other factors that may influence CHD prevalence:  
+Other factors that may influence coronary heart disease prevalence:  
 The percentage of the population aged 65 and older is slightly higher in rural counties (20%) than in urban ones (17%).
 
 #### *Correlation Analysis*  
-- `CHD` shows high positive correlation with `Stroke`, High Blood Pressure (`HighBP`), and High Cholesterol (`HighChol`). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include `Stroke` and `HighBP`, `HighChol` and `HighBP`, and population with all kinds of hospitals and cardiologists, see Figure 1.  These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists. 
+- Coronary heart disease (`CHD`) shows high positive correlation with `Stroke`, High Blood Pressure (`HighBP`), and High Cholesterol (`HighChol`). Which makes sense, since the diagnostic criteria for diagnosing coronary heart disease is having had a stroke, high blood pressure, and high cholesterol. Other high positive correlations include `Stroke` and `HighBP`, `HighChol` and `HighBP`, and population with all kinds of hospitals and cardiologists, see Figure 1.  These are expected findings, since high blood pressure is a risk factor for strokes, and you would expect areas of high population density to have a higher concentration of hospitals and specialists like cardiologists. 
 
 ```{r}
 # calculate the correlation matrix
@@ -326,7 +322,7 @@ qgraph(correlation_matrix, layout = "circle", labels = names(correlation_matrix)
 Figure 1: Correlation Network of Variables  
 In the graphic above, the red lines represent negative correlations, green lines represent positive correlations. The thicker the line the stronger the correlation.
 
-- Coronary heart disease shows moderate positive correlations with smoking, poverty, less than a college education, broadband availability, and % of population that is age 65+. So these were factors we were interested to look at when engineering features for our models.
+- Coronary heart disease shows moderate positive correlations with smoking, poverty, less than a college education, broadband availability, and percentage of population that is age 65+. So these were factors we were interested to look closer at when engineering features for our models.
 
 ```{r}
 # Reshape data from wide to long format
@@ -344,14 +340,14 @@ ggplot(cdc_long, aes(x = CHD, fill = UrbanRural)) +
 
 ```
 
-- A negative high correlation was observed between median household income and stroke.  Which meant to us that if you had a higher income your risk of stroke was lower.  We don’t know why that is, but perhaps due to having higher income you were more likely able to have health insurance, take time off from work to see a doctor, and maybe even live a healthier lifestyle. These would be things that would be interesting to investigate further, in future projects.
+- A negative high correlation was observed between median household income and stroke.  Which we interpreted as if you had a higher income your risk of stroke was lower.  We don’t know why that is, but perhaps due to having higher income you were more likely to have health insurance, ability to take time off from work to see a doctor, and maybe even live a healthier lifestyle. These would be things that would be interesting to investigate further, in future projects.
 
 - Coronary heart disease shows moderate negative correlations with median household income and median home value, which we interpreted as meaning that the higher your income level, you were more likely to afford a higher valued house, and it translated to having a lower prevalence for coronary heart disease.
 
 #### *Urban-Rural Divide*  
 We were interested to dive deeper into the disparities between urban and rural counties:
 
-- In terms of obesity, physical inactivity, cholesterol medication non-adherence, and percentage of uninsured, no significant urban-rural differences were observed.
+- In terms of obesity, physical inactivity, cholesterol medication non-adherence, and percentage of people without health insurance, no significant urban-rural differences were observed initially.
 
 ```{r}
 cdc %>%
@@ -366,9 +362,9 @@ geom_smooth(method = lm)
 - Further exploration and analysis may be needed to understand the role of these factors in CHD prevalence.
 
 #### *Analysis of Top Predictors*  
-Deep dive into the top predictors of `CHD`, `Stroke`, `HBP`, and `HChol`:  
+Deep dive into the top predictors of coronary heart disease (`CHD`), `Stroke`, high blood pressure (`HighBP`), and high cholesterol (`HighChol`):  
 
-- In terms of coronary heart disease, high blood pressure, high cholesterol, stroke, and age over 65 we found significant correlation. 
+- In terms of coronary heart disease, high blood pressure, high cholesterol, stroke, and age over 65 we found significant correlation as well as some difference in urban and rural. 
 
 ```{r}
 # Select relevant columns
@@ -401,9 +397,9 @@ print(s1)
 ### **Machine Learning Models**  
 Our objective was to predict the prevalence of Coronary Heart Disease (CHD) in the dataset. Initially, we sought to ascertain whether the prediction of CHD was plausible based on the available data. More importantly, we needed to comprehend the drivers or contributing factors to CHD.  
 
-To identify these drivers, we executed a series of models, including decision tree models, recursive partitioning and regression trees (rpart), and random forest models. These were instrumental in discerning key variables for feature engineering. We also employed backward stepwise feature selection. Our analytical efforts culminated in linear regression models, followed by generalized linear mixed models (GLMM) with a Poisson distribution. Although the Poisson distribution method proved to be slightly more accurate than the standard linear regression, we decided to use the standard linear model for efficiency and easier explainability.  
+To identify these drivers, we executed a series of models, including decision tree models, recursive partitioning and regression trees (rpart), and random forest models. These were instrumental in discerning key variables for feature engineering. We also employed backward stepwise feature selection. Our analytical efforts culminated in linear regression models, and generalized linear mixed models (GLMM) with a Poisson distribution. Although the Poisson distribution method proved to be slightly more accurate than the standard linear regression, we decided to use the standard linear model for efficiency and easier explainability.  
 
-Through this process we successively eliminated the least critical variables until we identified the top five most impactful ones, yielding an RMSE of 0.3653547, and an Rsquared of 0.9463568. Essentially this means that with these top 5 variables we were able to explain almost 95% of the variance in the data, with a low rate of error.  
+Through this process we successively eliminated the least critical variables until we identified the top five most impactful ones, yielding an RMSE of 0.3653547, and an Rsquared of 0.9463568. Essentially this means that with these top 5 variables we were able to explain 95% of the variance in the data, with a low rate of error.  
 
 ```{r}
 cdc_test <- cdc %>% select (3, 5:46, )
@@ -416,31 +412,31 @@ rpart.plot(tree_model)
 
 ```
  
-We discovered high correlations between `CHD` prevalence and factors such as high blood pressure, high cholesterol, and stroke occurrence. These five variables (`Stroke`, `Age65plus`, `Smoker`, `HighChol`, `HighBP`) could predict or explain a majority (95%) of the variation in the `CHD` data.  
+We discovered high correlations between `CHD` prevalence and factors such as high blood pressure, high cholesterol, and stroke occurrence. These five variables (`Stroke`, `Age65plus`, `Smoker`, `HighChol`, `HighBP`) explain a majority (95%) of the variation in the `CHD` data.  
 
-Given their high correlation and their status as diagnostic criteria for CHD, we then decided to explore these variables in depth. We constructed predictive models for these variables to address questions such as: What factors influence these variables? What drives these health changes? Is there a divergence between urban and rural counties in these aspects?
+Given their high correlation and their status as diagnostic criteria for CHD, we then decided to explore these highly correlated variables in depth. We constructed predictive models for these variables to address questions such as: What factors influence these variables? What drives these health changes? Is there a divergence between urban and rural counties in these aspects?
 
 #### *Insights from Sub-models*
 We realized that we needed to take a step back and look deeper at these variables that were important for modeling Coronary Heart Disease, and so we dove into creating models for High Cholesterol, High Blood Pressure, and Stroke.  
 
-We found that most of the variance in the data could be explained by the models for `Stroke`, `HighChol`, and `HighBP.` The top five variables contributing to `HighChol` were `EdLesscoll`, `bpmUse`, `healthIns`, `CholScreen`, and `Age65Plus`, resulting in an RMSE of 1.728563, and an Rsquared of 0.7542299. The most significant variables for `HighBP` were `bpmUse`, `EdLessColl`, `CholMedNonAdhear`, `CholScreen`, and `Diabetes`, with an RMSE of 2.398734, and an Rsquared of 0.8226873. For `Stroke`, the most influential variables were `Age65Plus`, `Poverty`, `Smoker`, `bpmUse`, and `SNAPrecipients`, generating an RMSE of 0.3290255, and an Rsquared of 0.8530259. Essentially for all 3 models with 5 variables each (some overlap of variables between them), we could explain a majority of the variance in the data, so we know these variables are important factors driving these health conditions.
+We found that most of the variance in the data could be explained by each of these models for `Stroke`, `HighChol`, and `HighBP.` The top five variables contributing to `HighChol` were `EdLesscoll`, `bpmUse`, `healthIns`, `CholScreen`, and `Age65Plus`, resulting in an RMSE of 1.728563, and an Rsquared of 0.7542299. The most significant variables for `HighBP` were `bpmUse`, `EdLessColl`, `CholMedNonAdhear`, `CholScreen`, and `Diabetes`, with an RMSE of 2.398734, and an Rsquared of 0.8226873. For `Stroke`, the most influential variables were `Age65Plus`, `Poverty`, `Smoker`, `bpmUse`, and `SNAPrecipients`, generating an RMSE of 0.3290255, and an Rsquared of 0.8530259. Essentially for all 3 models with 5 variables each (some overlap of variables between them), we could explain a majority of the variance in the data from 75-85%, so we know these variables are important factors driving these health conditions.
 
 ```{r echo=FALSE, fig.align='center', fig.cap='Figure 2: Variable Connections'}
 knitr::include_graphics("images/VarConnect.png")
 
 ```
 
-The inclusion of interaction terms is where we began to reveal differences between urban and rural for these sub-models that then lead to factors that influence coronary heart disease prevalence. These findings contribute to the broader narrative about CHD prevalence, and the disparity between urban and rural environments.  
+The inclusion of interaction terms is where we began to clearly reveal differences between urban and rural for these sub-models that then lead to the factors that influence coronary heart disease (CHD) prevalence. These findings contribute to the broader narrative about CHD prevalence, and the disparity between urban and rural environments.  
 
-For instance, in the Stroke model, the main variables (`Age65plus`, `Poverty`, `Smoker`, `bpmUse`, `SNAPrecipients`) all proved statistically significant when interacting with the urban/rural divide, except for `SNAPrecipients.` Similarly, in the `HighBP` model, the top variables (`bpmUse`, `EdLessColl`, `CholMedNonAdhear`, `CholScreen`, `Diabetes`) revealed significant interactions for `EdLessColl` and `CholScreen.` For the `HighChol` model, all variables except `Age65Plus` and `bpmUse` showed significant interactions.  What this revealed, is that for these statistically significant variables, when accounting for an interaction with urban or rural, this is where you can start to see the additional pieces to the story that explain why there is a difference in coronary heart disease prevalence rates between urban and rural areas.  
+For instance, in the Stroke model, the main variables (`Age65plus`, `Poverty`, `Smoker`, `bpmUse`, `SNAPrecipients`) all proved statistically significant when interacting with the urban/rural divide, except for `SNAPrecipients.` Similarly, in the `HighBP` model, the top variables (`bpmUse`, `EdLessColl`, `CholMedNonAdhear`, `CholScreen`, `Diabetes`) revealed significant interactions for `EdLessColl` and `CholScreen.` For the `HighChol` model, all variables except `Age65Plus` and `bpmUse` showed significant interactions.  What this revealed, is that for these statistically significant variables, when accounting for an interaction with urban or rural, this is where you can start to see where these additional pieces add to the story explaining why there is a difference in coronary heart disease prevalence rates between urban and rural areas.  
 
-```{r echo=FALSE, fig.align='center', fig.cap='Figure 3: Variable Connections with Interactions'}
+```{r echo=FALSE, fig.align='center', fig.cap='Figure 3: Variable Connections with Statistically Significant Interactions'}
 knitr::include_graphics("images/VarConnectInteract.png")
 
 ```
 
 #### *Interpreting Coefficients*
-Having constructed our models, we can now interpret the coefficients and their implications for our predictors and outcome variables. These interpretations enable us to understand the relationships between these variables and the influence they wield over our target outcomes. The model coefficients provide us with valuable insight into how these variables influence high blood pressure, high cholesterol, and stroke which influence coronary heart disease and how their effect may differ between urban and rural environments.  
+Having constructed our models, we can now interpret the coefficients and their implications for our predictors and outcome variables. These interpretations enable us to understand the relationships between these variables and the influence they wield over our target outcomes. The model coefficients provide us with valuable insight into how these variables influence high blood pressure, high cholesterol, and stroke which then influence coronary heart disease and how their effect may differ between urban and rural environments.  
 
 #### *Stroke Model*
 In the stroke model, significant variables include `UrbanRural1` (1 meaning Urban), `Smoker` (percentage of people who smoke in the county), `Age65Plus` (percentage of population over the age of 65), `bpmUse` (percentage of the population that has been prescribed blood pressure medications), `Poverty` (percentage of the population who are considered at the poverty level), and `SNAPrecipients` (percentage of the population that are on SNAP benefits).  
@@ -483,7 +479,7 @@ kable(coefficients_df_Stroke, digits = 3)
 
 Let’s examine a couple of these coefficients.  When looking at the percentage of people who smoke, we get the coefficient of `Smoker` 0.057.  Which means for every extra 1% of people who smoke, we'd expect about a 0.06% increase in stroke prevalence, not considering the other factors.  Now, if we consider adding an interaction with urban or rural status, we get a coefficient of `UrbanRural1:Smoker` 0.002. This suggests that urban counties with more smokers see about a 0.002% higher stroke prevalence than we'd expect just from being an urban county and having more smokers separately.  
 
-Another one we can look at, is the coefficient for people who are prescribed blood pressure medication, we get `bpmUse` 0.050. For every extra 1% of people who use blood pressure medication, we'd expect about a 0.05% increase in stroke prevalence, not considering the other factors.  Then if we add the interaction to consider urban or rural status, we get `UrbanRural1:bpmUse` -0.021. This suggests that urban counties where more people use blood pressure medication see about a 0.021% lower stroke prevalence than we'd expect just from being an urban county and the blood pressure medication usage separately.  
+Another one to consider, is the coefficient for people who are prescribed blood pressure medication, we get `bpmUse` 0.050. For every extra 1% of people who use blood pressure medication, we'd expect about a 0.05% increase in stroke prevalence, not considering the other factors.  Then if we add the interaction to consider urban or rural status, we get `UrbanRural1:bpmUse` -0.021. This suggests that urban counties where more people use blood pressure medication see about a 0.021% lower stroke prevalence than we'd expect just from being an urban county and the blood pressure medication usage separately.  
 
 #### *High Blood Pressure Model*
 In the high blood pressure model, significant variables include `UrbanRural1` (1 meaning urban county), `Diabetes` (percentage of population diagnosed with diabetes), `CholScreen` (percentage of patients who have been screened for high cholesterol), `CholMedNonAdhear` (percentage of patients not taking their cholesterol medication), `bpmUse` (percentage of the population that has been prescribed blood pressure medications), and `EdLessColl` (percentage of the population who have completed less than a college education).  
@@ -523,7 +519,7 @@ kable(coefficients_df_BP, digits = 3)
   
 ```
 
-Looking closer at the percentage of people who have less. Than a college education, we see the coefficient of `EdLessColl` 0.203. Which means, for every extra 1% of people who didn't go to college, we'd expect about a 0.20% increase in high blood pressure, not considering the other factors. This could be due to various things like diet, lifestyle, and stress levels. Then if we add the interaction with urban or rural, we get the coefficient of `UrbanRural1:EdLessColl` -0.040. Here, urban counties with more people who didn't go to college see about a 0.04% lower high blood pressure rate than we'd expect just from being an urban county and having fewer college graduates separately.  
+Looking closer at the percentage of people who have less than a college education, we see the coefficient of `EdLessColl` 0.203. Which means, for every extra 1% of people who didn't go to college, we'd expect about a 0.20% increase in high blood pressure, not considering the other factors. This could be due to various things like diet, lifestyle, and stress levels. Then if we add the interaction with urban or rural, we get the coefficient of `UrbanRural1:EdLessColl` -0.040. Here, urban counties with more people who didn't go to college see about a 0.04% lower high blood pressure rate than we'd expect just from being an urban county and having fewer college graduates separately.  
 
 If we examine cholesterol screening, we get the coefficient `CholScreen` 0.568. So, for every extra 1% of people who get their cholesterol checked, we'd expect about a 0.57% increase in high blood pressure, not considering the other factors. This could be because the more people get checked, the more likely we are to find high blood pressure. However, then we we add the interaction for urban or rural, we see that we get a coefficient of `UrbanRural1:CholScreen` -0.300. This suggests that urban counties with more people getting their cholesterol checked see about a 0.3% lower high blood pressure rate than we'd expect just from being an urban county and the cholesterol checks separately.  
 
@@ -565,7 +561,7 @@ kable(coefficients_df_Chol, digits = 3)
 
 ```
 
-Let’s take a closer look at if someone has a less than college education.  Since `EdLessColl` coefficient is 0.130, then for each 1% increase in the population with less than a college education, we'd expect the prevalence of High Cholesterol to increase by about 0.13 percentage points, everything else held constant. This could be due to a number of factors, such as dietary habits, lifestyle, etc.  
+Taking a closer look at counties that have a higher percentage of people with less than a college education, since `EdLessColl` coefficient is 0.130, then for each 1% increase in the population with less than a college education. We would expect the prevalence of High Cholesterol to increase by about 0.13 percentage points, everything else held constant. This could be due to a number of factors, such as dietary habits, lifestyle, etc.  
 
 Now if we were to look at adding an interaction term of urban or rural, we get a coefficient of `UrbanRural1:EdLessColl` -0.042. This tells us that the combined effect of being in an urban area and having less than a college education is to reduce the prevalence of High Cholesterol by about 0.04 percentage points, compared to what we would expect if these two factors were acting independently. This is a subtle but important point.  
 
@@ -580,7 +576,7 @@ Please note, that while the coefficients provide insight into the relationship b
 ## **RECOMMENDATIONS**
 When we take into account the interactions between urban and rural populations, the most statistically significant factors reduce to seven individual components. Some of these are not easily modifiable, or they require further analysis to discern the contributing elements. With an urban or rural context, the factors most amenable to adjustment include education, health insurance, smoking, and poverty.  
 
-As our research and models indicate, individuals with education levels less than college are more at risk for high blood pressure and high cholesterol, two leading indicators of heart disease. The U.S. medical system, with its intricate insurance requirements, scheduling procedures, billing understanding, and diagnosis comprehension, can pose substantial challenges, especially for the less educated and elderly. One potential solution to this would be the provision of health advocates or coaches who are accessible to those who find it difficult to seek help and gain understanding.  
+As our research and models indicate, individuals with education levels less than college are more at risk for high blood pressure and high cholesterol, two of the leading indicators of coronary heart disease. The U.S. medical system, with its intricate insurance requirements, scheduling procedures, billing understanding, and diagnosis comprehension, can pose substantial challenges, especially for the less educated and elderly. One potential solution to this would be the provision of health advocates or coaches who are accessible to those who find it difficult to seek help and gain understanding.  
 
 When considering urban and rural disparities, individuals living further away from medical assistance could particularly benefit from a support system accessible via phone or online, negating the need to travel to a doctor’s office or clinic. This service could also be beneficial for those with financial constraints. Traveling can be a challenge not only for those in remote (rural) areas but also for those who may not own a vehicle due to financial limitations. These individuals may struggle to access pharmacies and physicians regularly. One way to address this could be through the provision of telemedicine options and mail-order prescriptions at reduced costs.  
 
@@ -595,7 +591,7 @@ plot_usmap(data = cdc, values = "CHD", color = "transparent", lwd = .05) +
 
 ```
 
-We have demonstrated that one aspect of heart disease prevalence is the urban/rural divide. Since it is impractical to construct and staff clinics and hospitals in every rural county, we must focus on small, achievable changes. Of the factors we identified, the most tangible for modification are smoking, education, and poverty. Further research could help us identify other factors that could contribute to reducing the prevalence of coronary heart disease.
+We have demonstrated that one aspect of coronary heart disease prevalence is the urban and rural divide. Since it is impractical to construct and staff clinics and hospitals in every rural county, we must focus on small, achievable changes. Of the factors we identified, the most tangible for modification are smoking, education, and poverty. Further research could help us identify other factors that could contribute to reducing the prevalence of coronary heart disease.
 
 ## **RESEARCH CONSIDERATION** 
 We recognize that this brief examination of healthcare disparities and the consequent prevalence of heart disease has certain limitations. The public datasets lack granularity and do not capture all the nuances of the healthcare system. Additionally, the observational nature of this analysis restricts our ability to draw definitive causal conclusions. Despite these constraints, however, the findings of this project can serve as a springboard for future research, offering important directional insights.  
@@ -603,8 +599,4 @@ We recognize that this brief examination of healthcare disparities and the conse
 Future iterations of this project might incorporate richer datasets, deploy more sophisticated models, and involve collaboration with healthcare providers or institutions to apply the insights in real-world settings. Regardless of these potential enhancements, this project stands as a testament to the power of utilizing data to promote health equity and foster positive societal change. 
 
 ## **CONCLUSION**
-Health disparities represent a critical issue in our healthcare system, influenced by a complex interplay of socio-demographic factors. Through our research, we found that one such disparity, access to care, influences health outcomes such as high blood pressure, high cholesterol, stroke, and inevitably, coronary heart disease. Upon further consideration, we believe that it is possible to help reduce the factors contributing to the prevalence of these issues. When we consider individuals living in rural areas, we observe that they tend to be more at risk for these types of heart conditions. Concentrating our efforts on providing assistance to these communities can potentially help to improve the situation for all. Assistance provided to those facing geographical disparities can also benefit those who do not. While this might not eliminate the gap between urban and rural prevalence of heart disease, it could certainly help reduce the overall prevalence.
-
-
-
-
+Health disparities represent a critical issue in our healthcare system, influenced by a complex interplay of socio-demographic factors. Through our research, we found that one such disparity, access to care due to urban or rural status, influences health outcomes such as high blood pressure, high cholesterol, stroke, and inevitably, coronary heart disease. Upon further consideration, we believe that it is possible to help reduce the factors contributing to the prevalence of these issues. When we consider individuals living in rural areas, we observe that they tend to be more at risk for these types of health conditions. Concentrating our efforts on providing assistance to these communities can potentially help to improve the situation for all. Assistance provided to those facing geographical disparities can also benefit those who do not. While this might not eliminate the gap between urban and rural prevalence of coronary heart disease, it could certainly help to reduce the overall prevalence.
