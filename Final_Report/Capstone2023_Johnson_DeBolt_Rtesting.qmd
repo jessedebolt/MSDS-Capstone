@@ -92,6 +92,8 @@ library(gridExtra)
 grid.arrange(p1, p2, ncol=2)
 
 ```
+
+
 ```{r}
 
 # Normalize CHD values to [0, 1] range
