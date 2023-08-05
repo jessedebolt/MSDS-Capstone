@@ -1,0 +1,384 @@
+---
+title: "Healthcare Access and its Effects on Coronary Heart Disease Prevalence"
+author:
+  - name: "Isaac Johnson & Jesse DeBolt"
+    affiliation: "Willamette University School of Computing and Information Sciences"
+date: "August 1, 2023"
+date-format: "long"
+course: DATA510 - Data Science Capstone Project
+image: "DATA501_Final.png"
+format:
+  html:
+    toc: true
+    embed-resources: true
+---
+
+## **ABSTRACT**
+For this project, we chose to focus on a topic of significant personal and societal importance - the impact of disparities specifically the difference between urban and rural counties in healthcare access on the prevalence of coronary heart disease. By examining this critical issue, we aim to contribute meaningfully to the ongoing discussions on healthcare equity and accessibility. The findings and insights gleaned from our research have the potential to influence policy making and interventions in the healthcare sector, ultimately enhancing outcomes for individuals across urban and rural communities.
+
+```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(readr)
+library(tidyverse)
+library(gridExtra)
+library(ggthemes)
+library(reshape2)
+library(GGally)
+library(qgraph)
+library(corrplot)
+library(usmap)
+library(rpart)
+library(rpart.plot)
+library(RColorBrewer)
+library(jtools)
+library(caret)
+library(knitr)
+library(viridis)
+
+```
+
+
+```{r load}
+cdc_clean <- read_csv("data/cleanCDC.csv")
+cdc <- read_csv("../data/CDC_all.csv")
+
+```
+
+
+```{r}
+# Subset data for urban and rural
+cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
+cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
+
+# Create map for Rural areas
+rural_plt <- plot_usmap(data = cdc_rural, values = "CHD", color = "transparent") +
+  scale_fill_continuous(low = "blue", high = "red", na.value = "lightgrey", name = "CHD(%)",
+                        label = scales::comma) +
+  theme(legend.position = c(0.925, 0.10), # Adjust these values as needed
+        legend.text = element_text(color = "white"),
+        legend.background = element_blank(), # This controls the box around the whole legend
+        legend.key = element_blank(), # This controls the boxes around each item
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+# Create map for Urban areas
+urban_plt <- plot_usmap(data = cdc_urban, values = "CHD", color = "transparent") +
+  scale_fill_continuous(low = "blue", high = "red", na.value = "lightgrey", name = "CHD(%)",
+                        label = scales::comma) +
+  theme(legend.position = c(0.925, 0.10), # Adjust these values as needed
+        legend.text = element_text(color = "white"),
+        legend.background = element_blank(), # This controls the box around the whole legend
+        legend.key = element_blank(), # This controls the boxes around each item
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+# Create map for Urban areas
+both_plt <- plot_usmap(data = cdc, values = "CHD", color = "transparent") +
+  scale_fill_continuous(low = "blue", high = "red", na.value = "lightgrey", name = "CHD(%)",
+                        label = scales::comma) +
+  theme(legend.position = c(0.925, 0.10), # Adjust these values as needed
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(), # This controls the box around the whole legend
+        legend.key = element_blank(), # This controls the boxes around each item
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+ggsave(rural_plt, filename = "rural.png",
+       bg = "transparent")
+
+ggsave(urban_plt, filename = "urban.png",
+       bg = "transparent")
+
+ggsave(both_plt, filename = "both.png",
+       bg = "transparent")
+
+```
+
+```{r}
+# Subset data for urban and rural
+cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
+cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
+
+# Find the global min and max
+min_CHD <- min(cdc_rural$CHD, cdc_urban$CHD, cdc$CHD, na.rm = TRUE)
+max_CHD <- max(cdc_rural$CHD, cdc_urban$CHD, cdc$CHD, na.rm = TRUE)
+
+# Create map for Rural areas
+rural_plt <- plot_usmap(data = cdc_rural, values = "CHD", color = "transparent") +
+  scale_fill_continuous(low = "blue", high = "red", na.value = "lightgrey", 
+                        name = "CHD(%)", label = scales::comma,
+                        limits = c(min_CHD, max_CHD)) +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+# Create map for Urban areas
+urban_plt <- plot_usmap(data = cdc_urban, values = "CHD", color = "transparent") +
+  scale_fill_continuous(low = "blue", high = "red", na.value = "lightgrey", 
+                        name = "CHD(%)", label = scales::comma,
+                        limits = c(min_CHD, max_CHD)) +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+# Create map for Both
+both_plt <- plot_usmap(data = cdc, values = "CHD", color = "transparent") +
+  # scale_fill_continuous(low = "blue", high = "red", na.value = "lightgrey", 
+  #                       name = "CHD(%)", label = scales::comma,
+  #                       limits = c(min_CHD, max_CHD)) +
+  scale_color_viridis_c(discrete = FALSE) +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+ggsave(rural_plt, filename = "rural.png", bg = "transparent")
+
+ggsave(urban_plt, filename = "urban.png", bg = "transparent")
+
+ggsave(both_plt, filename = "both.png", bg = "transparent")
+
+```
+
+# Using viridis
+```{r}
+# Subset data for urban and rural
+cdc_urban <- subset(cdc, grepl("Urban", UrbanRural))
+cdc_rural <- subset(cdc, !grepl("Urban", UrbanRural))
+
+# Find the global min and max
+min_CHD <- min(cdc_rural$CHD, cdc_urban$CHD, cdc$CHD, na.rm = TRUE)
+max_CHD <- max(cdc_rural$CHD, cdc_urban$CHD, cdc$CHD, na.rm = TRUE)
+
+# Create map for Both
+both_plt <- plot_usmap(data = cdc, values = "CHD", color = "transparent") +
+  scale_fill_viridis_c(name = "CHD(%)", label = scales::comma, option = "viridis",
+                       na.value = "lightgrey") +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+# Create map for Urban areas
+urban_plt <- plot_usmap(data = cdc_urban, values = "CHD", color = "transparent") +
+  scale_fill_viridis_c(name = "CHD(%)", label = scales::comma, option = "viridis",
+                       na.value = "lightgrey") +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+# Create map for Rural areas
+rural_plt <- plot_usmap(data = cdc_rural, values = "CHD", color = "transparent") +
+  scale_fill_viridis_c(name = "CHD(%)", label = scales::comma, option = "viridis",
+                       na.value = "lightgrey") +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+ggsave(rural_plt, filename = "rural_viridis.png", bg = "transparent")
+ggsave(urban_plt, filename = "urban_viridis.png", bg = "transparent")
+ggsave(both_plt, filename = "both_viridis.png", bg = "transparent")
+
+```
+
+
+```{r}
+# Create map for Both
+both_bg <- plot_usmap(data = cdc, values = "CHD", color = "transparent") +
+  scale_fill_continuous(low = "blue", high = "#007700", na.value = "lightgrey",
+                        name = "CHD(%)", label = scales::comma,
+                        limits = c(min_CHD, max_CHD)) +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+both_bliteg <- plot_usmap(data = cdc, values = "CHD", color = "transparent") +
+  scale_fill_continuous(low = "blue", high = "green", na.value = "lightgrey",
+                        name = "CHD(%)", label = scales::comma,
+                        limits = c(min_CHD, max_CHD)) +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+# Create map for Rural areas
+rural_viridis <- plot_usmap(data = cdc, values = "CHD", color = "transparent") +
+  scale_fill_viridis_c(name = "CHD(%)", label = scales::comma, option = "viridis", direction = -1,
+                       na.value = "lightgrey") +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+rural_cividis <- plot_usmap(data = cdc_rural, values = "CHD", color = "transparent") +
+  scale_fill_viridis_c(name = "CHD(%)", label = scales::comma, option = "cividis",
+                       na.value = "lightgrey") +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+rural_plasma <- plot_usmap(data = cdc_rural, values = "CHD", color = "transparent") +
+  scale_fill_viridis_c(name = "CHD(%)", label = scales::comma, option = "plasma",
+                       na.value = "lightgrey") +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+rural_inferno <- plot_usmap(data = cdc_rural, values = "CHD", color = "transparent") +
+  scale_fill_viridis_c(name = "CHD(%)", label = scales::comma, option = "inferno",
+                       na.value = "lightgrey") +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+grid_viridi <- grid.arrange(rural_inferno, rural_plasma, rural_cividis, rural_viridis)
+grid_blugrn <- grid.arrange(both_bg, both_bliteg)
+
+grid_viridi
+grid_blugrn
+
+ggsave(rural_viridis, filename = "grid_viridi.png", bg = "transparent")
+ggsave(grid_blugrn, filename = "grid_blugrn.png", bg = "transparent")
+
+```
+
+
+```{r}
+
+# Calculate the mean CHD for each UrbanRural category
+cdc_summary <- cdc %>%
+  group_by(UrbanRural) %>%
+  summarise(CHD = mean(CHD))
+
+# Calculate the average CHD for non-rural categories
+avg_non_rural <- cdc %>%
+  filter(UrbanRural != "Rural") %>%
+  summarise(CHD = mean(CHD)) %>%
+  pull(CHD)
+
+ggplot(data = cdc_summary, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_hline(yintercept = avg_non_rural, linetype = "dashed", color = "red", size = 1) +
+  geom_line(data = data.frame(UrbanRural = unique(cdc_summary$UrbanRural), CHD = avg_non_rural),
+            aes(color = "Average Non-Rural"), linetype = "dashed") +
+  scale_color_manual(name = "", values = "red") +
+  scale_fill_viridis_d(option = "plasma") +  # Use viridis scale for fill
+  scale_y_continuous(limits = c(0, 9.5)) +
+  labs(x = "Urban or Rural Area", 
+       y = "Prevalence of Coronary Heart Disease", 
+       fill = "Area Type",
+       title = "Prevalence of Coronary Heart Disease in Urban and Rural Areas") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(hjust = 0.5))
+
+
+```
+
+```{r}
+# Calculate the average CHD prevalence by state and UrbanRural level
+chd_prevalence_by_state_and_urbanrural <- cdc %>%
+  group_by(state, UrbanRural) %>%
+  summarise(average_CHD = mean(CHD, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(UrbanRural = recode(UrbanRural, 
+                             "Large_Urban" = "Urban-Lg",
+                             "LargeFringe_Urban" = "Urban-Lg Fringe",
+                             "MediumSmall_Urban" = "Urban-Med,Sm",
+                             "Rural" = "Rural"),
+        state = fct_rev(state))
+
+# Reorder the levels of UrbanRural
+chd_prevalence_by_state_and_urbanrural <- chd_prevalence_by_state_and_urbanrural %>%
+  mutate(UrbanRural = factor(UrbanRural, levels = c("Urban-Lg", "Urban-Lg Fringe", "Urban-Med,Sm", "Rural")))
+
+# Generate a heatmap
+ggplot(chd_prevalence_by_state_and_urbanrural, aes(y = state, x = UrbanRural, fill = average_CHD)) +
+  geom_tile() +
+  scale_fill_viridis_c(option = "inferno", direction = -1, name = "Avg Prevalence") +  # Use viridis plasma scale for fill
+  labs(y = "State", x = "Urban/Rural Level") +
+  theme(axis.text.x = element_text(angle = 0),
+        panel.background = element_rect(fill = "white"), # Change background to white
+        panel.grid.major.y = element_blank(), # Remove horizontal grid lines
+        panel.grid.minor.y = element_blank(), # Remove horizontal grid lines
+        legend.position = "none") # Remove legend
+```
+
+
+```{r}
+plot_usmap(data = cdc, values = "CHD", color = "transparent") +
+  scale_fill_viridis_c(name = "CHD(%)", label = scales::comma, option = "inferno",
+                       na.value = "lightgrey") +
+  theme(legend.position = c(0.925, 0.10),
+        legend.text = element_text(color = "white"),
+        legend.title = element_text(color = "white"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA))
+
+
+```
+
