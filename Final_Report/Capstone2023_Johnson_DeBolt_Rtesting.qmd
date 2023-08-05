@@ -353,7 +353,7 @@ avg_non_rural <- cdc %>%
 
 colors <- c("Large_Urban" = "blue", "LargeFringe_Urban" = "dodgerblue", "MediumSmall_Urban" = "cyan", "Rural" = "green")
 
-ggplot(data = cdc_summary, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
+four_bar <- ggplot(data = cdc_summary, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)) +
   geom_bar(stat = "identity", position = "dodge") +
   geom_hline(yintercept = avg_non_rural, linetype = "dashed", color = "red", size = 1) +
   geom_line(data = data.frame(UrbanRural = unique(cdc_summary$UrbanRural), CHD = avg_non_rural),
@@ -368,6 +368,8 @@ ggplot(data = cdc_summary, aes(x = `UrbanRural`, y = `CHD`, fill = `UrbanRural`)
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         plot.title = element_text(hjust = 0.5))
+
+ggsave(four_bar, filename = "four_bar.png", width = 8, height = 6)
 
 ```
 
@@ -451,7 +453,7 @@ combined_prevalence <- rbind(
 combined_prevalence$label <- paste(combined_prevalence$county, combined_prevalence$state, sep = ", ")
 
 # Create the plot
-ggplot(combined_prevalence, aes(x = reorder(label, CHD), y = CHD, fill = fill)) +
+hi_lo <- ggplot(combined_prevalence, aes(x = reorder(label, CHD), y = CHD, fill = fill)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = sprintf("%.1f%%", CHD)), hjust = 1.2, size = 3) +
   coord_flip() +
@@ -468,6 +470,8 @@ ggplot(combined_prevalence, aes(x = reorder(label, CHD), y = CHD, fill = fill)) 
     legend.position = "bottom"
   ) +
   ggtitle("Top and Bottom 5 Counties by CHD Prevalence (%)")
+
+ggsave(hi_lo, filename = "hi_lo.png", width = 8, height = 5)
 
 ```
 
@@ -560,12 +564,14 @@ cdc_long <- cdc %>%
                names_to = "Variable", values_to = "Value")
 
 # Create a single plot with multiple panels
-ggplot(cdc_long, aes(x = CHD, fill = UrbanRural)) +
+mountain <- ggplot(cdc_long, aes(x = CHD, fill = UrbanRural)) +
   geom_density(alpha = 0.5) +
   facet_wrap(~ Variable, scales = "free") +
   labs(x = "Coronary Heart Disease Prevalence", y = "Density") +
   theme_minimal() +
   scale_fill_manual(values = colors)
+
+ggsave(mountain, filename = "mountain.png", width = 8, height = 5)
 
 ```
 
@@ -596,6 +602,7 @@ geom_smooth(method = lm)
 Deep dive into the top predictors of coronary heart disease (`CHD`), `Stroke`, high blood pressure (`HighBP`), and high cholesterol (`HighChol`):  
 
 - In terms of coronary heart disease, high blood pressure, high cholesterol, stroke, and age over 65 we found significant correlation as well as some difference in urban and rural. 
+
 ##USE THIS ONE
 ```{r}
 # Select relevant columns
@@ -621,7 +628,40 @@ s1 <- ggplot(cdc_long, aes(x = Age65Plus, y = Value, color = UrbanRural)) +
 # Print the plot
 print(s1)
 
+ggsave(s1, filename = "s1.png", width = 8, height = 5)
+
 ```
+
+
+##USE THIS ONE
+```{r}
+# Select relevant columns
+cdc2 <- cdc %>% select(Smoker, CHD, HighBP, HighChol, Stroke, UrbanRural)
+
+# Recode UrbanRural
+cdc2$UrbanRural <- ifelse(cdc$UrbanRural %in% c("Large_Urban", "LargeFringe_Urban", "MediumSmall_Urban"), "Urban", "Rural")
+
+# Reshape data from wide to long format
+cdc_long <- cdc2 %>%
+  pivot_longer(cols = c(CHD, HighBP, HighChol, Stroke), 
+               names_to = "Variable", values_to = "Value")
+
+# Create a single plot with multiple panels
+s2 <- ggplot(cdc_long, aes(x = Smoker, y = Value, color = UrbanRural)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth(method = "lm", se = FALSE, aes(group = UrbanRural)) +
+  facet_wrap(~ Variable, scales = "free_y") +
+  scale_color_manual(values = c("Rural" = "green", "Urban" = "blue")) +
+  labs(x = "Smoker", y = "Value", color = "Urban/Rural") +
+  theme_minimal()
+
+# Print the plot
+print(s1)
+
+ggsave(s2, filename = "s2.png", width = 8, height = 5)
+
+```
+
 
 - With these findings we decided to take a more quantifiable look at the data. This led us to the use of machine learning methods, which we go into more detail next.
 
