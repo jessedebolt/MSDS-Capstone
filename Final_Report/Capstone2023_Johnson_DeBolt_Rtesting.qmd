@@ -459,7 +459,7 @@ hi_lo <- ggplot(combined_prevalence, aes(x = reorder(label, CHD), y = CHD, fill 
   coord_flip() +
   facet_grid(group ~ ., scales = "free", space = "free") +
   scale_fill_manual(values = c("Urban" = "#6495ED", "Rural" = "green"), name = "Area") +
-  labs(y = "CHD Prevalence") +
+  labs(x = "CHD Prevalence") +
   theme_minimal() +
   theme(
     axis.title.x = element_blank(),
